@@ -1,0 +1,38 @@
+name: LetterQuest
+options:
+  bundleIdPrefix: com.letterquest
+  deploymentTarget:
+    iOS: "17.0"
+  defaultConfig: Debug
+
+packages:
+  RxSwift:
+    url: https://github.com/ReactiveX/RxSwift
+    from: 6.7.1
+
+targets:
+  LetterQuest:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - LetterQuest
+    dependencies:
+      - package: RxSwift
+        product: RxSwift
+      - package: RxSwift
+        product: RxCocoa
+      - package: RxSwift
+        product: RxRelay
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.letterquest.app
+        DEVELOPMENT_TEAM: ""
+        TARGETED_DEVICE_FAMILY: "2"
+        SUPPORTS_MACCATALYST: "NO"
+        INFOPLIST_FILE: LetterQuest/Resources/Info.plist
+        SWIFT_VERSION: "5.9"
+
+configs:
+  Debug: debug
+  Release: release
