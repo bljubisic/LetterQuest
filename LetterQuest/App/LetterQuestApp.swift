@@ -1,12 +1,30 @@
 import SwiftUI
 
+/// Application entry point.
+///
+/// Constructs the shared service layer once and passes dependencies down to each
+/// screen via constructor injection. No singletons or service locators are used.
+///
+/// **Dependency graph:**
+/// ```
+/// AppRouter  ──────────────────────────┐
+/// LetterRepository ────────────────────┤─► HomeViewModel     ─► HomeView
+/// ProgressRepository ─────────────────┘
+///
+/// AppRouter  ──────────────────────────┐
+/// LetterRepository ────────────────────┤─► PracticeViewModel ─► PracticeView
+/// ProgressRepository ──────────────────┤
+/// HandwritingAssessor ─────────────────┘
+/// ```
 @main
 struct LetterQuestApp: App {
 
-    private let router             = AppRouter()
-    private let letterRepository   = LetterRepository()
-    private let progressRepository = ProgressRepository()
-    private let assessor           = HandwritingAssessor()
+    @StateObject private var router = AppRouter()
+
+    // Shared service instances — one per app lifetime.
+    private let letterRepository:   LetterRepositoryProtocol   = LetterRepository()
+    private let progressRepository: ProgressRepositoryProtocol = ProgressRepository()
+    private let assessor:           HandwritingAssessing        = HandwritingAssessor()
 
     var body: some Scene {
         WindowGroup {
@@ -20,6 +38,11 @@ struct LetterQuestApp: App {
         }
     }
 
+    // MARK: - Route → destination mapping
+
+    /// Maps each `AppRoute` case to its corresponding view.
+    ///
+    /// New screens should be added here alongside their route case in `AppRoute`.
     @ViewBuilder
     private func destination(for route: AppRoute) -> some View {
         switch route {
@@ -28,26 +51,29 @@ struct LetterQuestApp: App {
 
         case .practice(let letterId):
             PracticeView(viewModel: PracticeViewModel(
-                letterId: letterId,
-                letterRepository: letterRepository,
+                letterId:           letterId,
+                letterRepository:   letterRepository,
                 progressRepository: progressRepository,
-                assessor: assessor,
-                router: router
+                assessor:           assessor,
+                router:             router
             ))
 
         case .progress:
             Text("Progress — coming soon")
+                .font(.largeTitle)
 
-        case .celebration(let score, _):
+        case .celebration(_, _):
             CelebrationView(onContinue: router.popToRoot)
         }
     }
 
+    // MARK: - Factory helpers
+
     private func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(
-            letterRepository: letterRepository,
+            letterRepository:   letterRepository,
             progressRepository: progressRepository,
-            router: router
+            router:             router
         )
     }
 }

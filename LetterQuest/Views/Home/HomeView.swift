@@ -1,8 +1,12 @@
 import SwiftUI
 
-struct HomeView: View {
+/// The root screen — a scrollable grid of all letters with per-letter progress badges.
+///
+/// Generic over `VM: HomeViewModelProtocol` so that the same view works with the real
+/// `HomeViewModel` in production and with a lightweight mock during Xcode previews or tests.
+struct HomeView<VM: HomeViewModelProtocol>: View {
 
-    @ObservedObject var viewModel: HomeViewModel
+    @ObservedObject var viewModel: VM
 
     private let columns = [GridItem(.adaptive(minimum: 130), spacing: 16)]
 
@@ -11,9 +15,9 @@ struct HomeView: View {
             LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(viewModel.letters) { letter in
                     LetterCard(
-                        letter: letter,
+                        letter:   letter,
                         progress: viewModel.progressMap[letter.id],
-                        onTap: { viewModel.selectLetter(letter) }
+                        onTap:    { viewModel.selectLetter(letter) }
                     )
                 }
             }
@@ -22,8 +26,7 @@ struct HomeView: View {
         .navigationTitle("Letter Quest ✏️")
         .overlay {
             if viewModel.isLoading {
-                ProgressView()
-                    .scaleEffect(1.5)
+                ProgressView().scaleEffect(1.5)
             }
         }
         .onAppear { viewModel.load() }
@@ -32,7 +35,8 @@ struct HomeView: View {
 
 // MARK: - Letter Card
 
-struct LetterCard: View {
+/// A single tappable tile showing the letter character and its practice progress.
+private struct LetterCard: View {
 
     let letter: Letter
     let progress: ChildProgress?
@@ -41,10 +45,12 @@ struct LetterCard: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 10) {
+                // Large character glyph
                 Text(String(letter.character))
                     .font(.system(size: 64, weight: .bold, design: .rounded))
                     .foregroundStyle(isUnlocked ? Color.accentColor : .gray)
 
+                // Progress indicator or status label
                 if let progress {
                     VStack(spacing: 4) {
                         ProgressView(value: Double(progress.bestScore), total: 100)
@@ -63,7 +69,7 @@ struct LetterCard: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(cardBackground)
+            .background(isUnlocked ? Color.white : Color.gray.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 20))
             .shadow(color: .black.opacity(isUnlocked ? 0.08 : 0), radius: 6, y: 3)
         }
@@ -71,11 +77,8 @@ struct LetterCard: View {
         .buttonStyle(.plain)
     }
 
+    /// Only "A" starts unlocked; the rest require the previous letter to be completed.
     private var isUnlocked: Bool {
         progress?.isUnlocked ?? (letter.character == "A")
-    }
-
-    private var cardBackground: some ShapeStyle {
-        isUnlocked ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color.gray.opacity(0.08))
     }
 }

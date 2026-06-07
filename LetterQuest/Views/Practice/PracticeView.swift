@@ -1,10 +1,51 @@
 import SwiftUI
 import PencilKit
 
-struct PracticeView: View {
+/// The main drawing screen where a child practices a single letter.
+///
+/// Generic over `VM: PracticeViewModelProtocol` so that the real `PracticeViewModel`
+/// and a preview/test mock are interchangeable without changing the view.
+///
+/// **Layout** (top → bottom):
+/// 1. Large letter glyph + instruction label
+/// 2. Drawing canvas with four guide lines (ascender, x-height, baseline, descender)
+/// 3. `ScorePanel` — animates in after each submission
+/// 4. Clear / Check action buttons
+@MainActor
+private final class StrokesStore: ObservableObject {
 
-    @ObservedObject var viewModel: PracticeViewModel
-    @State private var currentStrokes: [PKStroke] = []
+    /// Observed by the view to enable/disable the Check button.
+    /// Transitions empty ↔ non-empty are rare relative to per-stroke updates,
+    /// and are dispatched async so the publish never lands inside a view update.
+    @Published private(set) var hasStrokes = false
+
+    /// Not `@Published` — the array is read on demand by the Check button,
+    /// so updating it from a PencilKit delegate callback can never trigger a
+    /// SwiftUI re-render during an in-flight view update.
+    private(set) var strokes: [PKStroke] = []
+
+    func update(strokes: [PKStroke]) {
+        self.strokes = strokes
+        let nowHasStrokes = !strokes.isEmpty
+        guard nowHasStrokes != hasStrokes else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.hasStrokes = nowHasStrokes
+        }
+    }
+
+    func reset() {
+        strokes = []
+        guard hasStrokes else { return }
+        DispatchQueue.main.async { [weak self] in
+            self?.hasStrokes = false
+        }
+    }
+}
+
+struct PracticeView<VM: PracticeViewModelProtocol>: View {
+
+    @ObservedObject var viewModel: VM
+    @StateObject private var strokesStore = StrokesStore()
     @State private var shouldClearCanvas = false
 
     var body: some View {
@@ -13,7 +54,7 @@ struct PracticeView: View {
 
             VStack(spacing: 24) {
                 if let letter = viewModel.letter {
-                    letterHeader(letter)
+                    letterHeader(for: letter)
                 }
 
                 drawingArea
@@ -42,20 +83,23 @@ struct PracticeView: View {
 
     // MARK: - Subviews
 
-    private func letterHeader(_ letter: Letter) -> some View {
+    /// Shows the target letter large enough for children to refer to while drawing.
+    private func letterHeader(for letter: Letter) -> some View {
         VStack(spacing: 4) {
             Text(String(letter.character))
                 .font(.system(size: 110, weight: .bold, design: .rounded))
                 .foregroundStyle(.blue)
+
             Text("Draw the letter \(String(letter.character))")
                 .font(.title3)
                 .foregroundStyle(.secondary)
         }
     }
 
+    /// White rounded card containing the four guide lines and the PencilKit canvas.
     private var drawingArea: some View {
         GeometryReader { geo in
-            ZStack(alignment: .topLeading) {
+            ZStack {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.white)
                     .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
@@ -64,7 +108,7 @@ struct PracticeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 20))
 
                 CanvasView(shouldClear: $shouldClearCanvas) { strokes in
-                    currentStrokes = strokes
+                    strokesStore.update(strokes: strokes)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 20))
             }
@@ -74,10 +118,12 @@ struct PracticeView: View {
         .frame(height: 380)
     }
 
+    /// Clear and Check buttons.
     private var actionButtons: some View {
         HStack(spacing: 20) {
             Button {
                 shouldClearCanvas = true
+                strokesStore.reset()
                 viewModel.clear()
             } label: {
                 Label("Clear", systemImage: "arrow.counterclockwise")
@@ -86,19 +132,21 @@ struct PracticeView: View {
             .buttonStyle(.bordered)
 
             Button {
-                viewModel.submit(strokes: currentStrokes)
+                viewModel.submit(strokes: strokesStore.strokes)
             } label: {
                 Label("Check!", systemImage: "checkmark.circle.fill")
                     .font(.title3.bold())
             }
             .buttonStyle(.borderedProminent)
-            .disabled(currentStrokes.isEmpty || viewModel.isAssessing)
+            .disabled(!strokesStore.hasStrokes || viewModel.isAssessing)
         }
     }
 
+    /// Shown while `HandwritingAssessor` is working on a background thread.
     private var assessingOverlay: some View {
         ZStack {
             Color.black.opacity(0.25).ignoresSafeArea()
+
             VStack(spacing: 16) {
                 ProgressView().scaleEffect(1.5).tint(.white)
                 Text("Checking your letter…")
@@ -113,7 +161,16 @@ struct PracticeView: View {
 
 // MARK: - Guide Lines
 
+/// Four horizontal rules drawn with `Canvas` to avoid creating layout views for each line.
+///
+/// | Line colour | Purpose                        | Position  |
+/// |-------------|--------------------------------|-----------|
+/// | Blue dashed | Ascender                       | 20 % down |
+/// | Blue solid  | x-height                       | 45 % down |
+/// | Red solid   | Baseline                       | 70 % down |
+/// | Blue dashed | Descender                      | 85 % down |
 private struct GuideLines: View {
+
     let size: CGSize
 
     var body: some View {
@@ -131,90 +188,5 @@ private struct GuideLines: View {
         path.move(to: CGPoint(x: 0, y: y))
         path.addLine(to: CGPoint(x: width, y: y))
         ctx.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: 1, dash: dashed ? [8, 5] : []))
-    }
-}
-
-// MARK: - Score Panel
-
-struct ScorePanel: View {
-    let result: AssessmentResult
-
-    private let metrics: [(label: String, score: Int)] = []
-
-    var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 12) {
-                ScorePill(label: "Stroke", score: result.strokeOrderScore)
-                ScorePill(label: "Shape",  score: result.shapeScore)
-                ScorePill(label: "Size",   score: result.proportionScore)
-                ScorePill(label: "Smooth", score: result.smoothnessScore)
-            }
-
-            if let item = result.feedback.first {
-                Text(item.message)
-                    .font(.body)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal)
-            }
-        }
-        .padding()
-        .background(Color(uiColor: .systemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-struct ScorePill: View {
-    let label: String
-    let score: Int
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(label)
-                .font(.caption2.bold())
-                .foregroundStyle(.secondary)
-            Text("\(score)")
-                .font(.title2.bold())
-                .foregroundStyle(color)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var color: Color {
-        score >= 75 ? .green : score >= 50 ? .orange : .red
-    }
-}
-
-// MARK: - Celebration
-
-struct CelebrationView: View {
-    let onContinue: () -> Void
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.4).ignoresSafeArea()
-
-            VStack(spacing: 28) {
-                Text("⭐")
-                    .font(.system(size: 80))
-
-                VStack(spacing: 8) {
-                    Text("Amazing!")
-                        .font(.largeTitle.bold())
-                        .foregroundStyle(.white)
-                    Text("You nailed that letter!")
-                        .font(.title3)
-                        .foregroundStyle(.white.opacity(0.85))
-                }
-
-                Button("Next Letter →", action: onContinue)
-                    .buttonStyle(.borderedProminent)
-                    .font(.title2.bold())
-                    .controlSize(.large)
-            }
-            .padding(40)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28))
-        }
     }
 }

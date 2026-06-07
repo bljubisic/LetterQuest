@@ -1,6 +1,13 @@
 import Foundation
 import RxSwift
 
+/// In-memory implementation of `LetterRepositoryProtocol`.
+///
+/// The letter catalogue is the static `Letter.alphabet` array, seeded at compile
+/// time. No network or disk I/O takes place; the `Single` completes synchronously.
+///
+/// To add a new letter or modify an existing one, update `Letter.alphabet` and
+/// `StrokeTemplate.templates(for:)` in `Models/`.
 final class LetterRepository: LetterRepositoryProtocol {
 
     func fetchAll() -> Single<[Letter]> {
