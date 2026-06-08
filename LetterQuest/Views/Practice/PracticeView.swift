@@ -107,6 +107,15 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
                 GuideLines(size: geo.size)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
 
+                if let letter = viewModel.letter {
+                    StrokeGuideOverlay(
+                        templates: letter.strokeTemplates,
+                        canvasSize: geo.size,
+                        character: letter.character
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                }
+
                 CanvasView(shouldClear: $shouldClearCanvas) { strokes in
                     strokesStore.update(strokes: strokes)
                 }

@@ -83,6 +83,12 @@ extension StrokeTemplate {
                 StrokeTemplate(id: UUID(), strokeIndex: 1, points: shortHorizontalTop, direction: .leftToRight),
                 StrokeTemplate(id: UUID(), strokeIndex: 2, points: shortHorizontalMid, direction: .leftToRight)
             ]
+        case "G":
+            return [
+                StrokeTemplate(id: UUID(), strokeIndex: 0, points: openCurveLeft, direction: .curved),
+                StrokeTemplate(id: UUID(), strokeIndex: 1, points: shortHorizontalNotQuiteMid, direction: .leftToRight),
+                StrokeTemplate(id: UUID(), strokeIndex: 2, points: shortVerticalNotQuiteMid, direction: .topToBottom)
+            ]
         case "I":
             return [
                 StrokeTemplate(id: UUID(), strokeIndex: 0, points: verticalStroke, direction: .topToBottom)
@@ -103,8 +109,8 @@ extension StrokeTemplate {
             ]
         case "V":
             return [
-                StrokeTemplate(id: UUID(), strokeIndex: 0, points: diagonalDownRight, direction: .diagonal(angle: 45)),
-                StrokeTemplate(id: UUID(), strokeIndex: 1, points: diagonalUpRight,   direction: .diagonal(angle: -45))
+                StrokeTemplate(id: UUID(), strokeIndex: 0, points: vLeftLeg,         direction: .diagonal(angle: 45)),
+                StrokeTemplate(id: UUID(), strokeIndex: 1, points: diagonalUpRight,  direction: .diagonal(angle: -45))
             ]
         default:
             return [
@@ -142,7 +148,7 @@ private extension StrokeTemplate {
     static let crossbar: [CGPoint] = stride(from: 0.2, through: 0.8, by: 0.1)
         .map { CGPoint(x: $0, y: 0.5) }
 
-    /// Diagonal from top-centre down to bottom-right (used for left leg of "A", right leg of "V").
+    /// Diagonal from top-centre down to bottom-right (used for left leg of "A").
     static let diagonalDownRight: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.1)
         .map { t in CGPoint(x: 0.5 + t * 0.5, y: t) }
 
@@ -150,7 +156,12 @@ private extension StrokeTemplate {
     static let diagonalDownLeft: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.1)
         .map { t in CGPoint(x: 0.5 - t * 0.5, y: t) }
 
-    /// Diagonal from bottom-left up to top-right (used for left leg of "V").
+    /// Left leg of "V": from top-left corner (0, 0) to bottom-centre (0.5, 1.0).
+    /// Both V legs share the same bottom point so the strokes converge correctly.
+    static let vLeftLeg: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.1)
+        .map { t in CGPoint(x: t * 0.5, y: t) }
+
+    /// Right leg of "V": from bottom-centre (0.5, 1.0) up to top-right corner (1.0, 0).
     static let diagonalUpRight: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.1)
         .map { t in CGPoint(x: 0.5 + t * 0.5, y: 1.0 - t) }
 
@@ -161,7 +172,13 @@ private extension StrokeTemplate {
     /// An open arc (≈ 216°) opening to the right, used for "C".
     static let openCurveLeft: [CGPoint] = stride(from: -0.6 * .pi, through: 0.6 * .pi, by: .pi / 10)
         .map { angle in CGPoint(x: 0.5 + 0.45 * cos(angle + .pi), y: 0.5 + 0.45 * sin(angle)) }
-
+    
+    static let shortHorizontalNotQuiteMid: [CGPoint] = stride(from: 0.0, through: 0.7, by: 0.1)
+        .map{t in CGPoint(x: -t + 0.45 * cos(0.6 * .pi), y: 0.5 + 0.45 * sin(0.6 * .pi)) }
+        
+    static let shortVerticalNotQuiteMid: [CGPoint] = stride(from: 0.0, through: 0.7, by: 0.1)
+        .map{t in CGPoint(x: 0.5 + 0.45 * cos(0.6 + .pi), y: -t + 0.45 * sin(0.6 * .pi)) }
+    
     /// Two bumps stacked vertically, used for the curved stroke of "B".
     static let doubleBump: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.05)
         .map { t -> CGPoint in

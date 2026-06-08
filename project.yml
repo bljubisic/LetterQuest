@@ -33,6 +33,21 @@ targets:
         INFOPLIST_FILE: LetterQuest/Resources/Info.plist
         SWIFT_VERSION: "5.9"
 
+  LetterQuestTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - LetterQuestTests
+    dependencies:
+      - target: LetterQuest
+      - package: RxSwift
+        product: RxBlocking
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: "YES"
+
 configs:
   Debug: debug
   Release: release
