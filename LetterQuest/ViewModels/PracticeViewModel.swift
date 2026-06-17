@@ -42,10 +42,16 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     /// Holds the proportion-checker guide lines; updated once the canvas size is known.
     private var guidelines: ProportionChecker.Guidelines = .forCanvas(size: CGSize(width: 600, height: 400))
 
+    /// The next letter in sequence, populated after a passing score so that
+    /// `continueToNext()` can navigate straight to it. `nil` until the child
+    /// passes (or when the current letter is the final one, "Z").
+    private var nextLetterId: UUID?
+
     // MARK: - Private Rx
 
     private let submitRelay = PublishRelay<[PKStroke]>()
     private let assessor: HandwritingAssessing
+    private let letterRepository: LetterRepositoryProtocol
     private let progressRepository: ProgressRepositoryProtocol
     private let router: AppRouter
     private let disposeBag = DisposeBag()
@@ -66,6 +72,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         router: AppRouter
     ) {
         self.assessor           = assessor
+        self.letterRepository   = letterRepository
         self.progressRepository = progressRepository
         self.router             = router
 
@@ -85,9 +92,20 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         assessmentResult = nil
     }
 
-    /// Navigates back to the home screen.
+    /// Advances to the next letter when one was unlocked by the most recent
+    /// pass. Falls back to popping to the home screen when there's no next
+    /// letter (e.g. after passing "Z").
+    ///
+    /// Uses `router.replaceStack(with:)` so the navigation transition is
+    /// atomic — no flash through the home screen and the previous
+    /// `PracticeView` (with its canvas state) is fully torn down before the
+    /// next one mounts.
     func continueToNext() {
-        router.popToRoot()
+        guard let nextLetterId else {
+            router.popToRoot()
+            return
+        }
+        router.replaceStack(with: .practice(letterId: nextLetterId))
     }
 
     /// Recalculates proportion-checker guide lines when the real canvas size is available.
@@ -135,7 +153,8 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             .disposed(by: disposeBag)
     }
 
-    /// Persists the result via lenses and triggers the celebration if the child passed.
+    /// Persists the result via lenses, unlocks the next letter when the
+    /// child passes, and triggers the celebration once both saves complete.
     private func handle(result: AssessmentResult) {
         isAssessing  = false
         assessmentResult = result
@@ -143,7 +162,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
 
         guard let letter else { return }
 
-        progressRepository.loadAll()
+        let saveCurrent = progressRepository.loadAll()
             .map { all -> ChildProgress in
                 // Either update the existing record or create a fresh one.
                 let existing = all.first { $0.letterId == letter.id }
@@ -160,9 +179,46 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             .flatMapCompletable { [weak self] updated in
                 self?.progressRepository.save(updated) ?? .empty()
             }
+
+        let unlockNext: Completable = result.passed
+            ? unlockNextLetter(after: letter.id)
+            : .empty()
+
+        saveCurrent
+            .andThen(unlockNext)
+            .observe(on: MainScheduler.instance)
             .subscribe(onCompleted: { [weak self] in
                 if result.passed { self?.showCelebration = true }
             })
             .disposed(by: disposeBag)
+    }
+
+    /// Looks up the letter that follows `currentId`, ensures its persisted
+    /// progress has `isUnlocked = true`, and remembers the id so the
+    /// celebration's continue button can jump straight to it.
+    ///
+    /// Returns a no-op `Completable` when the current letter is the final one
+    /// (`fetchNext` returns `nil`), so the caller can chain unconditionally.
+    private func unlockNextLetter(after currentId: UUID) -> Completable {
+        letterRepository.fetchNext(after: currentId)
+            .flatMapCompletable { [weak self] next -> Completable in
+                guard let self, let next else { return .empty() }
+                return self.progressRepository.loadAll()
+                    .map { all -> ChildProgress in
+                        let existing = all.first { $0.letterId == next.id }
+                            ?? ChildProgress(
+                                letterId:    next.id,
+                                attempts:    [],
+                                bestScore:   0,
+                                isUnlocked:  false,
+                                isCompleted: false
+                            )
+                        return ChildProgress.lensIsUnlocked.set(existing, true)
+                    }
+                    .flatMapCompletable { self.progressRepository.save($0) }
+                    .do(onCompleted: { [weak self] in
+                        self?.nextLetterId = next.id
+                    })
+            }
     }
 }

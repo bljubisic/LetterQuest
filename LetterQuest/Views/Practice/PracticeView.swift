@@ -83,12 +83,12 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
 
     // MARK: - Subviews
 
-    /// Shows the target letter large enough for children to refer to while drawing.
+    /// Shows the target letter as an animated stroke demonstration. Tapping
+    /// replays the animation; it also auto-plays whenever the letter changes.
     private func letterHeader(for letter: Letter) -> some View {
         VStack(spacing: 4) {
-            Text(String(letter.character))
-                .font(.system(size: 110, weight: .bold, design: .rounded))
-                .foregroundStyle(.blue)
+            LetterStrokeAnimation(letter: letter)
+                .id(letter.id)
 
             Text("Draw the letter \(String(letter.character))")
                 .font(.title3)
@@ -120,8 +120,19 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
                     strokesStore.update(strokes: strokes)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 20))
+                // Force a brand-new `PKCanvasView` whenever the target letter
+                // changes. Without this, SwiftUI's view diffing can match the
+                // `UIViewRepresentable` by type+position and keep the previous
+                // letter's drawing around — even when the enclosing
+                // `PracticeView` is itself a fresh instance.
+                .id(viewModel.letter?.id)
             }
-            .onAppear { viewModel.updateGuidelines(canvasSize: geo.size) }
+            .onChange(of: viewModel.letter?.id) { _, _ in
+                strokesStore.reset()
+            }
+            .onAppear {
+                viewModel.updateGuidelines(canvasSize: geo.size)
+            }
         }
         .frame(maxWidth: .infinity)
         .frame(height: 380)

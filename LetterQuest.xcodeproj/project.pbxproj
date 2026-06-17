@@ -46,6 +46,7 @@
 		D75B85120991EE10E96CDB62 /* ChildProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752BF22F42303DB5B0B3E3EC /* ChildProgressTests.swift */; };
 		DBA9637684908B7582D19E16 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98BF851C9FF32F003C10E72 /* AppRoute.swift */; };
 		DEA4A439E1B101A18CA093EA /* HomeViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472F368E430B8FBD7DBFFB17 /* HomeViewModelProtocol.swift */; };
+		E45B53132FD7930A0001BCCA /* LetterStrokeAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B53122FD7930A0001BCCA /* LetterStrokeAnimation.swift */; };
 		E46D41396A93EC38E024807B /* AssessmentResultProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C78CA288CDEB2509B07416 /* AssessmentResultProtocol.swift */; };
 		EDA3268A3A774B91C8271567 /* ProgressRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7182F2B3AA59CB95B9C2508 /* ProgressRepository.swift */; };
 /* End PBXBuildFile section */
@@ -69,7 +70,7 @@
 		43BB3FCB9A449A7D44A8263F /* ChildProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProgress.swift; sourceTree = "<group>"; };
 		45B31FB8EC4D43AB1A4554C2 /* ChildProgressProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProgressProtocol.swift; sourceTree = "<group>"; };
 		472F368E430B8FBD7DBFFB17 /* HomeViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelProtocol.swift; sourceTree = "<group>"; };
-		49E23D18EA65BEF858EE505B /* LetterQuestTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LetterQuestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		49E23D18EA65BEF858EE505B /* LetterQuestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LetterQuestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C2EFDE1845BA0B2B0E41EC5 /* LetterProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterProtocol.swift; sourceTree = "<group>"; };
 		5CA37342FDEA2AAD5B4C02A3 /* LetterQuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterQuestApp.swift; sourceTree = "<group>"; };
 		685D4E578FB8085B5FE88783 /* LetterQuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LetterQuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -97,6 +98,7 @@
 		C310E3DEE06E8EEA6A2C88FF /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D7182F2B3AA59CB95B9C2508 /* ProgressRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRepository.swift; sourceTree = "<group>"; };
 		DEEEC5A6C57222A50AC1E976 /* StrokeTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeTemplate.swift; sourceTree = "<group>"; };
+		E45B53122FD7930A0001BCCA /* LetterStrokeAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterStrokeAnimation.swift; sourceTree = "<group>"; };
 		E98BF851C9FF32F003C10E72 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		EC139D409E559F5D9F63BEB0 /* LetterRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterRepositoryProtocol.swift; sourceTree = "<group>"; };
 		F11F1ADFC6B274B1C32921F0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 				9DC64F796C8A96655E9040C8 /* CanvasView.swift */,
 				361739AB30540BC15E7C4DAB /* PracticeView.swift */,
 				6B07C0281738EE4E807EC98C /* StrokeGuideOverlay.swift */,
+				E45B53122FD7930A0001BCCA /* LetterStrokeAnimation.swift */,
 			);
 			path = Practice;
 			sourceTree = "<group>";
@@ -446,6 +449,7 @@
 				C071C4B9FB90BDE9AA8FFF7D /* ShapeAnalyzer.swift in Sources */,
 				C8528D90E1001EF541C7A78C /* SmoothnessAnalyzer.swift in Sources */,
 				1DD78C33A7C8D8414719AFE7 /* StrokeGuideOverlay.swift in Sources */,
+				E45B53132FD7930A0001BCCA /* LetterStrokeAnimation.swift in Sources */,
 				79CBA484961EFEC361FFACEA /* StrokeTemplate.swift in Sources */,
 				B5851D2B3EAC1AFA277C53E1 /* StrokeTemplateProtocol.swift in Sources */,
 			);
@@ -469,6 +473,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = ENT89NLKC9;
 				INFOPLIST_FILE = LetterQuest/Resources/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -550,6 +555,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = ENT89NLKC9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -572,6 +578,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = ENT89NLKC9;
 				INFOPLIST_FILE = LetterQuest/Resources/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -646,6 +653,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = ENT89NLKC9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
