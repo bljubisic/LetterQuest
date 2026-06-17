@@ -57,6 +57,9 @@ struct LetterQuestApp: App {
                 assessor:           assessor,
                 router:             router
             ))
+            // Force a fully fresh view tree (including the PencilKit canvas)
+            // when navigating from one letter to another.
+            .id(letterId)
 
         case .progress:
             Text("Progress — coming soon")

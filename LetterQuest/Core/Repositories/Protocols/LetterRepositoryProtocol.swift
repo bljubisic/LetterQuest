@@ -17,4 +17,14 @@ protocol LetterRepositoryProtocol {
     /// - Parameter id: The stable `UUID` of the target letter.
     /// - Returns: A `Single` emitting an optional `Letter`.
     func fetch(by id: UUID) -> Single<Letter?>
+
+    /// Returns the letter immediately following `id` in the alphabet sequence,
+    /// or `nil` when `id` is the final letter (or not found).
+    ///
+    /// Used by `PracticeViewModel` to drive sequential unlock + auto-advance
+    /// after a passing score.
+    ///
+    /// - Parameter id: The stable `UUID` of the current letter.
+    /// - Returns: A `Single` emitting an optional next `Letter`.
+    func fetchNext(after id: UUID) -> Single<Letter?>
 }

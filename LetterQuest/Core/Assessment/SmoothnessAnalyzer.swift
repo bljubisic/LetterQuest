@@ -5,15 +5,37 @@ import PencilKit
 /// Measures how smooth and controlled the drawn strokes are.
 ///
 /// Two signals contribute to each stroke's score:
-/// - **Jitter** (60 %): The variance of turning angles along the path.
-///   A perfectly smooth curve has near-zero variance; a shaky stroke has high variance.
+/// - **Jitter** (60 %): The standard deviation of turning angles along an
+///   arc-length-resampled path. A perfectly smooth curve has near-zero spread;
+///   a shaky stroke has a high one.
 /// - **Speed consistency** (40 %): The coefficient of variation (σ/μ) of the
-///   instantaneous speed at each stroke point.
-///   A controlled stroke is drawn at roughly constant speed; hesitation produces
-///   a high coefficient.
+///   instantaneous speed at each stroke point, after trimming the
+///   touch-down / lift-off transients that always look "non-uniform".
+///
+/// The constants are tuned for **finger** input on iPhone, which is noisier
+/// and lower-rate than Apple Pencil.
 ///
 /// The final score is the mean over all strokes.
 final class SmoothnessAnalyzer {
+
+    // MARK: - Tuning constants (calibrated for finger input)
+
+    /// Minimum spacing in points between resampled path vertices.
+    /// Filters out micro-jitter from the dense PencilKit sample stream.
+    private static let resampleSpacing: CGFloat = 6.0
+
+    /// Multiplier applied to the turning-angle standard deviation (in degrees).
+    /// Smaller = more lenient. ×1.5 gives ~75/100 for a typical finger stroke.
+    private static let jitterPenalty: Double = 1.5
+
+    /// Fraction of speed samples trimmed from the start and end of each stroke.
+    /// Children naturally start and end strokes slowly; trimming these
+    /// transients prevents that natural curve from tanking the CV.
+    private static let speedTrimFraction: Double = 0.15
+
+    /// Multiplier applied to the trimmed-speed coefficient of variation.
+    /// ×20 gives ~90/100 for a steady finger stroke (CV ≈ 0.5).
+    private static let speedPenalty: Double = 20.0
 
     // MARK: - Public interface
 
@@ -35,27 +57,27 @@ final class SmoothnessAnalyzer {
 
     // MARK: - Jitter
 
-    /// Computes the turning-angle variance along the stroke path.
+    /// Computes the turning-angle spread along the stroke path, after
+    /// arc-length resampling so micro-jitter between dense samples doesn't
+    /// dominate the result.
     ///
-    /// A straight line has a variance of 0; a zigzag path has a high variance.
-    /// The score decays exponentially as variance increases, with a factor of 10.
+    /// A straight line has spread ≈ 0; a zigzag path has a large one.
     private func jitterScore(_ stroke: PKStroke) -> Double {
-        guard stroke.path.count >= 3 else { return 100 }
+        let points = resampledPoints(of: stroke, spacing: Self.resampleSpacing)
+        guard points.count >= 3 else { return 100 }
 
-        let angles: [Double] = (1..<stroke.path.count - 1).map { i in
-            angleBetween(
-                stroke.path[i - 1].location,
-                stroke.path[i].location,
-                stroke.path[i + 1].location
-            )
+        let angles: [Double] = (1..<points.count - 1).map { i in
+            angleBetween(points[i - 1], points[i], points[i + 1])
         }
 
-        return max(0, 100 - angles.variance() * 10)
+        let spread = sqrt(angles.variance())   // standard deviation, in degrees
+        return max(0, 100 - spread * Self.jitterPenalty)
     }
 
     // MARK: - Speed consistency
 
-    /// Computes the coefficient of variation of the instantaneous speed at each point.
+    /// Computes the coefficient of variation of instantaneous speed, with the
+    /// natural touch-down and lift-off transients trimmed from each end.
     ///
     /// Speed is derived from the spatial distance between consecutive points
     /// divided by the PencilKit `timeOffset` delta.
@@ -71,8 +93,35 @@ final class SmoothnessAnalyzer {
             return prev.location.distance(to: curr.location) / dt
         }
 
-        guard !speeds.isEmpty else { return 100 }
-        return max(0, 100 - speeds.coefficientOfVariation() * 50)
+        let trimmed = trimEnds(speeds, fraction: Self.speedTrimFraction)
+        guard !trimmed.isEmpty else { return 100 }
+        return max(0, 100 - trimmed.coefficientOfVariation() * Self.speedPenalty)
+    }
+
+    // MARK: - Resampling
+
+    /// Walks the stroke path keeping only points at least `spacing` apart, so
+    /// the turning-angle calculation sees the macro shape rather than dense,
+    /// noisy raw samples (especially important for finger input).
+    private func resampledPoints(of stroke: PKStroke, spacing: CGFloat) -> [CGPoint] {
+        guard stroke.path.count > 0 else { return [] }
+
+        var result: [CGPoint] = [stroke.path[0].location]
+        for i in 1..<stroke.path.count {
+            let pt = stroke.path[i].location
+            if pt.distance(to: result.last!) >= spacing {
+                result.append(pt)
+            }
+        }
+        return result
+    }
+
+    /// Drops the first and last `fraction` of the array — used to remove the
+    /// touch-down / lift-off speed transients that exist in every stroke.
+    private func trimEnds(_ values: [Double], fraction: Double) -> [Double] {
+        guard values.count > 4 else { return values }
+        let n = Int(Double(values.count) * fraction)
+        return Array(values.dropFirst(n).dropLast(n))
     }
 
     // MARK: - Geometry

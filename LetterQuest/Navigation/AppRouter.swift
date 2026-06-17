@@ -49,4 +49,14 @@ final class AppRouter: ObservableObject {
     func popToRoot() {
         path = NavigationPath()
     }
+
+    /// Replaces the entire navigation stack with a single route in one synchronous
+    /// step. Use this when advancing between sibling screens (e.g. letter A's
+    /// practice → letter B's practice) so the stack doesn't briefly flash an
+    /// empty home screen, and the previous view is fully torn down.
+    func replaceStack(with route: AppRoute) {
+        var newPath = NavigationPath()
+        newPath.append(route)
+        path = newPath
+    }
 }

@@ -17,4 +17,12 @@ final class LetterRepository: LetterRepositoryProtocol {
     func fetch(by id: UUID) -> Single<Letter?> {
         .just(Letter.alphabet.first { $0.id == id })
     }
+
+    func fetchNext(after id: UUID) -> Single<Letter?> {
+        guard let index = Letter.alphabet.firstIndex(where: { $0.id == id }),
+              index + 1 < Letter.alphabet.count else {
+            return .just(nil)
+        }
+        return .just(Letter.alphabet[index + 1])
+    }
 }

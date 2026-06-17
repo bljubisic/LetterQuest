@@ -83,9 +83,10 @@ final class ProportionChecker {
     }
 
     /// Checks that the letter height matches the expected class:
+    /// - **Uppercase** (A–Z): baseline → ascender line (cap height)
     /// - **Ascenders** (b d f h k l t): baseline → ascender line
     /// - **Descenders** (g j p q y): ascender line → descender line
-    /// - **Regular** (all others): baseline → x-height line
+    /// - **Regular lowercase** (all others): baseline → x-height line
     private func scoreHeight(_ bounds: CGRect, character: Character, guidelines: Guidelines) -> Double {
         let expectedHeight: CGFloat
         switch character {
@@ -94,7 +95,9 @@ final class ProportionChecker {
         case "g", "j", "p", "q", "y":
             expectedHeight = guidelines.descenderY - guidelines.ascenderY
         default:
-            expectedHeight = guidelines.baselineY - guidelines.xHeightY
+            expectedHeight = character.isUppercase
+                ? guidelines.baselineY - guidelines.ascenderY
+                : guidelines.baselineY - guidelines.xHeightY
         }
 
         guard expectedHeight > 0 else { return 100 }
