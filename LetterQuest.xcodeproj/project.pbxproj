@@ -48,6 +48,11 @@
 		D75B85120991EE10E96CDB62 /* ChildProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752BF22F42303DB5B0B3E3EC /* ChildProgressTests.swift */; };
 		DBA9637684908B7582D19E16 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98BF851C9FF32F003C10E72 /* AppRoute.swift */; };
 		DEA4A439E1B101A18CA093EA /* HomeViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472F368E430B8FBD7DBFFB17 /* HomeViewModelProtocol.swift */; };
+		E45B53152FE5ACC20001BCCA /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B53142FE5ACC20001BCCA /* TestHelpers.swift */; };
+		E45B53172FE5ACD90001BCCA /* ShapeAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B53162FE5ACD90001BCCA /* ShapeAnalyzerTests.swift */; };
+		E45B53192FE5ACF80001BCCA /* ProportionCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B53182FE5ACF80001BCCA /* ProportionCheckerTests.swift */; };
+		E45B531B2FE5AD110001BCCA /* SmoothnessAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B531A2FE5AD110001BCCA /* SmoothnessAnalyzerTests.swift */; };
+		E45B531D2FE5AD320001BCCA /* HandwritingAssessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E45B531C2FE5AD320001BCCA /* HandwritingAssessorTests.swift */; };
 		E46D41396A93EC38E024807B /* AssessmentResultProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90C78CA288CDEB2509B07416 /* AssessmentResultProtocol.swift */; };
 		EDA3268A3A774B91C8271567 /* ProgressRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7182F2B3AA59CB95B9C2508 /* ProgressRepository.swift */; };
 /* End PBXBuildFile section */
@@ -72,7 +77,7 @@
 		43BB3FCB9A449A7D44A8263F /* ChildProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProgress.swift; sourceTree = "<group>"; };
 		45B31FB8EC4D43AB1A4554C2 /* ChildProgressProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProgressProtocol.swift; sourceTree = "<group>"; };
 		472F368E430B8FBD7DBFFB17 /* HomeViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelProtocol.swift; sourceTree = "<group>"; };
-		49E23D18EA65BEF858EE505B /* LetterQuestTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LetterQuestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		49E23D18EA65BEF858EE505B /* LetterQuestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LetterQuestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C2EFDE1845BA0B2B0E41EC5 /* LetterProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterProtocol.swift; sourceTree = "<group>"; };
 		5CA37342FDEA2AAD5B4C02A3 /* LetterQuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterQuestApp.swift; sourceTree = "<group>"; };
 		685D4E578FB8085B5FE88783 /* LetterQuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LetterQuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,6 +105,11 @@
 		C310E3DEE06E8EEA6A2C88FF /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D7182F2B3AA59CB95B9C2508 /* ProgressRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRepository.swift; sourceTree = "<group>"; };
 		DEEEC5A6C57222A50AC1E976 /* StrokeTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeTemplate.swift; sourceTree = "<group>"; };
+		E45B53142FE5ACC20001BCCA /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
+		E45B53162FE5ACD90001BCCA /* ShapeAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeAnalyzerTests.swift; sourceTree = "<group>"; };
+		E45B53182FE5ACF80001BCCA /* ProportionCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProportionCheckerTests.swift; sourceTree = "<group>"; };
+		E45B531A2FE5AD110001BCCA /* SmoothnessAnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothnessAnalyzerTests.swift; sourceTree = "<group>"; };
+		E45B531C2FE5AD320001BCCA /* HandwritingAssessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandwritingAssessorTests.swift; sourceTree = "<group>"; };
 		E4D2B069F46666734EE1FADA /* LetterStrokeAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterStrokeAnimation.swift; sourceTree = "<group>"; };
 		E98BF851C9FF32F003C10E72 /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		EC139D409E559F5D9F63BEB0 /* LetterRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -175,6 +185,11 @@
 				F83C9544FC3E28466658DAEC /* LensTests.swift */,
 				112736289D485C88F57BBBFC /* LetterRepositoryTests.swift */,
 				7A51E5DBF2E37C929565785F /* StrokeTemplateTests.swift */,
+				E45B53142FE5ACC20001BCCA /* TestHelpers.swift */,
+				E45B53162FE5ACD90001BCCA /* ShapeAnalyzerTests.swift */,
+				E45B53182FE5ACF80001BCCA /* ProportionCheckerTests.swift */,
+				E45B531A2FE5AD110001BCCA /* SmoothnessAnalyzerTests.swift */,
+				E45B531C2FE5AD320001BCCA /* HandwritingAssessorTests.swift */,
 			);
 			path = LetterQuestTests;
 			sourceTree = "<group>";
@@ -424,9 +439,14 @@
 			files = (
 				D75B85120991EE10E96CDB62 /* ChildProgressTests.swift in Sources */,
 				95355797DCF9EA8A155451AC /* DTWMatcherTests.swift in Sources */,
+				E45B53172FE5ACD90001BCCA /* ShapeAnalyzerTests.swift in Sources */,
+				E45B53192FE5ACF80001BCCA /* ProportionCheckerTests.swift in Sources */,
+				E45B531D2FE5AD320001BCCA /* HandwritingAssessorTests.swift in Sources */,
+				E45B531B2FE5AD110001BCCA /* SmoothnessAnalyzerTests.swift in Sources */,
 				2D469449D00D8D85BE73A3AC /* LensTests.swift in Sources */,
 				0C89D7CA2F337159AA5E0543 /* LetterRepositoryTests.swift in Sources */,
 				7962FDB7D15A0D0451DB8DA8 /* StrokeTemplateTests.swift in Sources */,
+				E45B53152FE5ACC20001BCCA /* TestHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,6 +589,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = ENT89NLKC9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -665,6 +686,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = ENT89NLKC9;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
