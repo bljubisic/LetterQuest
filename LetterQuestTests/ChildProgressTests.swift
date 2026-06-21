@@ -212,7 +212,8 @@ struct ProgressRepositoryTests {
 
     @Test("loadAll returns an empty array when no progress has been saved")
     func loadAllInitiallyEmpty() throws {
-        let all = try repository.loadAll().toBlocking().single()
+        let repo = repository
+        let all = try repo.loadAll().toBlocking().single()
         #expect(all.isEmpty)
     }
 
