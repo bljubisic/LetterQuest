@@ -15,6 +15,11 @@ enum AppRoute: Hashable {
     /// The child's overall progress/achievements screen.
     case progress
 
+    /// The animated "Watch me draw" demonstration screen shown before practice.
+    ///
+    /// - Parameter letterId: The letter whose strokes will be demonstrated.
+    case learn(letterId: UUID)
+
     /// A full-screen celebration shown after passing a letter.
     ///
     /// - Parameters:

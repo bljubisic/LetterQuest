@@ -12,6 +12,9 @@ import SwiftUI
 /// ProgressRepository ─────────────────┘
 ///
 /// AppRouter  ──────────────────────────┐
+/// LetterRepository ────────────────────┘─► LearnViewModel    ─► LearnView
+///
+/// AppRouter  ──────────────────────────┐
 /// LetterRepository ────────────────────┤─► PracticeViewModel ─► PracticeView
 /// ProgressRepository ──────────────────┤
 /// HandwritingAssessor ─────────────────┘
@@ -59,6 +62,14 @@ struct LetterQuestApp: App {
             ))
             // Force a fully fresh view tree (including the PencilKit canvas)
             // when navigating from one letter to another.
+            .id(letterId)
+
+        case .learn(let letterId):
+            LearnView(viewModel: LearnViewModel(
+                letterId:         letterId,
+                letterRepository: letterRepository,
+                router:           router
+            ))
             .id(letterId)
 
         case .progress:
