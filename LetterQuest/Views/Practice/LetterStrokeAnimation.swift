@@ -17,6 +17,10 @@ struct LetterStrokeAnimation: View {
 
     let letter: Letter
 
+    /// Overall bounding square of the component. Defaults to the compact size
+    /// used in `PracticeView`'s header; pass a larger value for `LearnView`.
+    var size: CGFloat = 110
+
     /// One progress value (0…1) per stroke, animated independently.
     @State private var progresses: [CGFloat] = []
 
@@ -25,11 +29,11 @@ struct LetterStrokeAnimation: View {
 
     // MARK: - Tuning
 
-    private static let glyphSide: CGFloat       = 110     // outer header size
-    private static let strokeAreaSide: CGFloat  = 90      // strokes' square
     private static let strokeWidth: CGFloat     = 7
     private static let strokeDuration: Double   = 0.9     // per-stroke draw
     private static let interStrokePause: Double = 0.30    // gap between strokes
+
+    private var strokeAreaSide: CGFloat { size * (90.0 / 110.0) }
 
     var body: some View {
         ZStack {
@@ -61,8 +65,8 @@ struct LetterStrokeAnimation: View {
                     )
             }
         }
-        .frame(width: Self.strokeAreaSide, height: Self.strokeAreaSide)
-        .padding(.vertical, (Self.glyphSide - Self.strokeAreaSide) / 2)
+        .frame(width: strokeAreaSide, height: strokeAreaSide)
+        .padding(.vertical, (size - strokeAreaSide) / 2)
         .contentShape(Rectangle())
         .onTapGesture { Task { await play() } }
         .onAppear { Task { await play() } }

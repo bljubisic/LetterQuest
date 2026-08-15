@@ -53,9 +53,10 @@ final class HomeViewModel: HomeViewModelProtocol {
         loadTrigger.accept(())
     }
 
-    /// Pushes the practice route for the tapped letter onto the navigation stack.
+    /// Pushes the "Watch me draw" learn route for the tapped letter,
+    /// so the child sees a stroke demonstration before practice begins.
     func selectLetter(_ letter: Letter) {
-        router.push(.practice(letterId: letter.id))
+        router.push(.learn(letterId: letter.id))
     }
 
     // MARK: - Rx pipeline
