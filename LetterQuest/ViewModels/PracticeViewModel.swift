@@ -53,6 +53,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     private let assessor: HandwritingAssessing
     private let letterRepository: LetterRepositoryProtocol
     private let progressRepository: ProgressRepositoryProtocol
+    private let soundService: SoundServiceProtocol
     private let router: AppRouter
     private let disposeBag = DisposeBag()
 
@@ -63,17 +64,20 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     ///   - letterRepository: Fetches the full `Letter` model.
     ///   - progressRepository: Persists and retrieves practice history.
     ///   - assessor: Runs the four-signal scoring pipeline.
+    ///   - soundService: Plays audio feedback cues after each assessment.
     ///   - router: Navigation coordinator shared across the app.
     init(
         letterId: UUID,
         letterRepository: LetterRepositoryProtocol,
         progressRepository: ProgressRepositoryProtocol,
         assessor: HandwritingAssessing,
+        soundService: SoundServiceProtocol,
         router: AppRouter
     ) {
         self.assessor           = assessor
         self.letterRepository   = letterRepository
         self.progressRepository = progressRepository
+        self.soundService       = soundService
         self.router             = router
 
         fetchLetter(letterId: letterId, from: letterRepository)
@@ -156,9 +160,11 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     /// Persists the result via lenses, unlocks the next letter when the
     /// child passes, and triggers the celebration once both saves complete.
     private func handle(result: AssessmentResult) {
-        isAssessing  = false
+        isAssessing      = false
         assessmentResult = result
         attemptCount    += 1
+
+        triggerSound(for: result)
 
         guard let letter else { return }
 
@@ -191,6 +197,17 @@ final class PracticeViewModel: PracticeViewModelProtocol {
                 if result.passed { self?.showCelebration = true }
             })
             .disposed(by: disposeBag)
+    }
+
+    private func triggerSound(for result: AssessmentResult) {
+        guard soundService.isSoundEnabled else { return }
+        if result.passed {
+            soundService.playSuccess()
+        } else if result.overallScore >= 50 {
+            soundService.playEncouragement()
+        } else {
+            soundService.playSoftError()
+        }
     }
 
     /// Looks up the letter that follows `currentId`, ensures its persisted
