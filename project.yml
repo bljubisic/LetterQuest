@@ -28,7 +28,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.letterquest.app
         DEVELOPMENT_TEAM: ""
-        TARGETED_DEVICE_FAMILY: "2"
+        TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: "NO"
         INFOPLIST_FILE: LetterQuest/Resources/Info.plist
         SWIFT_VERSION: "5.9"
