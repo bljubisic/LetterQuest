@@ -24,6 +24,15 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
             .padding()
         }
         .navigationTitle("Letter Quest ✏️")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.navigateToProgress()
+                } label: {
+                    Image(systemName: "chart.bar.fill")
+                }
+            }
+        }
         .overlay {
             if viewModel.isLoading {
                 ProgressView().scaleEffect(1.5)

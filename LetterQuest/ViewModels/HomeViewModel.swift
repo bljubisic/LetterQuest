@@ -60,6 +60,10 @@ final class HomeViewModel: HomeViewModelProtocol {
         router.push(.learn(letterId: letter.id))
     }
 
+    func navigateToProgress() {
+        router.push(.progress)
+    }
+
     // MARK: - Rx pipeline
 
     /// Wires the load trigger to a combined fetch of letters + progress.
