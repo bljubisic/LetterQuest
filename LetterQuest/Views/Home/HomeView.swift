@@ -25,6 +25,20 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
         }
         .navigationTitle("Letter Quest ✏️")
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Picker(
+                    "Letters",
+                    selection: Binding(
+                        get: { viewModel.selectedCase },
+                        set: { viewModel.selectCase($0) }
+                    )
+                ) {
+                    Text("ABC").tag(LetterCase.upper)
+                    Text("abc").tag(LetterCase.lower)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 150)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     viewModel.navigateToProgress()
@@ -86,7 +100,7 @@ private struct LetterCard: View {
         .buttonStyle(.plain)
     }
 
-    /// Only "A" starts unlocked; the rest require the previous letter to be completed.
+    /// Only uppercase "A" starts unlocked; lowercase letters require all uppercase to be completed.
     private var isUnlocked: Bool {
         progress?.isUnlocked ?? (letter.character == "A")
     }

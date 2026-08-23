@@ -2,25 +2,33 @@ import Foundation
 
 /// The contract that `ProgressScreen` depends on.
 ///
-/// Read-only — the progress screen has no navigation actions.
+/// Read-only apart from case selection — the progress screen shows per-letter
+/// data and allows switching between uppercase and lowercase views.
 protocol ProgressViewModelProtocol: ObservableObject {
 
-    /// All 26 letters in alphabetical order.
+    /// Letters for the currently selected case, in alphabetical order.
     var letters: [Letter] { get }
 
     /// Maps each letter's `id` to its progress record.
     /// Absent entries mean the letter has never been attempted.
     var progressMap: [UUID: ChildProgress] { get }
 
-    /// How many letters the child has passed at least once.
+    /// How many letters in the selected case the child has passed at least once.
     var completedCount: Int { get }
 
-    /// Always 26 — the full alphabet size.
+    /// Always 26 — the size of each case's alphabet.
     var totalCount: Int { get }
 
-    /// The three achievement badges, including unearned ones (`isEarned == false`).
+    /// Achievement badges based on uppercase completion.
+    /// Includes unearned badges (`isEarned == false`).
     var badges: [AchievementBadge] { get }
 
     /// `true` while the repositories are fetching data.
     var isLoading: Bool { get }
+
+    /// Whether the screen is showing uppercase or lowercase progress.
+    var selectedCase: LetterCase { get }
+
+    /// Switches the progress list between uppercase and lowercase letters.
+    func selectCase(_ letterCase: LetterCase)
 }

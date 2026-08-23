@@ -195,8 +195,13 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             ? unlockNextLetter(after: letter.id)
             : .empty()
 
+        let unlockLowercase: Completable = result.passed
+            ? unlockLowercaseIfEligible(after: letter)
+            : .empty()
+
         saveCurrent
             .andThen(unlockNext)
+            .andThen(unlockLowercase)
             .observe(on: MainScheduler.instance)
             .subscribe(onCompleted: { [weak self] in
                 if result.passed { self?.showCelebration = true }
@@ -223,6 +228,43 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             hapticsService.playEncouragement()
         } else {
             hapticsService.playSoftError()
+        }
+    }
+
+    /// When the child passes the final uppercase letter and all 26 uppercase letters
+    /// are now completed, unlocks all 26 lowercase letters at once.
+    ///
+    /// Returns a no-op `Completable` when the condition is not met.
+    private func unlockLowercaseIfEligible(after letter: Letter) -> Completable {
+        guard letter.letterCase == .upper else { return .empty() }
+        return Observable.zip(
+            letterRepository.fetchAll().asObservable(),
+            progressRepository.loadAll().asObservable()
+        )
+        .take(1)
+        .asSingle()
+        .flatMapCompletable { [weak self] (allLetters: [Letter], allProgress: [ChildProgress]) -> Completable in
+            guard let self else { return .empty() }
+            let uppercaseLetters = allLetters.filter { $0.letterCase == .upper }
+            let completedIds = Set(allProgress.filter { $0.isCompleted }.map { $0.letterId })
+            guard uppercaseLetters.allSatisfy({ completedIds.contains($0.id) }) else {
+                return .empty()
+            }
+            let progressMap = Dictionary(uniqueKeysWithValues: allProgress.map { ($0.letterId, $0) })
+            let saves = allLetters
+                .filter { $0.letterCase == .lower }
+                .map { lowercase -> Completable in
+                    let existing = progressMap[lowercase.id]
+                        ?? ChildProgress(
+                            letterId:    lowercase.id,
+                            attempts:    [],
+                            bestScore:   0,
+                            isUnlocked:  false,
+                            isCompleted: false
+                        )
+                    return self.progressRepository.save(ChildProgress.lensIsUnlocked.set(existing, true))
+                }
+            return Completable.concat(saves)
         }
     }
 

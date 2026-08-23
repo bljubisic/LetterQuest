@@ -20,6 +20,22 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Progress")
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Picker(
+                    "Letters",
+                    selection: Binding(
+                        get: { viewModel.selectedCase },
+                        set: { viewModel.selectCase($0) }
+                    )
+                ) {
+                    Text("ABC").tag(LetterCase.upper)
+                    Text("abc").tag(LetterCase.lower)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 150)
+            }
+        }
         .overlay {
             if viewModel.isLoading {
                 SwiftUI.ProgressView()
@@ -202,6 +218,8 @@ private final class PreviewProgressViewModel: ProgressViewModelProtocol {
     let totalCount   = 26
     let isLoading    = false
     let completedCount = 3
+    let selectedCase: LetterCase = .upper
+    func selectCase(_ letterCase: LetterCase) {}
     let progressMap: [UUID: ChildProgress] = {
         let completed = Letter.alphabet.prefix(3).map { letter in
             ChildProgress(

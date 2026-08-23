@@ -11,14 +11,21 @@ final class HomeViewModel: HomeViewModelProtocol {
 
     // MARK: - HomeViewModelProtocol outputs
 
-    /// All letters in alphabetical order.
-    @Published private(set) var letters: [Letter] = []
+    /// Letters filtered by `selectedCase`.
+    var letters: [Letter] { allLetters.filter { $0.letterCase == selectedCase } }
 
     /// Progress keyed by letter id; absent entries mean the letter was never attempted.
     @Published private(set) var progressMap: [UUID: ChildProgress] = [:]
 
     /// `true` while the combined repository fetch is in flight.
     @Published private(set) var isLoading = false
+
+    /// Whether the grid is showing uppercase or lowercase letters.
+    @Published private(set) var selectedCase: LetterCase = .upper
+
+    // MARK: - Private state
+
+    @Published private var allLetters: [Letter] = []
 
     // MARK: - Private Rx
 
@@ -64,6 +71,11 @@ final class HomeViewModel: HomeViewModelProtocol {
         router.push(.progress)
     }
 
+    /// Switches the letter grid between uppercase and lowercase.
+    func selectCase(_ letterCase: LetterCase) {
+        selectedCase = letterCase
+    }
+
     // MARK: - Rx pipeline
 
     /// Wires the load trigger to a combined fetch of letters + progress.
@@ -83,7 +95,7 @@ final class HomeViewModel: HomeViewModelProtocol {
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] letters, progress in
                 self?.isLoading   = false
-                self?.letters     = letters
+                self?.allLetters  = letters
                 self?.progressMap = Dictionary(uniqueKeysWithValues: progress.map { ($0.letterId, $0) })
             })
             .disposed(by: disposeBag)

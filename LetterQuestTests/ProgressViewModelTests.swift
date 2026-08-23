@@ -106,9 +106,22 @@ struct ProgressViewModelTests {
         #expect(vm.badges.allSatisfy { $0.isEarned })
     }
 
-    @Test("totalCount is always 26")
+    @Test("totalCount is always 26 (the size of each case's alphabet)")
     func totalCountIsAlways26() {
         let vm = makeVM(records: [])
         #expect(vm.totalCount == 26)
+    }
+
+    @Test("selectedCase defaults to uppercase")
+    func selectedCaseDefaultsToUppercase() {
+        let vm = makeVM(records: [])
+        #expect(vm.selectedCase == .upper)
+    }
+
+    @Test("selectCase switches to lowercase")
+    func selectCaseSwitchesToLowercase() {
+        let vm = makeVM(records: [])
+        vm.selectCase(.lower)
+        #expect(vm.selectedCase == .lower)
     }
 }
