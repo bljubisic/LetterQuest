@@ -26,4 +26,7 @@ protocol HomeViewModelProtocol: ObservableObject {
     ///
     /// - Parameter letter: The letter the child tapped on.
     func selectLetter(_ letter: Letter)
+
+    /// Navigates to the progress and achievements screen.
+    func navigateToProgress()
 }

@@ -86,8 +86,10 @@ struct LetterQuestApp: App {
             .id(letterId)
 
         case .progress:
-            Text("Progress — coming soon")
-                .font(.largeTitle)
+            ProgressScreen(viewModel: ProgressViewModel(
+                letterRepository:   letterRepository,
+                progressRepository: progressRepository
+            ))
 
         case .celebration(_, _):
             CelebrationView(onContinue: router.popToRoot)
