@@ -53,7 +53,8 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     private let assessor: HandwritingAssessing
     private let letterRepository: LetterRepositoryProtocol
     private let progressRepository: ProgressRepositoryProtocol
-    private let soundService: SoundServiceProtocol
+    private let soundService:   SoundServiceProtocol
+    private let hapticsService: HapticsServiceProtocol
     private let router: AppRouter
     private let disposeBag = DisposeBag()
 
@@ -65,6 +66,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     ///   - progressRepository: Persists and retrieves practice history.
     ///   - assessor: Runs the four-signal scoring pipeline.
     ///   - soundService: Plays audio feedback cues after each assessment.
+    ///   - hapticsService: Plays tactile feedback patterns after each assessment.
     ///   - router: Navigation coordinator shared across the app.
     init(
         letterId: UUID,
@@ -72,12 +74,14 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         progressRepository: ProgressRepositoryProtocol,
         assessor: HandwritingAssessing,
         soundService: SoundServiceProtocol,
+        hapticsService: HapticsServiceProtocol,
         router: AppRouter
     ) {
         self.assessor           = assessor
         self.letterRepository   = letterRepository
         self.progressRepository = progressRepository
         self.soundService       = soundService
+        self.hapticsService     = hapticsService
         self.router             = router
 
         fetchLetter(letterId: letterId, from: letterRepository)
@@ -165,6 +169,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         attemptCount    += 1
 
         triggerSound(for: result)
+        triggerHaptics(for: result)
 
         guard let letter else { return }
 
@@ -207,6 +212,17 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             soundService.playEncouragement()
         } else {
             soundService.playSoftError()
+        }
+    }
+
+    private func triggerHaptics(for result: AssessmentResult) {
+        guard hapticsService.isEnabled else { return }
+        if result.passed {
+            hapticsService.playSuccess()
+        } else if result.overallScore >= 50 {
+            hapticsService.playEncouragement()
+        } else {
+            hapticsService.playSoftError()
         }
     }
 

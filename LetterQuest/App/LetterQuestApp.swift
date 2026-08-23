@@ -29,6 +29,7 @@ struct LetterQuestApp: App {
     private let progressRepository: ProgressRepositoryProtocol = ProgressRepository()
     private let assessor:           HandwritingAssessing        = HandwritingAssessor()
     private let soundService:       SoundServiceProtocol       = SoundService()
+    private let hapticsService:     HapticsServiceProtocol     = HapticsService()
 
     var body: some Scene {
         WindowGroup {
@@ -60,6 +61,7 @@ struct LetterQuestApp: App {
                 progressRepository: progressRepository,
                 assessor:           assessor,
                 soundService:       soundService,
+                hapticsService:     hapticsService,
                 router:             router
             ))
             // Force a fully fresh view tree (including the PencilKit canvas)
