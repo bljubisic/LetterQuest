@@ -44,11 +44,12 @@ final class HomeViewModel: HomeViewModelProtocol {
         self.router             = router
 
         bindLoadTrigger()
+        load()
     }
 
     // MARK: - HomeViewModelProtocol inputs
 
-    /// Fires the load pipeline. Call from `HomeView.onAppear`.
+    /// Fires the load pipeline. Called automatically on init and again from `HomeView.onAppear` to refresh on return.
     func load() {
         loadTrigger.accept(())
     }
