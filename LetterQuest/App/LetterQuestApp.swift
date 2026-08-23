@@ -7,6 +7,8 @@ import SwiftUI
 ///
 /// **Dependency graph:**
 /// ```
+/// (UserDefaults) ───────────────────────► OnboardingViewModel ─► OnboardingView
+///
 /// AppRouter  ──────────────────────────┐
 /// LetterRepository ────────────────────┤─► HomeViewModel     ─► HomeView
 /// ProgressRepository ─────────────────┘
@@ -22,7 +24,8 @@ import SwiftUI
 @main
 struct LetterQuestApp: App {
 
-    @StateObject private var router = AppRouter()
+    @StateObject private var router             = AppRouter()
+    @StateObject private var onboardingViewModel = OnboardingViewModel()
 
     // Shared service instances — one per app lifetime.
     private let letterRepository:   LetterRepositoryProtocol   = LetterRepository()
@@ -40,6 +43,12 @@ struct LetterQuestApp: App {
                     }
             }
             .environmentObject(router)
+            .fullScreenCover(isPresented: Binding(
+                get: { onboardingViewModel.showOnboarding },
+                set: { _ in }
+            )) {
+                OnboardingView(viewModel: onboardingViewModel)
+            }
         }
     }
 
