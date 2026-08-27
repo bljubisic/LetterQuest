@@ -55,6 +55,129 @@ def circle_arc(cx, cy, r, a0, a1, steps=20):
 
 # ── Per-letter stroke definitions ─────────────────────────────────────────────
 
+def lowercase_letter_strokes():
+    # Body zone: y 0.20–0.85 (same physical scale as uppercase).
+    # Ascenders extend to y 0.05. Descenders reach y ~0.95.
+    return {
+        'a': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.22), (0.72, 0.85)),
+        ],
+        'b': [
+            line_pts((0.18, 0.05), (0.18, 0.85)),
+            elliptic_arc(0.18, 0.57, 0.62, 0.28, -pi/2, pi/2),
+        ],
+        'c': [
+            circle_arc(0.5, 0.50, 0.38, -pi/3, -5*pi/3),
+        ],
+        'd': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.05), (0.72, 0.85)),
+        ],
+        'e': [
+            line_pts((0.12, 0.50), (0.88, 0.50)),
+            circle_arc(0.5, 0.50, 0.38, 0, -5*pi/3),
+        ],
+        'f': [
+            (curve_through((0.62, 0.10), (0.28, 0.04), (0.40, 0.20)) +
+             line_pts((0.40, 0.20), (0.40, 0.85), 6)[1:]),
+            line_pts((0.18, 0.32), (0.64, 0.32)),
+        ],
+        'g': [
+            circle_arc(0.42, 0.50, 0.35, -pi/2, 3*pi/2),
+            (line_pts((0.77, 0.15), (0.77, 0.90), 6) +
+             curve_through((0.77, 0.90), (0.55, 0.97), (0.25, 0.92))[1:]),
+        ],
+        'h': [
+            line_pts((0.18, 0.05), (0.18, 0.85)),
+            (curve_through((0.18, 0.45), (0.50, 0.22), (0.80, 0.45)) +
+             line_pts((0.80, 0.45), (0.80, 0.85), 5)[1:]),
+        ],
+        'i': [
+            line_pts((0.5, 0.22), (0.5, 0.85)),
+            line_pts((0.44, 0.10), (0.56, 0.14), 3),
+        ],
+        'j': [
+            (line_pts((0.55, 0.22), (0.55, 0.90), 5) +
+             curve_through((0.55, 0.90), (0.38, 0.97), (0.22, 0.90))[1:]),
+            line_pts((0.49, 0.10), (0.61, 0.14), 3),
+        ],
+        'k': [
+            line_pts((0.18, 0.05), (0.18, 0.85)),
+            line_pts((0.80, 0.22), (0.18, 0.53)),
+            line_pts((0.18, 0.53), (0.80, 0.85)),
+        ],
+        'l': [
+            line_pts((0.5, 0.05), (0.5, 0.85)),
+        ],
+        'm': [
+            line_pts((0.08, 0.15), (0.08, 0.88)),
+            (curve_through((0.08, 0.44), (0.30, 0.15), (0.50, 0.44)) +
+             line_pts((0.50, 0.44), (0.50, 0.88), 4)[1:]),
+            (curve_through((0.50, 0.44), (0.72, 0.15), (0.92, 0.44)) +
+             line_pts((0.92, 0.44), (0.92, 0.88), 4)[1:]),
+        ],
+        'n': [
+            line_pts((0.18, 0.22), (0.18, 0.85)),
+            (curve_through((0.18, 0.47), (0.50, 0.22), (0.80, 0.47)) +
+             line_pts((0.80, 0.47), (0.80, 0.85), 5)[1:]),
+        ],
+        'o': [
+            circle_arc(0.5, 0.50, 0.38, -pi/2, 3*pi/2),
+        ],
+        'p': [
+            line_pts((0.18, 0.18), (0.18, 0.95)),
+            elliptic_arc(0.18, 0.52, 0.62, 0.30, -pi/2, pi/2),
+        ],
+        'q': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.22), (0.72, 0.95)),
+        ],
+        'r': [
+            line_pts((0.22, 0.22), (0.22, 0.85)),
+            curve_through((0.22, 0.42), (0.52, 0.22), (0.76, 0.38)),
+        ],
+        's': [
+            (curve_through((0.80, 0.15), (0.15, 0.35), (0.50, 0.52)) +
+             curve_through((0.50, 0.52), (0.85, 0.68), (0.20, 0.88))[1:]),
+        ],
+        't': [
+            line_pts((0.5, 0.05), (0.5, 0.85)),
+            line_pts((0.18, 0.30), (0.78, 0.30)),
+        ],
+        'u': [
+            (line_pts((0.12, 0.15), (0.12, 0.65), 4) +
+             curve_through((0.12, 0.65), (0.5, 0.92), (0.88, 0.65))[1:] +
+             line_pts((0.88, 0.65), (0.88, 0.15), 4)[1:]),
+        ],
+        'v': [
+            line_pts((0.12, 0.20), (0.5, 0.85)),
+            line_pts((0.5, 0.85), (0.88, 0.20)),
+        ],
+        'w': [
+            line_pts((0.05, 0.20), (0.27, 0.85)),
+            line_pts((0.27, 0.85), (0.50, 0.50)),
+            line_pts((0.50, 0.50), (0.73, 0.85)),
+            line_pts((0.73, 0.85), (0.95, 0.20)),
+        ],
+        'x': [
+            line_pts((0.12, 0.20), (0.88, 0.85)),
+            line_pts((0.88, 0.20), (0.12, 0.85)),
+        ],
+        'y': [
+            line_pts((0.12, 0.20), (0.52, 0.62)),
+            (line_pts((0.88, 0.20), (0.52, 0.62), 4) +
+             line_pts((0.52, 0.62), (0.52, 0.88), 3)[1:] +
+             curve_through((0.52, 0.88), (0.36, 0.97), (0.20, 0.90))[1:]),
+        ],
+        'z': [
+            line_pts((0.10, 0.12), (0.90, 0.12)),
+            line_pts((0.90, 0.12), (0.10, 0.88)),
+            line_pts((0.10, 0.88), (0.90, 0.88)),
+        ],
+    }
+
+
 def all_letter_strokes():
     return {
         'A': [
@@ -243,6 +366,19 @@ def write_json(path, obj):
         f.write('\n')
 
 
+def _write_imageset(xcassets: str, name: str, png: bytes) -> None:
+    imageset_dir = os.path.join(xcassets, f'{name}.imageset')
+    os.makedirs(imageset_dir, exist_ok=True)
+    with open(os.path.join(imageset_dir, f'{name}.png'), 'wb') as f:
+        f.write(png)
+    write_json(os.path.join(imageset_dir, 'Contents.json'), {
+        'images': [{'filename': f'{name}.png', 'idiom': 'universal', 'scale': '1x'}],
+        'info': {'author': 'xcode', 'version': 1},
+        'properties': {'template-rendering-intent': 'original'},
+    })
+    print(f'  {name}.png')
+
+
 def main():
     root = os.path.dirname(os.path.abspath(__file__))
     xcassets = os.path.join(root, 'LetterQuest', 'Assets.xcassets')
@@ -252,30 +388,24 @@ def main():
         'info': {'author': 'xcode', 'version': 1}
     })
 
-    strokes_by_letter = all_letter_strokes()
+    uppercase_strokes = all_letter_strokes()
+    lowercase_strokes = lowercase_letter_strokes()
 
+    # Uppercase: template_A … template_Z
     for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-        pixels = render_letter(strokes_by_letter[char], SIZE, MARGIN, STROKE_RADIUS)
+        pixels = render_letter(uppercase_strokes[char], SIZE, MARGIN, STROKE_RADIUS)
         png = encode_png(pixels, SIZE)
-
         name = f'template_{char}'
-        imageset_dir = os.path.join(xcassets, f'{name}.imageset')
-        os.makedirs(imageset_dir, exist_ok=True)
+        _write_imageset(xcassets, name, png)
 
-        with open(os.path.join(imageset_dir, f'{name}.png'), 'wb') as f:
-            f.write(png)
-
-        write_json(os.path.join(imageset_dir, 'Contents.json'), {
-            'images': [{
-                'filename': f'{name}.png',
-                'idiom': 'universal',
-                'scale': '1x',
-            }],
-            'info': {'author': 'xcode', 'version': 1},
-            'properties': {'template-rendering-intent': 'original'},
-        })
-
-        print(f'  {name}.png')
+    # Lowercase: template_lc_a … template_lc_z
+    # The "lc_" prefix avoids case-collision with uppercase on macOS HFS+/APFS.
+    # Letter.lowercaseAlphabet uses templateImageName = "template_lc_<char>".
+    for char in 'abcdefghijklmnopqrstuvwxyz':
+        pixels = render_letter(lowercase_strokes[char], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_lc_{char}'
+        _write_imageset(xcassets, name, png)
 
     print(f'\nAsset catalog written to:\n  {xcassets}')
 

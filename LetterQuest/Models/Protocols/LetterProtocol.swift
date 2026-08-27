@@ -31,4 +31,7 @@ protocol LetterProtocol {
 
     /// The decoded reference bitmap, or `nil` when the asset is missing.
     var templateImage: CGImage? { get }
+
+    /// Whether this letter belongs to the uppercase or lowercase set.
+    var letterCase: LetterCase { get }
 }

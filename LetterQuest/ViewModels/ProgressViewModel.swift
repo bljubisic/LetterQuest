@@ -3,18 +3,39 @@ import RxSwift
 
 /// Drives `ProgressScreen` by loading all letters and progress, then
 /// deriving the summary counts and achievement badges.
+///
+/// `selectedCase` controls which set (upper or lower) is shown in the letter
+/// list and reflected in `completedCount`. Achievement badges are always
+/// anchored to uppercase completion regardless of `selectedCase`.
 final class ProgressViewModel: ProgressViewModelProtocol {
 
     // MARK: - ProgressViewModelProtocol
 
-    @Published private(set) var letters:        [Letter]                = []
-    @Published private(set) var progressMap:    [UUID: ChildProgress]   = [:]
-    @Published private(set) var completedCount: Int                     = 0
-    @Published private(set) var badges:         [AchievementBadge]      = []
-    @Published private(set) var isLoading:      Bool                    = false
+    /// Letters for the currently selected case.
+    var letters: [Letter] { allLetters.filter { $0.letterCase == selectedCase } }
+
+    @Published private(set) var progressMap: [UUID: ChildProgress] = [:]
+    @Published private(set) var isLoading: Bool = false
+    @Published private(set) var selectedCase: LetterCase = .upper
+
     let totalCount = 26
 
+    /// Completions within the currently selected case.
+    var completedCount: Int {
+        letters.filter { progressMap[$0.id]?.isCompleted == true }.count
+    }
+
+    /// Badges are always based on uppercase progress, regardless of `selectedCase`.
+    var badges: [AchievementBadge] {
+        let uppercaseCompleted = allLetters
+            .filter { $0.letterCase == .upper && progressMap[$0.id]?.isCompleted == true }
+            .count
+        return Self.makeBadges(completedCount: uppercaseCompleted)
+    }
+
     // MARK: - Private
+
+    @Published private var allLetters: [Letter] = []
 
     private let letterRepository:   LetterRepositoryProtocol
     private let progressRepository: ProgressRepositoryProtocol
@@ -31,6 +52,12 @@ final class ProgressViewModel: ProgressViewModelProtocol {
         load()
     }
 
+    // MARK: - ProgressViewModelProtocol inputs
+
+    func selectCase(_ letterCase: LetterCase) {
+        selectedCase = letterCase
+    }
+
     // MARK: - Private helpers
 
     private func load() {
@@ -42,13 +69,9 @@ final class ProgressViewModel: ProgressViewModelProtocol {
         .observe(on: MainScheduler.instance)
         .subscribe(onNext: { [weak self] letters, progressList in
             guard let self else { return }
-            let map           = Dictionary(uniqueKeysWithValues: progressList.map { ($0.letterId, $0) })
-            let completed     = progressList.filter { $0.isCompleted }.count
-            self.isLoading    = false
-            self.letters      = letters
-            self.progressMap  = map
-            self.completedCount = completed
-            self.badges       = Self.makeBadges(completedCount: completed)
+            self.isLoading   = false
+            self.allLetters  = letters
+            self.progressMap = Dictionary(uniqueKeysWithValues: progressList.map { ($0.letterId, $0) })
         })
         .disposed(by: disposeBag)
     }

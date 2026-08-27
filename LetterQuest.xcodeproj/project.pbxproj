@@ -54,12 +54,14 @@
 		99D4F884375F9DA00A6EA5BF /* LetterRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC139D409E559F5D9F63BEB0 /* LetterRepositoryProtocol.swift */; };
 		9A6DAA17C670E5ED337829AF /* Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AA7BDFED2DF1B9EEECC31A /* Lens.swift */; };
 		9E26604338D5E624A16187CA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310E3DEE06E8EEA6A2C88FF /* HomeView.swift */; };
+		9EE7F7E824575E0235F329BC /* LetterCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404746555ACB7A87AACC3086 /* LetterCase.swift */; };
 		A1062EE2F9E582746EA828BC /* HapticsServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27552B2410B78FE5C0E6AA6 /* HapticsServiceProtocol.swift */; };
 		AC2864E30477318FBD6CD0B8 /* HandwritingAssessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 796BCAD52F4783AABB60AF24 /* HandwritingAssessor.swift */; };
 		B06EBF4172C52F5CE7FC8716 /* DTWMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A786F035A269449297E48A5 /* DTWMatcher.swift */; };
 		B503D649F7C98E7B0522FC5B /* ProgressViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA1C2FC6507233EE4ED1B0 /* ProgressViewModel.swift */; };
 		B5851D2B3EAC1AFA277C53E1 /* StrokeTemplateProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86470B0C6B5DE23562E745F9 /* StrokeTemplateProtocol.swift */; };
 		B99CA6F8B5A50C69997E1DF1 /* ProportionCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFB2B9A02B86A4BBC360410 /* ProportionCheckerTests.swift */; };
+		BF4D8EBBBA0597D718A4C240 /* LowercaseStrokeTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0162EBDB69F68A710DEA43CA /* LowercaseStrokeTemplateTests.swift */; };
 		C071C4B9FB90BDE9AA8FFF7D /* ShapeAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44760D62CCEA5B074DD5F27 /* ShapeAnalyzer.swift */; };
 		C4498613B4EBD8310305C333 /* HapticsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F64BD1CC9C7F96F03B29CA0C /* HapticsServiceTests.swift */; };
 		C69AFC2FCAF755586AC26092 /* ProgressRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F9FA7EEE93838BAB4AE6C1 /* ProgressRepositoryProtocol.swift */; };
@@ -91,6 +93,7 @@
 
 /* Begin PBXFileReference section */
 		006CA037E903B3D01C819D2F /* PracticeViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewModelProtocol.swift; sourceTree = "<group>"; };
+		0162EBDB69F68A710DEA43CA /* LowercaseStrokeTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LowercaseStrokeTemplateTests.swift; sourceTree = "<group>"; };
 		049E3D5B8AC3C8FA37329337 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0EFB2B9A02B86A4BBC360410 /* ProportionCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProportionCheckerTests.swift; sourceTree = "<group>"; };
 		112736289D485C88F57BBBFC /* LetterRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterRepositoryTests.swift; sourceTree = "<group>"; };
@@ -102,6 +105,7 @@
 		327CAFE405041E641922A92B /* HandwritingAssessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandwritingAssessorTests.swift; sourceTree = "<group>"; };
 		361739AB30540BC15E7C4DAB /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
 		37550DB2F2BB3148C5AC8205 /* sound_success.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sound_success.caf; sourceTree = "<group>"; };
+		404746555ACB7A87AACC3086 /* LetterCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterCase.swift; sourceTree = "<group>"; };
 		431C1629B5AE066AC25E0A59 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		43BB3FCB9A449A7D44A8263F /* ChildProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProgress.swift; sourceTree = "<group>"; };
 		45B31FB8EC4D43AB1A4554C2 /* ChildProgressProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProgressProtocol.swift; sourceTree = "<group>"; };
@@ -206,6 +210,7 @@
 				A1A593EAADE086878B90059F /* AssessmentResult.swift */,
 				43BB3FCB9A449A7D44A8263F /* ChildProgress.swift */,
 				992F1C3DAA66101352456843 /* Letter.swift */,
+				404746555ACB7A87AACC3086 /* LetterCase.swift */,
 				DEEEC5A6C57222A50AC1E976 /* StrokeTemplate.swift */,
 				E334C679D8564BB13D79AEF2 /* Protocols */,
 			);
@@ -276,6 +281,7 @@
 				9F8B8D90AABAE9EE61A7F0FD /* LearnViewModelTests.swift */,
 				F83C9544FC3E28466658DAEC /* LensTests.swift */,
 				112736289D485C88F57BBBFC /* LetterRepositoryTests.swift */,
+				0162EBDB69F68A710DEA43CA /* LowercaseStrokeTemplateTests.swift */,
 				58C0E48C0BF55AD046898C0D /* OnboardingViewModelTests.swift */,
 				28651D65138E71D9AC880FB4 /* ProgressViewModelTests.swift */,
 				0EFB2B9A02B86A4BBC360410 /* ProportionCheckerTests.swift */,
@@ -561,6 +567,7 @@
 				F1CF4683AD601C54D43C116D /* LearnViewModelTests.swift in Sources */,
 				2D469449D00D8D85BE73A3AC /* LensTests.swift in Sources */,
 				0C89D7CA2F337159AA5E0543 /* LetterRepositoryTests.swift in Sources */,
+				BF4D8EBBBA0597D718A4C240 /* LowercaseStrokeTemplateTests.swift in Sources */,
 				1E730A783A43E01BC163657C /* OnboardingViewModelTests.swift in Sources */,
 				605FE2295376EEED7F73F227 /* ProgressViewModelTests.swift in Sources */,
 				B99CA6F8B5A50C69997E1DF1 /* ProportionCheckerTests.swift in Sources */,
@@ -597,6 +604,7 @@
 				690EB36D1B9A0102586C3E8B /* LearnViewModelProtocol.swift in Sources */,
 				9A6DAA17C670E5ED337829AF /* Lens.swift in Sources */,
 				44DA0C98D55A561DA0B29E28 /* Letter.swift in Sources */,
+				9EE7F7E824575E0235F329BC /* LetterCase.swift in Sources */,
 				0A47B95BF53DAF2011672F01 /* LetterProtocol.swift in Sources */,
 				21F3D34CFA21BBB0EEA3549C /* LetterQuestApp.swift in Sources */,
 				15E17022F26E8CA865792648 /* LetterRepository.swift in Sources */,

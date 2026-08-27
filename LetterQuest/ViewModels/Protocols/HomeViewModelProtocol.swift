@@ -9,7 +9,7 @@ import Foundation
 /// ```
 protocol HomeViewModelProtocol: ObservableObject {
 
-    /// All letters in alphabetical order.
+    /// Letters filtered by the currently selected case.
     var letters: [Letter] { get }
 
     /// Maps each letter's `id` to its progress record.
@@ -18,6 +18,9 @@ protocol HomeViewModelProtocol: ObservableObject {
 
     /// `true` while the repositories are loading data.
     var isLoading: Bool { get }
+
+    /// Whether the grid is showing uppercase or lowercase letters.
+    var selectedCase: LetterCase { get }
 
     /// Triggers a (re-)load of letters and progress from the repositories.
     func load()
@@ -29,4 +32,9 @@ protocol HomeViewModelProtocol: ObservableObject {
 
     /// Navigates to the progress and achievements screen.
     func navigateToProgress()
+
+    /// Switches the grid between uppercase and lowercase letters.
+    ///
+    /// - Parameter letterCase: The case to display.
+    func selectCase(_ letterCase: LetterCase)
 }
