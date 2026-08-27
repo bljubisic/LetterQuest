@@ -122,6 +122,18 @@ extension StrokeTemplate {
         case "y": return yLowerDefinition
         case "z": return zLowerDefinition
 
+        // MARK: Digits
+        case "0": return zeroDefinition
+        case "1": return oneDefinition
+        case "2": return twoDefinition
+        case "3": return threeDefinition
+        case "4": return fourDefinition
+        case "5": return fiveDefinition
+        case "6": return sixDefinition
+        case "7": return sevenDefinition
+        case "8": return eightDefinition
+        case "9": return nineDefinition
+
         default:
             return [StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)),
                               direction: .topToBottom)]
@@ -626,6 +638,100 @@ extension StrokeTemplate {
                   direction: .diagonal(angle: -45)),
         StrokeDef(points: line(from: p(0.10, 0.88), to: p(0.90, 0.88)),
                   direction: .leftToRight)
+    ]
+
+    // MARK: - Digit definitions
+    //
+    // Digits occupy the same cap-height zone as uppercase letters (y: 0.05–0.95).
+    // All coordinate normalised to the 0–1 unit square, y growing downward.
+
+    /// 0 — full oval, clockwise from top.
+    private static let zeroDefinition: [StrokeDef] = [
+        StrokeDef(points: ellipticalArc(center: p(0.50, 0.50), rx: 0.40, ry: 0.45,
+                                        from: -.pi / 2, to: -.pi / 2 - 2 * .pi),
+                  direction: .curved)
+    ]
+
+    /// 1 — short serif diagonal + vertical stem.
+    private static let oneDefinition: [StrokeDef] = [
+        StrokeDef(points: line(from: p(0.28, 0.22), to: p(0.55, 0.05)),
+                  direction: .diagonal(angle: -45)),
+        StrokeDef(points: line(from: p(0.55, 0.05), to: p(0.55, 0.95)),
+                  direction: .topToBottom)
+    ]
+
+    /// 2 — curved top arc flowing into diagonal then horizontal base.
+    private static let twoDefinition: [StrokeDef] = [
+        StrokeDef(points:
+                    curveThrough(from: p(0.18, 0.28), peak: p(0.50, 0.05), to: p(0.82, 0.28))
+                  + curveThrough(from: p(0.82, 0.28), peak: p(0.42, 0.60), to: p(0.15, 0.95)).dropFirst()
+                  + line(from: p(0.15, 0.95), to: p(0.85, 0.95), steps: 4).dropFirst(),
+                  direction: .curved)
+    ]
+
+    /// 3 — two right-opening arcs joined at the midpoint.
+    private static let threeDefinition: [StrokeDef] = [
+        StrokeDef(points:
+                    curveThrough(from: p(0.18, 0.12), peak: p(0.78, 0.22), to: p(0.45, 0.50))
+                  + curveThrough(from: p(0.45, 0.50), peak: p(0.82, 0.72), to: p(0.18, 0.90)).dropFirst(),
+                  direction: .curved)
+    ]
+
+    /// 4 — diagonal arm + horizontal crossbar (stroke 1) + vertical stem (stroke 2).
+    private static let fourDefinition: [StrokeDef] = [
+        StrokeDef(points:
+                    line(from: p(0.72, 0.05), to: p(0.10, 0.65))
+                  + line(from: p(0.10, 0.65), to: p(0.90, 0.65), steps: 4).dropFirst(),
+                  direction: .curved),
+        StrokeDef(points: line(from: p(0.72, 0.05), to: p(0.72, 0.95)),
+                  direction: .topToBottom)
+    ]
+
+    /// 5 — horizontal bar + stem (stroke 1) + bottom bowl (stroke 2).
+    private static let fiveDefinition: [StrokeDef] = [
+        StrokeDef(points:
+                    line(from: p(0.78, 0.05), to: p(0.18, 0.05))
+                  + line(from: p(0.18, 0.05), to: p(0.18, 0.72), steps: 7).dropFirst(),
+                  direction: .topToBottom),
+        StrokeDef(points: ellipticalArc(center: p(0.50, 0.72), rx: 0.32, ry: 0.23,
+                                        from: .pi, to: 3 * .pi),
+                  direction: .curved)
+    ]
+
+    /// 6 — hooked descent from top-right into a closed oval.
+    private static let sixDefinition: [StrokeDef] = [
+        StrokeDef(points:
+                    curveThrough(from: p(0.70, 0.05), peak: p(0.18, 0.32), to: p(0.18, 0.68))
+                  + ellipticalArc(center: p(0.50, 0.68), rx: 0.32, ry: 0.27,
+                                   from: .pi, to: 3 * .pi).dropFirst(),
+                  direction: .curved)
+    ]
+
+    /// 7 — horizontal top bar flowing into a long diagonal down-left.
+    private static let sevenDefinition: [StrokeDef] = [
+        StrokeDef(points:
+                    line(from: p(0.15, 0.05), to: p(0.85, 0.05))
+                  + line(from: p(0.85, 0.05), to: p(0.28, 0.95), steps: 6).dropFirst(),
+                  direction: .topToBottom)
+    ]
+
+    /// 8 — upper oval counterclockwise (stroke 1) + lower oval clockwise (stroke 2).
+    private static let eightDefinition: [StrokeDef] = [
+        StrokeDef(points: ellipticalArc(center: p(0.50, 0.32), rx: 0.32, ry: 0.27,
+                                        from: .pi / 2, to: .pi / 2 + 2 * .pi),
+                  direction: .curved),
+        StrokeDef(points: ellipticalArc(center: p(0.50, 0.70), rx: 0.33, ry: 0.27,
+                                        from: -.pi / 2, to: -.pi / 2 + 2 * .pi),
+                  direction: .curved)
+    ]
+
+    /// 9 — closed oval (clockwise from right) + descending tail.
+    private static let nineDefinition: [StrokeDef] = [
+        StrokeDef(points:
+                    ellipticalArc(center: p(0.50, 0.34), rx: 0.32, ry: 0.29,
+                                   from: 0, to: 2 * .pi)
+                  + line(from: p(0.82, 0.34), to: p(0.82, 0.90), steps: 5).dropFirst(),
+                  direction: .curved)
     ]
 }
 

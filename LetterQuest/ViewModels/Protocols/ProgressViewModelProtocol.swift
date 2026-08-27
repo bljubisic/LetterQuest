@@ -16,10 +16,10 @@ protocol ProgressViewModelProtocol: ObservableObject {
     /// How many letters in the selected case the child has passed at least once.
     var completedCount: Int { get }
 
-    /// Always 26 — the size of each case's alphabet.
+    /// Number of items in the selected case (26 for letters, 10 for digits).
     var totalCount: Int { get }
 
-    /// Achievement badges based on uppercase completion.
+    /// Achievement badges for the currently selected case.
     /// Includes unearned badges (`isEarned == false`).
     var badges: [AchievementBadge] { get }
 
