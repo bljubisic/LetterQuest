@@ -39,11 +39,12 @@ final class ShapeAnalyzerOverlapTests: XCTestCase {
     func test_perpendicularStrokeAgainstVerticalTemplate_scoresLow() {
         // "I" template is vertical at x = 0.5. A horizontal stroke across the
         // middle has very little ink overlap once both are bounds-fit.
+        // With perfectIoU=0.60 this wrong shape should score well below 50.
         let letter = Letter.alphabet.first { $0.character == "I" }!
         let strokes = [makeLineStroke(from: CGPoint(x: 50, y: 200),
                                       to:   CGPoint(x: 350, y: 200))]
         let score = analyzer.score(strokes: strokes, for: letter)
-        XCTAssertLessThan(score, 60, "Perpendicular stroke should score low; got \(score)")
+        XCTAssertLessThan(score, 50, "Perpendicular stroke should score low; got \(score)")
     }
 
     func test_letterI_avoidsDegenerateZero() {
@@ -64,6 +65,26 @@ final class ShapeAnalyzerOverlapTests: XCTestCase {
         let right = analyzer.score(strokes: iTraced, for: iLetter)
         XCTAssertGreaterThan(right, wrong,
                              "Tracing should beat mis-match: right=\(right) wrong=\(wrong)")
+    }
+
+    func test_wrongLetter_scoresBelowPassThreshold() {
+        // Drawing 'O' when asked for 'I' should score < 60 with perfectIoU=0.60.
+        let oTemplates = Letter.alphabet.first { $0.character == "O" }!.strokeTemplates
+        let iLetter    = Letter.alphabet.first { $0.character == "I" }!
+        let oTraced    = makeStrokes(matching: oTemplates, in: canvasSize)
+        let score = analyzer.score(strokes: oTraced, for: iLetter)
+        XCTAssertLessThan(score, 60, "Wrong letter should score < 60; got \(score)")
+    }
+
+    func test_correctLetter_scoresAtLeast80() {
+        // Tracing any letter's own template should score ≥ 80 with perfectIoU=0.60.
+        for char: Character in ["A", "C", "O", "V"] {
+            let letter  = Letter.alphabet.first { $0.character == char }!
+            let strokes = makeStrokes(matching: letter.strokeTemplates, in: canvasSize)
+            let score   = analyzer.score(strokes: strokes, for: letter)
+            XCTAssertGreaterThanOrEqual(score, 80,
+                "\(char): tracing own template should score ≥ 80; got \(score)")
+        }
     }
 }
 

@@ -28,9 +28,15 @@ final class ShapeAnalyzer {
     private let strokeWidth: CGFloat = 10
 
     /// IoU value that maps to a perfect score of 100. Anything at or above
-    /// this threshold is treated as "great". Calibrated so a recognisably
-    /// correct letter scores in the 80–100 range rather than 30–50.
-    private let perfectIoU: Double = 0.30
+    /// this threshold is treated as "great".
+    ///
+    /// Both child drawing and reference template are rendered with identical
+    /// strokeWidth=10 via the same rasteriser, so a well-drawn letter typically
+    /// achieves IoU 0.55–0.75. Setting perfectIoU=0.60 means:
+    ///   • Correct drawing (IoU ≈ 0.65)  → ~100
+    ///   • Sloppy but recognisable (IoU ≈ 0.38) → ~63
+    ///   • Wrong shape entirely (IoU ≈ 0.12)    → ~20
+    private let perfectIoU: Double = 0.60
 
     // MARK: - Public interface
 
