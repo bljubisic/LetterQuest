@@ -30,7 +30,7 @@ final class ShapeAnalyzer {
     /// IoU value that maps to a perfect score of 100. Anything at or above
     /// this threshold is treated as "great". Calibrated so a recognisably
     /// correct letter scores in the 80–100 range rather than 30–50.
-    private let perfectIoU: Double = 0.45
+    private let perfectIoU: Double = 0.30
 
     // MARK: - Public interface
 
@@ -43,7 +43,7 @@ final class ShapeAnalyzer {
     /// - Returns: An IoU-based score in **0–100**.
     func score(strokes: [PKStroke], for letter: Letter) -> Int {
         guard let drawn = renderStrokes(strokes) else { return 0 }
-        guard let template = letter.templateImage ?? renderTemplates(letter.strokeTemplates) else {
+        guard let template = renderTemplates(letter.strokeTemplates) else {
             return 0
         }
         return iouScore(drawn: drawn, template: template)

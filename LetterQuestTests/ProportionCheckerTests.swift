@@ -145,3 +145,44 @@ final class ProportionCheckerRangeTests: XCTestCase {
         XCTAssertLessThanOrEqual(score,    100)
     }
 }
+
+// MARK: - Lowercase letter proportions
+
+final class ProportionCheckerLowercaseTests: XCTestCase {
+
+    private let checker = ProportionChecker()
+    // 400-tall canvas: ascenderY=80, xHeightY=180, baselineY=280, descenderY=340.
+    private let canvasSize = CGSize(width: 400, height: 400)
+    private var guidelines: ProportionChecker.Guidelines {
+        .forCanvas(size: canvasSize)
+    }
+    private var letterN: Letter { Letter.lowercaseAlphabet.first { $0.character == "n" }! }
+
+    func test_correctLowercaseHeight_scoresAtLeast80() {
+        // Stroke from ascenderY (80) to baselineY (280) — correct cap height.
+        let strokes = [
+            makeLineStroke(from: CGPoint(x: 100, y: 80),
+                           to:   CGPoint(x: 300, y: 280))
+        ]
+        let score = checker.score(strokes: strokes, letter: letterN, guidelines: guidelines)
+        XCTAssertGreaterThanOrEqual(score, 80,
+            "Correctly proportioned lowercase should score ≥ 80; got \(score)")
+    }
+
+    func test_lowercaseBottomAtBaseline_outperformsDescender() {
+        // Ending at baselineY (280) should score better than well below it (380).
+        let atBaseline  = [makeLineStroke(from: CGPoint(x: 100, y: 80), to: CGPoint(x: 300, y: 280))]
+        let atDescender = [makeLineStroke(from: CGPoint(x: 100, y: 80), to: CGPoint(x: 300, y: 380))]
+        let baseScore = checker.score(strokes: atBaseline,  letter: letterN, guidelines: guidelines)
+        let descScore = checker.score(strokes: atDescender, letter: letterN, guidelines: guidelines)
+        XCTAssertGreaterThan(baseScore, descScore,
+            "Lowercase ending at baselineY should score higher; got \(baseScore) vs \(descScore)")
+    }
+
+    func test_lowercaseScore_alwaysWithin0to100() {
+        let strokes = [makeLineStroke(from: CGPoint(x: 50, y: 80), to: CGPoint(x: 350, y: 340))]
+        let score = checker.score(strokes: strokes, letter: letterN, guidelines: guidelines)
+        XCTAssertGreaterThanOrEqual(score, 0)
+        XCTAssertLessThanOrEqual(score, 100)
+    }
+}

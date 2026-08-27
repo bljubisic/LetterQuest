@@ -392,106 +392,105 @@ extension StrokeTemplate {
     // MARK: - Lowercase letter definitions
     //
     // Coordinates use the same 0…1 normalised space as uppercase.
-    // The x-height band occupies roughly y: 0.38–0.85.
+    // Body zone: y 0.20–0.85 (same physical scale as uppercase letters).
     // Ascenders (b, d, f, h, i, j, k, l, t) extend to y: 0.05.
-    // Descenders (g, j, p, q, y) reach to y: ~0.97.
+    // Descenders (g, j, p, q, y) reach to y: ~0.95.
 
     /// a — full circle body + right stem descending to baseline.
     private static let aLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: circleArc(center: p(0.42, 0.62), radius: 0.22,
+        StrokeDef(points: circleArc(center: p(0.42, 0.52), radius: 0.30,
                                     from: -.pi / 2, to: 3 * .pi / 2),
                   direction: .curved),
-        StrokeDef(points: line(from: p(0.64, 0.40), to: p(0.64, 0.85)),
+        StrokeDef(points: line(from: p(0.72, 0.22), to: p(0.72, 0.85)),
                   direction: .topToBottom)
     ]
 
-    /// b — left ascender spine + right bump in the x-height zone.
+    /// b — left ascender spine + right bump spanning the lower half of the spine.
     private static let bLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.2, 0.05), to: p(0.2, 0.85)),
+        StrokeDef(points: line(from: p(0.18, 0.05), to: p(0.18, 0.85)),
                   direction: .topToBottom),
-        StrokeDef(points: ellipticalArc(center: p(0.2, 0.62), rx: 0.52, ry: 0.23,
+        StrokeDef(points: ellipticalArc(center: p(0.18, 0.57), rx: 0.62, ry: 0.28,
                                         from: -.pi / 2, to: .pi / 2),
                   direction: .curved)
     ]
 
-    /// c — ~240° arc opening to the right, in the x-height zone.
+    /// c — ~240° arc opening to the right.
     private static let cLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: circleArc(center: p(0.5, 0.62), radius: 0.24,
+        StrokeDef(points: circleArc(center: p(0.5, 0.50), radius: 0.38,
                                     from: -.pi / 3, to: -5 * .pi / 3),
                   direction: .curved)
     ]
 
     /// d — full circle body + right ascender spine.
     private static let dLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: circleArc(center: p(0.42, 0.62), radius: 0.22,
+        StrokeDef(points: circleArc(center: p(0.42, 0.52), radius: 0.30,
                                     from: -.pi / 2, to: 3 * .pi / 2),
                   direction: .curved),
-        StrokeDef(points: line(from: p(0.64, 0.05), to: p(0.64, 0.85)),
+        StrokeDef(points: line(from: p(0.72, 0.05), to: p(0.72, 0.85)),
                   direction: .topToBottom)
     ]
 
     /// e — midline crossbar then reverse-C arc enclosing the body.
     private static let eLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.26, 0.62), to: p(0.74, 0.62)),
+        StrokeDef(points: line(from: p(0.12, 0.50), to: p(0.88, 0.50)),
                   direction: .leftToRight),
-        // arc from right-middle, going up through top, left side, down to lower-right
-        StrokeDef(points: circleArc(center: p(0.5, 0.62), radius: 0.24,
+        StrokeDef(points: circleArc(center: p(0.5, 0.50), radius: 0.38,
                                     from: 0, to: -5 * .pi / 3),
                   direction: .curved)
     ]
 
-    /// f — hooked ascender spine + crossbar at x-height top.
+    /// f — hooked ascender spine + crossbar near the x-height top.
     private static let fLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: curveThrough(from: p(0.62, 0.12), peak: p(0.30, 0.04), to: p(0.40, 0.28))
-                  + line(from: p(0.40, 0.28), to: p(0.40, 0.85), steps: 6).dropFirst(),
+        StrokeDef(points: curveThrough(from: p(0.62, 0.10), peak: p(0.28, 0.04), to: p(0.40, 0.20))
+                  + line(from: p(0.40, 0.20), to: p(0.40, 0.85), steps: 6).dropFirst(),
                   direction: .topToBottom),
-        StrokeDef(points: line(from: p(0.20, 0.40), to: p(0.62, 0.40)),
+        StrokeDef(points: line(from: p(0.18, 0.32), to: p(0.64, 0.32)),
                   direction: .leftToRight)
     ]
 
     /// g — full circle body + right stem descending with a leftward curl.
     private static let gLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: circleArc(center: p(0.42, 0.62), radius: 0.22,
+        StrokeDef(points: circleArc(center: p(0.42, 0.50), radius: 0.35,
                                     from: -.pi / 2, to: 3 * .pi / 2),
                   direction: .curved),
-        StrokeDef(points: line(from: p(0.64, 0.40), to: p(0.64, 0.88), steps: 6)
-                  + curveThrough(from: p(0.64, 0.88), peak: p(0.50, 0.99), to: p(0.25, 0.93)).dropFirst(),
+        StrokeDef(points: line(from: p(0.77, 0.15), to: p(0.77, 0.90), steps: 6)
+                  + curveThrough(from: p(0.77, 0.90), peak: p(0.55, 0.97), to: p(0.25, 0.92)).dropFirst(),
                   direction: .topToBottom)
     ]
 
     /// h — full ascender spine + arch branching at mid-height down to baseline.
     private static let hLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.2, 0.05), to: p(0.2, 0.85)),
+        StrokeDef(points: line(from: p(0.18, 0.05), to: p(0.18, 0.85)),
                   direction: .topToBottom),
-        StrokeDef(points: curveThrough(from: p(0.20, 0.50), peak: p(0.50, 0.38), to: p(0.78, 0.50))
-                  + line(from: p(0.78, 0.50), to: p(0.78, 0.85), steps: 5).dropFirst(),
+        StrokeDef(points: curveThrough(from: p(0.18, 0.45), peak: p(0.50, 0.22), to: p(0.80, 0.45))
+                  + line(from: p(0.80, 0.45), to: p(0.80, 0.85), steps: 5).dropFirst(),
                   direction: .topToBottom)
     ]
 
-    /// i — short vertical + dot above.
+    /// i — vertical stem + dot above.
     private static let iLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.5, 0.40), to: p(0.5, 0.85)),
+        StrokeDef(points: line(from: p(0.5, 0.22), to: p(0.5, 0.85)),
                   direction: .topToBottom),
-        StrokeDef(points: line(from: p(0.44, 0.18), to: p(0.56, 0.22), steps: 3),
+        StrokeDef(points: line(from: p(0.44, 0.10), to: p(0.56, 0.14), steps: 3),
                   direction: .leftToRight)
     ]
 
-    /// j — short stem with descending leftward hook + dot above.
+    /// j — stem with descending leftward curl + dot above.
     private static let jLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.55, 0.40), to: p(0.55, 0.88), steps: 5)
-                  + curveThrough(from: p(0.55, 0.88), peak: p(0.40, 0.98), to: p(0.25, 0.90)).dropFirst(),
+        StrokeDef(points: line(from: p(0.55, 0.22), to: p(0.55, 0.90), steps: 5)
+                  + curveThrough(from: p(0.55, 0.90), peak: p(0.38, 0.97), to: p(0.22, 0.90)).dropFirst(),
                   direction: .topToBottom),
-        StrokeDef(points: line(from: p(0.49, 0.18), to: p(0.61, 0.22), steps: 3),
+        StrokeDef(points: line(from: p(0.49, 0.10), to: p(0.61, 0.14), steps: 3),
                   direction: .leftToRight)
     ]
 
     /// k — ascender spine + upper diagonal in + lower diagonal out.
     private static let kLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.2, 0.05), to: p(0.2, 0.85)),
+        StrokeDef(points: line(from: p(0.18, 0.05), to: p(0.18, 0.85)),
                   direction: .topToBottom),
-        StrokeDef(points: line(from: p(0.75, 0.40), to: p(0.2, 0.62)),
+        StrokeDef(points: line(from: p(0.80, 0.22), to: p(0.18, 0.53)),
                   direction: .diagonal(angle: -45)),
-        StrokeDef(points: line(from: p(0.2, 0.62), to: p(0.75, 0.85)),
+        StrokeDef(points: line(from: p(0.18, 0.53), to: p(0.80, 0.85)),
                   direction: .diagonal(angle: 45))
     ]
 
@@ -503,129 +502,129 @@ extension StrokeTemplate {
 
     /// m — left stem + two arching humps.
     private static let mLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.10, 0.40), to: p(0.10, 0.85)),
+        StrokeDef(points: line(from: p(0.08, 0.15), to: p(0.08, 0.88)),
                   direction: .topToBottom),
-        StrokeDef(points: curveThrough(from: p(0.10, 0.50), peak: p(0.30, 0.38), to: p(0.50, 0.50))
-                  + line(from: p(0.50, 0.50), to: p(0.50, 0.85), steps: 4).dropFirst(),
+        StrokeDef(points: curveThrough(from: p(0.08, 0.44), peak: p(0.30, 0.15), to: p(0.50, 0.44))
+                  + line(from: p(0.50, 0.44), to: p(0.50, 0.88), steps: 4).dropFirst(),
                   direction: .topToBottom),
-        StrokeDef(points: curveThrough(from: p(0.50, 0.50), peak: p(0.70, 0.38), to: p(0.90, 0.50))
-                  + line(from: p(0.90, 0.50), to: p(0.90, 0.85), steps: 4).dropFirst(),
+        StrokeDef(points: curveThrough(from: p(0.50, 0.44), peak: p(0.72, 0.15), to: p(0.92, 0.44))
+                  + line(from: p(0.92, 0.44), to: p(0.92, 0.88), steps: 4).dropFirst(),
                   direction: .topToBottom)
     ]
 
     /// n — left stem + single arching hump to baseline.
     private static let nLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.2, 0.40), to: p(0.2, 0.85)),
+        StrokeDef(points: line(from: p(0.18, 0.22), to: p(0.18, 0.85)),
                   direction: .topToBottom),
-        StrokeDef(points: curveThrough(from: p(0.20, 0.50), peak: p(0.50, 0.38), to: p(0.78, 0.50))
-                  + line(from: p(0.78, 0.50), to: p(0.78, 0.85), steps: 5).dropFirst(),
+        StrokeDef(points: curveThrough(from: p(0.18, 0.47), peak: p(0.50, 0.22), to: p(0.80, 0.47))
+                  + line(from: p(0.80, 0.47), to: p(0.80, 0.85), steps: 5).dropFirst(),
                   direction: .topToBottom)
     ]
 
-    /// o — full circle in the x-height zone.
+    /// o — full circle occupying the body zone.
     private static let oLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: circleArc(center: p(0.5, 0.62), radius: 0.23,
+        StrokeDef(points: circleArc(center: p(0.5, 0.50), radius: 0.38,
                                     from: -.pi / 2, to: 3 * .pi / 2),
                   direction: .curved)
     ]
 
-    /// p — left stem from slightly above the bowl down into the descender zone + right bump.
-    /// Bowl center moved up to (0.2, 0.58) so its top arc (y≈0.35) sits clearly below the stalk top (y=0.20).
+    /// p — left stem from above the bowl down into the descender zone + right bump.
     private static let pLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.2, 0.20), to: p(0.2, 0.97)),
+        StrokeDef(points: line(from: p(0.18, 0.18), to: p(0.18, 0.95)),
                   direction: .topToBottom),
-        StrokeDef(points: ellipticalArc(center: p(0.2, 0.52), rx: 0.52, ry: 0.23,
+        StrokeDef(points: ellipticalArc(center: p(0.18, 0.52), rx: 0.62, ry: 0.30,
                                         from: -.pi / 2, to: .pi / 2),
                   direction: .curved)
     ]
 
     /// q — full circle body + right stem descending into descender zone.
     private static let qLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: circleArc(center: p(0.42, 0.62), radius: 0.22,
+        StrokeDef(points: circleArc(center: p(0.42, 0.52), radius: 0.30,
                                     from: -.pi / 2, to: 3 * .pi / 2),
                   direction: .curved),
-        StrokeDef(points: line(from: p(0.64, 0.40), to: p(0.64, 0.97)),
+        StrokeDef(points: line(from: p(0.72, 0.22), to: p(0.72, 0.95)),
                   direction: .topToBottom)
     ]
 
-    /// r — short left stem + curved shoulder branching right.
+    /// r — left stem + curved shoulder branching right.
     private static let rLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.25, 0.40), to: p(0.25, 0.85)),
+        StrokeDef(points: line(from: p(0.22, 0.22), to: p(0.22, 0.85)),
                   direction: .topToBottom),
-        StrokeDef(points: curveThrough(from: p(0.25, 0.48), peak: p(0.50, 0.38), to: p(0.72, 0.45)),
+        StrokeDef(points: curveThrough(from: p(0.22, 0.42), peak: p(0.52, 0.22), to: p(0.76, 0.38)),
                   direction: .curved)
     ]
 
-    /// s — single S-curve in the x-height zone.
+    /// s — single S-curve. Uses curveThrough so the arc actually passes through the
+    /// specified left/right extremes (bezier only approaches its control points).
     private static let sLowerDefinition: [StrokeDef] = [
         StrokeDef(points:
-                    bezier(p(0.72, 0.43), p(0.12, 0.38), p(0.50, 0.62))
-                  + bezier(p(0.50, 0.62), p(0.88, 0.87), p(0.28, 0.82)).dropFirst(),
+                    curveThrough(from: p(0.80, 0.15), peak: p(0.15, 0.35), to: p(0.50, 0.52))
+                  + curveThrough(from: p(0.50, 0.52), peak: p(0.85, 0.68), to: p(0.20, 0.88)).dropFirst(),
                   direction: .curved)
     ]
 
-    /// t — full spine crossing the crossbar level + horizontal crossbar.
+    /// t — ascender spine crossing the crossbar + horizontal crossbar.
     private static let tLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.5, 0.08), to: p(0.5, 0.85)),
+        StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.85)),
                   direction: .topToBottom),
-        StrokeDef(points: line(from: p(0.22, 0.35), to: p(0.72, 0.35)),
+        StrokeDef(points: line(from: p(0.18, 0.30), to: p(0.78, 0.30)),
                   direction: .leftToRight)
     ]
 
     /// u — U-shape: down the left side, around the bottom, back up the right.
     private static let uLowerDefinition: [StrokeDef] = [
         StrokeDef(points:
-                    line(from: p(0.2, 0.40), to: p(0.2, 0.70), steps: 4)
-                  + curveThrough(from: p(0.2, 0.70), peak: p(0.5, 0.88), to: p(0.8, 0.70)).dropFirst()
-                  + line(from: p(0.8, 0.70), to: p(0.8, 0.40), steps: 4).dropFirst(),
+                    line(from: p(0.12, 0.15), to: p(0.12, 0.65), steps: 4)
+                  + curveThrough(from: p(0.12, 0.65), peak: p(0.5, 0.92), to: p(0.88, 0.65)).dropFirst()
+                  + line(from: p(0.88, 0.65), to: p(0.88, 0.15), steps: 4).dropFirst(),
                   direction: .curved)
     ]
 
-    /// v — two diagonals meeting at the bottom-centre of the x-height zone.
+    /// v — two diagonals meeting at the bottom-centre.
     private static let vLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.15, 0.40), to: p(0.5, 0.85)),
+        StrokeDef(points: line(from: p(0.12, 0.20), to: p(0.5, 0.85)),
                   direction: .diagonal(angle: 45)),
-        StrokeDef(points: line(from: p(0.5, 0.85), to: p(0.85, 0.40)),
+        StrokeDef(points: line(from: p(0.5, 0.85), to: p(0.88, 0.20)),
                   direction: .diagonal(angle: -45))
     ]
 
     /// w — four diagonals forming two v-shapes side by side.
     private static let wLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.08, 0.40), to: p(0.30, 0.85)),
+        StrokeDef(points: line(from: p(0.05, 0.20), to: p(0.27, 0.85)),
                   direction: .diagonal(angle: 45)),
-        StrokeDef(points: line(from: p(0.30, 0.85), to: p(0.50, 0.55)),
+        StrokeDef(points: line(from: p(0.27, 0.85), to: p(0.50, 0.50)),
                   direction: .diagonal(angle: -45)),
-        StrokeDef(points: line(from: p(0.50, 0.55), to: p(0.70, 0.85)),
+        StrokeDef(points: line(from: p(0.50, 0.50), to: p(0.73, 0.85)),
                   direction: .diagonal(angle: 45)),
-        StrokeDef(points: line(from: p(0.70, 0.85), to: p(0.92, 0.40)),
+        StrokeDef(points: line(from: p(0.73, 0.85), to: p(0.95, 0.20)),
                   direction: .diagonal(angle: -45))
     ]
 
-    /// x — two crossing diagonals in the x-height zone.
+    /// x — two crossing diagonals spanning the body zone.
     private static let xLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.15, 0.40), to: p(0.85, 0.85)),
+        StrokeDef(points: line(from: p(0.12, 0.20), to: p(0.88, 0.85)),
                   direction: .diagonal(angle: 45)),
-        StrokeDef(points: line(from: p(0.85, 0.40), to: p(0.15, 0.85)),
+        StrokeDef(points: line(from: p(0.88, 0.20), to: p(0.12, 0.85)),
                   direction: .diagonal(angle: -45))
     ]
 
-    /// y — left diagonal + right diagonal descending below baseline with curl.
+    /// y — left diagonal + right diagonal descending into the descender zone with curl.
     private static let yLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.15, 0.40), to: p(0.55, 0.72)),
+        StrokeDef(points: line(from: p(0.12, 0.20), to: p(0.52, 0.62)),
                   direction: .diagonal(angle: 45)),
-        StrokeDef(points: line(from: p(0.82, 0.40), to: p(0.55, 0.72), steps: 4)
-                  + line(from: p(0.55, 0.72), to: p(0.55, 0.88), steps: 3).dropFirst()
-                  + curveThrough(from: p(0.55, 0.88), peak: p(0.40, 0.97), to: p(0.22, 0.90)).dropFirst(),
+        StrokeDef(points: line(from: p(0.88, 0.20), to: p(0.52, 0.62), steps: 4)
+                  + line(from: p(0.52, 0.62), to: p(0.52, 0.88), steps: 3).dropFirst()
+                  + curveThrough(from: p(0.52, 0.88), peak: p(0.36, 0.97), to: p(0.20, 0.90)).dropFirst(),
                   direction: .topToBottom)
     ]
 
-    /// z — top bar + diagonal + bottom bar, scaled to the x-height zone.
+    /// z — top bar + diagonal + bottom bar spanning the body zone.
     private static let zLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.15, 0.40), to: p(0.85, 0.40)),
+        StrokeDef(points: line(from: p(0.10, 0.12), to: p(0.90, 0.12)),
                   direction: .leftToRight),
-        StrokeDef(points: line(from: p(0.85, 0.40), to: p(0.15, 0.85)),
+        StrokeDef(points: line(from: p(0.90, 0.12), to: p(0.10, 0.88)),
                   direction: .diagonal(angle: -45)),
-        StrokeDef(points: line(from: p(0.15, 0.85), to: p(0.85, 0.85)),
+        StrokeDef(points: line(from: p(0.10, 0.88), to: p(0.90, 0.88)),
                   direction: .leftToRight)
     ]
 }
