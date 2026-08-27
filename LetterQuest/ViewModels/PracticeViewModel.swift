@@ -199,9 +199,14 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             ? unlockLowercaseIfEligible(after: letter)
             : .empty()
 
+        let unlockDigits: Completable = result.passed
+            ? unlockDigitsIfEligible(after: letter)
+            : .empty()
+
         saveCurrent
             .andThen(unlockNext)
             .andThen(unlockLowercase)
+            .andThen(unlockDigits)
             .observe(on: MainScheduler.instance)
             .subscribe(onCompleted: { [weak self] in
                 if result.passed { self?.showCelebration = true }
@@ -228,6 +233,41 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             hapticsService.playEncouragement()
         } else {
             hapticsService.playSoftError()
+        }
+    }
+
+    /// When the child passes the final lowercase letter and all 26 lowercase letters
+    /// are now completed, unlocks all 10 digits at once.
+    private func unlockDigitsIfEligible(after letter: Letter) -> Completable {
+        guard letter.letterCase == .lower else { return .empty() }
+        return Observable.zip(
+            letterRepository.fetchAll().asObservable(),
+            progressRepository.loadAll().asObservable()
+        )
+        .take(1)
+        .asSingle()
+        .flatMapCompletable { [weak self] (allLetters: [Letter], allProgress: [ChildProgress]) -> Completable in
+            guard let self else { return .empty() }
+            let lowercaseLetters = allLetters.filter { $0.letterCase == .lower }
+            let completedIds = Set(allProgress.filter { $0.isCompleted }.map { $0.letterId })
+            guard lowercaseLetters.allSatisfy({ completedIds.contains($0.id) }) else {
+                return .empty()
+            }
+            let progressMap = Dictionary(uniqueKeysWithValues: allProgress.map { ($0.letterId, $0) })
+            let saves = allLetters
+                .filter { $0.letterCase == .digit }
+                .map { digit -> Completable in
+                    let existing = progressMap[digit.id]
+                        ?? ChildProgress(
+                            letterId:    digit.id,
+                            attempts:    [],
+                            bestScore:   0,
+                            isUnlocked:  false,
+                            isCompleted: false
+                        )
+                    return self.progressRepository.save(ChildProgress.lensIsUnlocked.set(existing, true))
+                }
+            return Completable.concat(saves)
         }
     }
 

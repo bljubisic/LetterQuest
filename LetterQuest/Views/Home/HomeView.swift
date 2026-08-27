@@ -35,9 +35,10 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                 ) {
                     Text("ABC").tag(LetterCase.upper)
                     Text("abc").tag(LetterCase.lower)
+                    Text("123").tag(LetterCase.digit)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 150)
+                .frame(width: 210)
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

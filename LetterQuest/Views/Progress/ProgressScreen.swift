@@ -31,9 +31,10 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
                 ) {
                     Text("ABC").tag(LetterCase.upper)
                     Text("abc").tag(LetterCase.lower)
+                    Text("123").tag(LetterCase.digit)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 150)
+                .frame(width: 210)
             }
         }
         .overlay {
@@ -53,7 +54,7 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.accentColor)
 
-                Text("letters completed")
+                Text(viewModel.selectedCase == .digit ? "digits completed" : "letters completed")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
@@ -83,7 +84,7 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
     }
 
     private var lettersSection: some View {
-        Section("Letters") {
+        Section(viewModel.selectedCase == .digit ? "Digits" : "Letters") {
             ForEach(viewModel.letters) { letter in
                 LetterProgressRow(
                     letter:   letter,
@@ -174,7 +175,7 @@ private struct LetterProgressRow: View {
     // MARK: - Helpers
 
     private var statusLabel: String {
-        guard let progress else { return letter.character == "A" ? "Not started" : "Locked" }
+        guard let progress else { return "Locked" }
         if progress.isCompleted { return "Completed ⭐" }
         return progress.attempts.isEmpty ? "Not started" : "In progress"
     }
@@ -207,9 +208,15 @@ private struct LetterProgressRow: View {
 
 // MARK: - Preview
 
-#Preview {
+#Preview("Letters") {
     NavigationStack {
         ProgressScreen(viewModel: PreviewProgressViewModel())
+    }
+}
+
+#Preview("Digits") {
+    NavigationStack {
+        ProgressScreen(viewModel: PreviewDigitProgressViewModel())
     }
 }
 
@@ -236,8 +243,34 @@ private final class PreviewProgressViewModel: ProgressViewModelProtocol {
         return Dictionary(uniqueKeysWithValues: completed.map { ($0.letterId, $0) })
     }()
     let badges = [
-        AchievementBadge(id: "first_letter", title: "First Letter!",      systemImage: "star.fill",                isEarned: true),
-        AchievementBadge(id: "halfway",       title: "Halfway There!",     systemImage: "star.leadinghalf.filled",  isEarned: false),
-        AchievementBadge(id: "champion",      title: "Alphabet Champion!", systemImage: "trophy.fill",              isEarned: false)
+        AchievementBadge(id: "first_letter", title: "First Letter!",      systemImage: "star.fill",               isEarned: true),
+        AchievementBadge(id: "halfway",       title: "Halfway There!",     systemImage: "star.leadinghalf.filled", isEarned: false),
+        AchievementBadge(id: "champion",      title: "Alphabet Champion!", systemImage: "trophy.fill",             isEarned: false)
+    ]
+}
+
+private final class PreviewDigitProgressViewModel: ProgressViewModelProtocol {
+    let letters      = Letter.digits
+    let totalCount   = 10
+    let isLoading    = false
+    let completedCount = 2
+    let selectedCase: LetterCase = .digit
+    func selectCase(_ letterCase: LetterCase) {}
+    let progressMap: [UUID: ChildProgress] = {
+        let completed = Letter.digits.prefix(2).map { letter in
+            ChildProgress(
+                letterId:    letter.id,
+                attempts:    [.init(timestamp: Date(), score: 80)],
+                bestScore:   80,
+                isUnlocked:  true,
+                isCompleted: true
+            )
+        }
+        return Dictionary(uniqueKeysWithValues: completed.map { ($0.letterId, $0) })
+    }()
+    let badges = [
+        AchievementBadge(id: "first_number",    title: "First Number!",  systemImage: "star.fill",               isEarned: true),
+        AchievementBadge(id: "halfway_numbers", title: "Halfway There!", systemImage: "star.leadinghalf.filled", isEarned: false),
+        AchievementBadge(id: "number_master",   title: "Number Master!", systemImage: "trophy.fill",             isEarned: false)
     ]
 }
