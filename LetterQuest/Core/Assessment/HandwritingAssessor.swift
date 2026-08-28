@@ -68,7 +68,7 @@ final class HandwritingAssessor: HandwritingAssessing {
 
             DispatchQueue.global(qos: .userInitiated).async {
                 let strokeScore     = self.dtwMatcher.score(strokes: strokes, against: letter.strokeTemplates)
-                let shapeScore      = self.shapeAnalyzer.score(strokes: strokes, for: letter)
+                let shapeScore      = self.shapeAnalyzer.score(strokes: strokes, for: letter, canvasSize: guidelines.canvasBounds.size)
                 let proportionScore = self.proportionChecker.score(strokes: strokes, letter: letter, guidelines: guidelines)
                 let smoothnessScore = self.smoothnessAnalyzer.score(strokes: strokes)
 
