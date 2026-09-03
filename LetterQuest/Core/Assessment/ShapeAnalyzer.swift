@@ -64,6 +64,12 @@ final class ShapeAnalyzer {
             }
         }
 
+        // Extra child strokes with no matching template slot count as 0.
+        // Without this, drawing G (3 strokes) against C's template (1 stroke) only
+        // compares the arc and ignores the bar + vertical, inflating C's shape score.
+        let extraStrokes = max(0, strokes.count - templates.count)
+        perStrokeScores.append(contentsOf: Array(repeating: 0, count: extraStrokes))
+
         let avg    = Double(perStrokeScores.reduce(0, +)) / Double(perStrokeScores.count)
         let minVal = Double(perStrokeScores.min() ?? 0)
         return Int(0.5 * avg + 0.5 * minVal)

@@ -20,6 +20,17 @@ import SwiftUI
 /// LetterRepository ────────────────────┤─► PracticeViewModel ─► PracticeView
 /// ProgressRepository ──────────────────┤
 /// HandwritingAssessor ─────────────────┘
+///
+/// AppRouter  ──────────────────────────┐
+/// WordRepository ───────────────────────┤─► WordsListViewModel ─► WordsListView
+/// WordProgressRepository ───────────────┘
+///
+/// AppRouter  ──────────────────────────┐
+/// WordRepository ───────────────────────┤
+/// LetterRepository ─────────────────────┤
+/// ProgressRepository ───────────────────┤─► WordPracticeViewModel ─► WordPracticeView
+/// WordProgressRepository ───────────────┤    (builds a PracticeViewModel per letter)
+/// HandwritingAssessor ──────────────────┘
 /// ```
 @main
 struct LetterQuestApp: App {
@@ -28,11 +39,13 @@ struct LetterQuestApp: App {
     @StateObject private var onboardingViewModel = OnboardingViewModel()
 
     // Shared service instances — one per app lifetime.
-    private let letterRepository:   LetterRepositoryProtocol   = LetterRepository()
-    private let progressRepository: ProgressRepositoryProtocol = ProgressRepository()
-    private let assessor:           HandwritingAssessing        = HandwritingAssessor()
-    private let soundService:       SoundServiceProtocol       = SoundService()
-    private let hapticsService:     HapticsServiceProtocol     = HapticsService()
+    private let letterRepository:       LetterRepositoryProtocol       = LetterRepository()
+    private let progressRepository:     ProgressRepositoryProtocol     = ProgressRepository()
+    private let assessor:               HandwritingAssessing            = HandwritingAssessor()
+    private let soundService:           SoundServiceProtocol           = SoundService()
+    private let hapticsService:         HapticsServiceProtocol         = HapticsService()
+    private let wordRepository:         WordRepositoryProtocol         = WordRepository()
+    private let wordProgressRepository: WordProgressRepositoryProtocol = WordProgressRepository()
 
     var body: some Scene {
         WindowGroup {
@@ -93,6 +106,27 @@ struct LetterQuestApp: App {
 
         case .celebration(_, _):
             CelebrationView(onContinue: router.popToRoot)
+
+        case .words:
+            WordsListView(viewModel: WordsListViewModel(
+                wordRepository:         wordRepository,
+                wordProgressRepository: wordProgressRepository,
+                router:                 router
+            ))
+
+        case .word(let wordId):
+            WordPracticeView(viewModel: WordPracticeViewModel(
+                wordId:                 wordId,
+                wordRepository:         wordRepository,
+                letterRepository:       letterRepository,
+                progressRepository:     progressRepository,
+                wordProgressRepository: wordProgressRepository,
+                assessor:               assessor,
+                soundService:           soundService,
+                hapticsService:         hapticsService,
+                router:                 router
+            ))
+            .id(wordId)
         }
     }
 

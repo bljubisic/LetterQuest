@@ -16,7 +16,7 @@ protocol ProgressViewModelProtocol: ObservableObject {
     /// How many letters in the selected case the child has passed at least once.
     var completedCount: Int { get }
 
-    /// Number of items in the selected case (26 for letters, 10 for digits).
+    /// Number of items in the selected case (26 for letters).
     var totalCount: Int { get }
 
     /// Achievement badges for the currently selected case.

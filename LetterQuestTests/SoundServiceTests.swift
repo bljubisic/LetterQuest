@@ -6,6 +6,13 @@ import RxSwift
 
 // MARK: - Mocks
 
+private final class MockHapticsService: HapticsServiceProtocol {
+    var isEnabled = true
+    func playSuccess() {}
+    func playEncouragement() {}
+    func playSoftError() {}
+}
+
 private final class MockSoundService: SoundServiceProtocol {
     var isSoundEnabled = true
     private(set) var successCallCount       = 0
@@ -64,6 +71,7 @@ private func makeVM(result: AssessmentResult, sound: MockSoundService) -> Practi
         progressRepository: MockProgressRepository(),
         assessor:           MockAssessor(result: result),
         soundService:       sound,
+        hapticsService:     MockHapticsService(),
         router:             AppRouter()
     )
 }

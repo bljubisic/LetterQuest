@@ -178,54 +178,6 @@ def lowercase_letter_strokes():
     }
 
 
-def digit_strokes():
-    """Stroke paths for digits 0–9, mirroring the Swift digit definitions."""
-    return {
-        '0': [
-            elliptic_arc(0.50, 0.50, 0.40, 0.45, -pi/2, -pi/2 - 2*pi),
-        ],
-        '1': [
-            line_pts((0.28, 0.22), (0.55, 0.05)),
-            line_pts((0.55, 0.05), (0.55, 0.95)),
-        ],
-        '2': [
-            (curve_through((0.18, 0.28), (0.50, 0.05), (0.82, 0.28))
-             + curve_through((0.82, 0.28), (0.42, 0.60), (0.15, 0.95))[1:]
-             + line_pts((0.15, 0.95), (0.85, 0.95), 4)[1:]),
-        ],
-        '3': [
-            (curve_through((0.18, 0.12), (0.78, 0.22), (0.45, 0.50))
-             + curve_through((0.45, 0.50), (0.82, 0.72), (0.18, 0.90))[1:]),
-        ],
-        '4': [
-            (line_pts((0.72, 0.05), (0.10, 0.65))
-             + line_pts((0.10, 0.65), (0.90, 0.65), 4)[1:]),
-            line_pts((0.72, 0.05), (0.72, 0.95)),
-        ],
-        '5': [
-            (line_pts((0.78, 0.05), (0.18, 0.05))
-             + line_pts((0.18, 0.05), (0.18, 0.72), 7)[1:]),
-            elliptic_arc(0.50, 0.72, 0.32, 0.23, pi, 3*pi),
-        ],
-        '6': [
-            (curve_through((0.70, 0.05), (0.18, 0.32), (0.18, 0.68))
-             + elliptic_arc(0.50, 0.68, 0.32, 0.27, pi, 3*pi)[1:]),
-        ],
-        '7': [
-            (line_pts((0.15, 0.05), (0.85, 0.05))
-             + line_pts((0.85, 0.05), (0.28, 0.95), 6)[1:]),
-        ],
-        '8': [
-            elliptic_arc(0.50, 0.32, 0.32, 0.27, pi/2, pi/2 + 2*pi),
-            elliptic_arc(0.50, 0.70, 0.33, 0.27, -pi/2, -pi/2 + 2*pi),
-        ],
-        '9': [
-            (elliptic_arc(0.50, 0.34, 0.32, 0.29, 0, 2*pi)
-             + line_pts((0.82, 0.34), (0.82, 0.90), 5)[1:]),
-        ],
-    }
-
-
 def all_letter_strokes():
     return {
         'A': [
@@ -438,7 +390,6 @@ def main():
 
     uppercase_strokes = all_letter_strokes()
     lowercase_strokes = lowercase_letter_strokes()
-    digit_stroke_map  = digit_strokes()
 
     # Uppercase: template_A … template_Z
     for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
@@ -454,14 +405,6 @@ def main():
         pixels = render_letter(lowercase_strokes[char], SIZE, MARGIN, STROKE_RADIUS)
         png = encode_png(pixels, SIZE)
         name = f'template_lc_{char}'
-        _write_imageset(xcassets, name, png)
-
-    # Digits: template_digit_0 … template_digit_9
-    # Letter.digits uses templateImageName = "template_digit_<char>".
-    for char in '0123456789':
-        pixels = render_letter(digit_stroke_map[char], SIZE, MARGIN, STROKE_RADIUS)
-        png = encode_png(pixels, SIZE)
-        name = f'template_digit_{char}'
         _write_imageset(xcassets, name, png)
 
     print(f'\nAsset catalog written to:\n  {xcassets}')

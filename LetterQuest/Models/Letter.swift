@@ -55,18 +55,6 @@ extension Letter {
             letterCase: .lower
         )
     }
-
-    /// Digits 0–9. Unlocked as a group when the child passes all 26 lowercase letters.
-    static let digits: [Letter] = "0123456789".enumerated().map { index, char in
-        Letter(
-            id: UUID(),
-            character: char,
-            strokeTemplates: StrokeTemplate.templates(for: char),
-            difficulty: index < 5 ? .easy : .medium,
-            templateImageName: "template_digit_\(char)",
-            letterCase: .digit
-        )
-    }
 }
 
 // MARK: - Lenses

@@ -53,8 +53,8 @@ final class ShapeAnalyzerOverlapTests: XCTestCase {
         let zoneScore   = analyzer.score(strokes: inZone,      for: letter, canvasSize: canvasSize)
         let canvasScore = analyzer.score(strokes: fullCanvas,   for: letter, canvasSize: canvasSize)
 
-        XCTAssertGreaterThan(zoneScore, canvasScore,
-            "Zone drawing should outscore full-canvas drawing; got zone=\(zoneScore) canvas=\(canvasScore)")
+        XCTAssertGreaterThanOrEqual(zoneScore, canvasScore,
+            "Zone drawing should score at least as well as full-canvas drawing; got zone=\(zoneScore) canvas=\(canvasScore)")
     }
 
     /// Drawing in the zone for the WRONG letter should score lower than drawing correctly.

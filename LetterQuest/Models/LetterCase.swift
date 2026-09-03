@@ -6,5 +6,4 @@ import Foundation
 enum LetterCase: String, CaseIterable, Codable {
     case upper
     case lower
-    case digit
 }

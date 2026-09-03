@@ -58,6 +58,12 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     private let router: AppRouter
     private let disposeBag = DisposeBag()
 
+    /// When non-`nil`, `continueToNext()` calls this instead of navigating via
+    /// `router`. Set by `WordPracticeViewModel` so this same view model can be
+    /// reused for each letter of a word without triggering the normal
+    /// alphabet-wide advance/unlock navigation.
+    private let onWordAdvance: (() -> Void)?
+
     // MARK: - Init
 
     /// - Parameters:
@@ -68,6 +74,9 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     ///   - soundService: Plays audio feedback cues after each assessment.
     ///   - hapticsService: Plays tactile feedback patterns after each assessment.
     ///   - router: Navigation coordinator shared across the app.
+    ///   - onWordAdvance: When provided, `continueToNext()` calls this closure
+    ///     instead of navigating via `router`. Used when this view model is
+    ///     embedded in a word-practice session by `WordPracticeViewModel`.
     init(
         letterId: UUID,
         letterRepository: LetterRepositoryProtocol,
@@ -75,7 +84,8 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         assessor: HandwritingAssessing,
         soundService: SoundServiceProtocol,
         hapticsService: HapticsServiceProtocol,
-        router: AppRouter
+        router: AppRouter,
+        onWordAdvance: (() -> Void)? = nil
     ) {
         self.assessor           = assessor
         self.letterRepository   = letterRepository
@@ -83,6 +93,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         self.soundService       = soundService
         self.hapticsService     = hapticsService
         self.router             = router
+        self.onWordAdvance      = onWordAdvance
 
         fetchLetter(letterId: letterId, from: letterRepository)
         bindSubmissionPipeline()
@@ -108,7 +119,15 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     /// atomic — no flash through the home screen and the previous
     /// `PracticeView` (with its canvas state) is fully torn down before the
     /// next one mounts.
+    ///
+    /// When `onWordAdvance` was provided at init, that closure is called
+    /// instead and the router is left untouched — `WordPracticeViewModel`
+    /// owns navigation for the word session.
     func continueToNext() {
+        if let onWordAdvance {
+            onWordAdvance()
+            return
+        }
         guard let nextLetterId else {
             router.popToRoot()
             return
@@ -199,14 +218,9 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             ? unlockLowercaseIfEligible(after: letter)
             : .empty()
 
-        let unlockDigits: Completable = result.passed
-            ? unlockDigitsIfEligible(after: letter)
-            : .empty()
-
         saveCurrent
             .andThen(unlockNext)
             .andThen(unlockLowercase)
-            .andThen(unlockDigits)
             .observe(on: MainScheduler.instance)
             .subscribe(onCompleted: { [weak self] in
                 if result.passed { self?.showCelebration = true }
@@ -233,41 +247,6 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             hapticsService.playEncouragement()
         } else {
             hapticsService.playSoftError()
-        }
-    }
-
-    /// When the child passes the final lowercase letter and all 26 lowercase letters
-    /// are now completed, unlocks all 10 digits at once.
-    private func unlockDigitsIfEligible(after letter: Letter) -> Completable {
-        guard letter.letterCase == .lower else { return .empty() }
-        return Observable.zip(
-            letterRepository.fetchAll().asObservable(),
-            progressRepository.loadAll().asObservable()
-        )
-        .take(1)
-        .asSingle()
-        .flatMapCompletable { [weak self] (allLetters: [Letter], allProgress: [ChildProgress]) -> Completable in
-            guard let self else { return .empty() }
-            let lowercaseLetters = allLetters.filter { $0.letterCase == .lower }
-            let completedIds = Set(allProgress.filter { $0.isCompleted }.map { $0.letterId })
-            guard lowercaseLetters.allSatisfy({ completedIds.contains($0.id) }) else {
-                return .empty()
-            }
-            let progressMap = Dictionary(uniqueKeysWithValues: allProgress.map { ($0.letterId, $0) })
-            let saves = allLetters
-                .filter { $0.letterCase == .digit }
-                .map { digit -> Completable in
-                    let existing = progressMap[digit.id]
-                        ?? ChildProgress(
-                            letterId:    digit.id,
-                            attempts:    [],
-                            bestScore:   0,
-                            isUnlocked:  false,
-                            isCompleted: false
-                        )
-                    return self.progressRepository.save(ChildProgress.lensIsUnlocked.set(existing, true))
-                }
-            return Completable.concat(saves)
         }
     }
 
