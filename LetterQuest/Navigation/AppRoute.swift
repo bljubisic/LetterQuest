@@ -26,4 +26,12 @@ enum AppRoute: Hashable {
     ///   - score: The final composite score that triggered the celebration.
     ///   - letterId: The letter that was just completed.
     case celebration(score: Int, letterId: UUID)
+
+    /// The word-practice list/grid screen. Reachable once the child has
+    /// completed both the uppercase and lowercase alphabets.
+    case words
+
+    /// The word-practice screen for the word identified by `wordId`, tracing
+    /// its letters in sequence via the existing single-letter practice flow.
+    case word(wordId: UUID)
 }

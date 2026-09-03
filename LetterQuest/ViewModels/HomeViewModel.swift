@@ -23,6 +23,11 @@ final class HomeViewModel: HomeViewModelProtocol {
     /// Whether the grid is showing uppercase or lowercase letters.
     @Published private(set) var selectedCase: LetterCase = .upper
 
+    /// `true` once every uppercase and lowercase letter has been completed.
+    var isWordModeUnlocked: Bool {
+        !allLetters.isEmpty && allLetters.allSatisfy { progressMap[$0.id]?.isCompleted == true }
+    }
+
     // MARK: - Private state
 
     @Published private var allLetters: [Letter] = []
@@ -69,6 +74,11 @@ final class HomeViewModel: HomeViewModelProtocol {
 
     func navigateToProgress() {
         router.push(.progress)
+    }
+
+    /// Pushes the word-practice list screen.
+    func navigateToWords() {
+        router.push(.words)
     }
 
     /// Switches the letter grid between uppercase and lowercase.

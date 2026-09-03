@@ -10,10 +10,10 @@ struct LetterRepositoryTests {
 
     // MARK: - fetchAll
 
-    @Test("fetchAll returns all 62 letters (26 upper + 26 lower + 10 digits)")
-    func fetchAllReturns62Letters() throws {
+    @Test("fetchAll returns all 52 letters (26 upper + 26 lower)")
+    func fetchAllReturns52Letters() throws {
         let letters = try repository.fetchAll().toBlocking().single()
-        #expect(letters.count == 62)
+        #expect(letters.count == 52)
     }
 
     @Test("fetchAll returns exactly 26 uppercase letters")
@@ -48,31 +48,13 @@ struct LetterRepositoryTests {
         }
     }
 
-    @Test("fetchAll returns exactly 10 digits")
-    func fetchAllReturns10Digits() throws {
-        let letters = try repository.fetchAll().toBlocking().single()
-        let digits = letters.filter { $0.letterCase == .digit }
-        #expect(digits.count == 10)
-    }
-
-    @Test("fetchAll digits cover 0–9")
-    func fetchAllDigitsCoversZeroToNine() throws {
-        let letters = try repository.fetchAll().toBlocking().single()
-        let chars = Set(letters.filter { $0.letterCase == .digit }.map(\.character))
-        for char in "0123456789" {
-            #expect(chars.contains(char), "Missing digit: \(char)")
-        }
-    }
-
-    @Test("fetchAll returns uppercase A–Z before lowercase a–z before digits 0–9")
+    @Test("fetchAll returns uppercase A–Z before lowercase a–z")
     func fetchAllUppercaseComesFirst() throws {
         let letters = try repository.fetchAll().toBlocking().single()
         let upperChars = Array(letters.prefix(26).map(\.character))
-        let lowerChars = Array(letters[26..<52].map(\.character))
-        let digitChars = Array(letters.suffix(10).map(\.character))
+        let lowerChars = Array(letters.suffix(26).map(\.character))
         #expect(upperChars == Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
         #expect(lowerChars == Array("abcdefghijklmnopqrstuvwxyz"))
-        #expect(digitChars == Array("0123456789"))
     }
 
     @Test("fetchAll letters each have at least one stroke template")
@@ -105,30 +87,6 @@ struct LetterRepositoryTests {
         #expect(Set(ids).count == ids.count)
     }
 
-    @Test("fetchNext advances within digits and returns nil after 9")
-    func fetchNextAdvancesWithinDigits() throws {
-        let zero = Letter.digits[0]
-        let one  = Letter.digits[1]
-        let nine = Letter.digits[9]
-        let nextAfterZero = try repository.fetchNext(after: zero.id).toBlocking().single()
-        let nextAfterNine = try repository.fetchNext(after: nine.id).toBlocking().single()
-        #expect(nextAfterZero?.id == one.id)
-        #expect(nextAfterNine == nil)
-    }
-
-    @Test("digits follow the template_digit_<char> naming convention")
-    func digitTemplateImageNamesFollowConvention() throws {
-        let letters = try repository.fetchAll().toBlocking().single()
-        for letter in letters.filter({ $0.letterCase == .digit }) {
-            if let name = letter.templateImageName {
-                #expect(
-                    name == "template_digit_\(letter.character)",
-                    "Digit \(letter.character) has unexpected templateImageName: \(name)"
-                )
-            }
-        }
-    }
-
     // MARK: - fetch(by:)
 
     @Test("fetch(by:) returns the matching letter")
@@ -146,7 +104,7 @@ struct LetterRepositoryTests {
         #expect(result == nil)
     }
 
-    @Test("fetch(by:) works for all 62 letters")
+    @Test("fetch(by:) works for all 52 letters")
     func fetchByIdWorksForAllLetters() throws {
         let letters = try repository.fetchAll().toBlocking().single()
         for letter in letters {

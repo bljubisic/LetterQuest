@@ -22,6 +22,10 @@ protocol HomeViewModelProtocol: ObservableObject {
     /// Whether the grid is showing uppercase or lowercase letters.
     var selectedCase: LetterCase { get }
 
+    /// `true` once the child has completed all 26 uppercase and all 26 lowercase
+    /// letters, unlocking word-practice mode.
+    var isWordModeUnlocked: Bool { get }
+
     /// Triggers a (re-)load of letters and progress from the repositories.
     func load()
 
@@ -32,6 +36,9 @@ protocol HomeViewModelProtocol: ObservableObject {
 
     /// Navigates to the progress and achievements screen.
     func navigateToProgress()
+
+    /// Navigates to the word-practice list screen.
+    func navigateToWords()
 
     /// Switches the grid between uppercase and lowercase letters.
     ///

@@ -31,10 +31,9 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
                 ) {
                     Text("ABC").tag(LetterCase.upper)
                     Text("abc").tag(LetterCase.lower)
-                    Text("123").tag(LetterCase.digit)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 210)
+                .frame(width: 160)
             }
         }
         .overlay {
@@ -54,7 +53,7 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.accentColor)
 
-                Text(viewModel.selectedCase == .digit ? "digits completed" : "letters completed")
+                Text("letters completed")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
@@ -84,7 +83,7 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
     }
 
     private var lettersSection: some View {
-        Section(viewModel.selectedCase == .digit ? "Digits" : "Letters") {
+        Section("Letters") {
             ForEach(viewModel.letters) { letter in
                 LetterProgressRow(
                     letter:   letter,
@@ -214,12 +213,6 @@ private struct LetterProgressRow: View {
     }
 }
 
-#Preview("Digits") {
-    NavigationStack {
-        ProgressScreen(viewModel: PreviewDigitProgressViewModel())
-    }
-}
-
 private final class PreviewProgressViewModel: ProgressViewModelProtocol {
     let letters      = Letter.alphabet
     let totalCount   = 26
@@ -246,31 +239,5 @@ private final class PreviewProgressViewModel: ProgressViewModelProtocol {
         AchievementBadge(id: "first_letter", title: "First Letter!",      systemImage: "star.fill",               isEarned: true),
         AchievementBadge(id: "halfway",       title: "Halfway There!",     systemImage: "star.leadinghalf.filled", isEarned: false),
         AchievementBadge(id: "champion",      title: "Alphabet Champion!", systemImage: "trophy.fill",             isEarned: false)
-    ]
-}
-
-private final class PreviewDigitProgressViewModel: ProgressViewModelProtocol {
-    let letters      = Letter.digits
-    let totalCount   = 10
-    let isLoading    = false
-    let completedCount = 2
-    let selectedCase: LetterCase = .digit
-    func selectCase(_ letterCase: LetterCase) {}
-    let progressMap: [UUID: ChildProgress] = {
-        let completed = Letter.digits.prefix(2).map { letter in
-            ChildProgress(
-                letterId:    letter.id,
-                attempts:    [.init(timestamp: Date(), score: 80)],
-                bestScore:   80,
-                isUnlocked:  true,
-                isCompleted: true
-            )
-        }
-        return Dictionary(uniqueKeysWithValues: completed.map { ($0.letterId, $0) })
-    }()
-    let badges = [
-        AchievementBadge(id: "first_number",    title: "First Number!",  systemImage: "star.fill",               isEarned: true),
-        AchievementBadge(id: "halfway_numbers", title: "Halfway There!", systemImage: "star.leadinghalf.filled", isEarned: false),
-        AchievementBadge(id: "number_master",   title: "Number Master!", systemImage: "trophy.fill",             isEarned: false)
     ]
 }

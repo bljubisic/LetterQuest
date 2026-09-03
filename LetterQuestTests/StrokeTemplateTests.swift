@@ -42,23 +42,6 @@ private let letterSpec: [Character: Spec] = [
 
 private let allLetters = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-// MARK: - Expected stroke spec for digits 0–9
-
-private let digitSpec: [Character: Spec] = [
-    "0": (1, [.curved]),
-    "1": (2, [.diagonal(angle: -45), .topToBottom]),
-    "2": (1, [.curved]),
-    "3": (1, [.curved]),
-    "4": (2, [.curved, .topToBottom]),
-    "5": (2, [.topToBottom, .curved]),
-    "6": (1, [.curved]),
-    "7": (1, [.topToBottom]),
-    "8": (2, [.curved, .curved]),
-    "9": (1, [.curved]),
-]
-
-private let allDigits = Array("0123456789")
-
 // MARK: - Structural integrity (all 26 letters must pass these)
 
 struct StrokeTemplateStructureTests {
@@ -262,43 +245,6 @@ struct StrokeTemplateShapeTests {
             let xs = bar.map(\.x)
             #expect(xs.min()! <= 0.15,
                     "E stroke \(i) doesn't start at the left edge: min x=\(xs.min()!)")
-        }
-    }
-}
-
-// MARK: - Digit template tests
-
-struct StrokeTemplateDigitTests {
-
-    @Test("Each digit returns at least one stroke template", arguments: allDigits)
-    func digitHasAtLeastOneStroke(letter: Character) {
-        #expect(!StrokeTemplate.templates(for: letter).isEmpty)
-    }
-
-    @Test("Each digit has the correct number of strokes", arguments: allDigits)
-    func digitStrokeCount(letter: Character) throws {
-        let spec = try #require(digitSpec[letter])
-        let templates = StrokeTemplate.templates(for: letter)
-        #expect(templates.count == spec.strokes,
-                "Digit \(letter): expected \(spec.strokes) stroke(s), got \(templates.count)")
-    }
-
-    @Test("Each digit stroke has the correct direction", arguments: allDigits)
-    func digitStrokeDirections(letter: Character) throws {
-        let spec = try #require(digitSpec[letter])
-        let templates = StrokeTemplate.templates(for: letter)
-        guard templates.count == spec.strokes else { return }
-        for (index, (template, expected)) in zip(templates, spec.directions).enumerated() {
-            #expect(template.direction == expected,
-                    "Digit \(letter) stroke \(index): expected \(expected), got \(template.direction)")
-        }
-    }
-
-    @Test("All digit strokes contain at least 2 points", arguments: allDigits)
-    func digitStrokesHaveMultiplePoints(letter: Character) {
-        for template in StrokeTemplate.templates(for: letter) {
-            #expect(template.points.count >= 2,
-                    "Digit \(letter) stroke \(template.strokeIndex) has fewer than 2 points")
         }
     }
 }

@@ -67,8 +67,32 @@ final class HandwritingAssessor: HandwritingAssessing {
             guard let self else { return Disposables.create() }
 
             DispatchQueue.global(qos: .userInitiated).async {
+                let canvasSize = guidelines.canvasBounds.size
+
+                // Recognition gate: find the best-matching character in the same group.
+                // If the drawing looks more like a different character, reject early.
+                let (recognized, confidence) = self.recognize(strokes: strokes, among: letter.letterCase, canvasSize: canvasSize)
+                // Only reject when the drawn stroke count matches the target's expected count.
+                // If counts differ, DTW already penalises the score; the gate would fire spuriously
+                // (e.g. G drawn with 2 strokes matches Q's 2-template count, inflating Q's score).
+                let strokeCountMatchesTarget = strokes.count == letter.strokeTemplates.count
+                if strokeCountMatchesTarget && confidence > 65 && recognized != letter.character {
+                    let result = AssessmentResult(
+                        overallScore:     15,
+                        strokeOrderScore: 0,
+                        shapeScore:       0,
+                        proportionScore:  0,
+                        smoothnessScore:  0,
+                        feedback:         [FeedbackItem(type: .shape,
+                                                        message: "That looks like '\(recognized)'. Try drawing '\(letter.character)'!")],
+                        passed:           false
+                    )
+                    observer(.success(result))
+                    return
+                }
+
                 let strokeScore     = self.dtwMatcher.score(strokes: strokes, against: letter.strokeTemplates)
-                let shapeScore      = self.shapeAnalyzer.score(strokes: strokes, for: letter, canvasSize: guidelines.canvasBounds.size)
+                let shapeScore      = self.shapeAnalyzer.score(strokes: strokes, for: letter, canvasSize: canvasSize)
                 let proportionScore = self.proportionChecker.score(strokes: strokes, letter: letter, guidelines: guidelines)
                 let smoothnessScore = self.smoothnessAnalyzer.score(strokes: strokes)
 
@@ -99,6 +123,33 @@ final class HandwritingAssessor: HandwritingAssessing {
 
             return Disposables.create()
         }
+    }
+
+    // MARK: - Recognition
+
+    /// Returns the best-matching character from `group` and its recognition score.
+    /// Score ≤ 65 means the drawing is too ambiguous to classify confidently.
+    private func recognize(strokes: [PKStroke], among group: LetterCase, canvasSize: CGSize) -> (character: Character, confidence: Int) {
+        let candidates: [Letter]
+        switch group {
+        case .upper: candidates = Letter.alphabet
+        case .lower: candidates = Letter.lowercaseAlphabet
+        }
+
+        var bestChar  = candidates.first!.character
+        var bestScore = -1
+
+        for candidate in candidates {
+            let dtw   = dtwMatcher.score(strokes: strokes, against: candidate.strokeTemplates)
+            let shape = shapeAnalyzer.score(strokes: strokes, for: candidate, canvasSize: canvasSize)
+            let score = (dtw + shape) / 2
+            if score > bestScore {
+                bestScore = score
+                bestChar  = candidate.character
+            }
+        }
+
+        return (bestChar, bestScore)
     }
 
     // MARK: - Feedback builder

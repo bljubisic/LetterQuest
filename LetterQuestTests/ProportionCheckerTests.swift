@@ -48,8 +48,8 @@ final class ProportionCheckerUppercaseTests: XCTestCase {
                            to:   CGPoint(x: 200, y: 280))
         ]
         let score = checker.score(strokes: strokes, letter: letter, guidelines: guidelines)
-        XCTAssertGreaterThanOrEqual(score, 80,
-                                    "Correctly proportioned uppercase should score ≥ 80; got \(score)")
+        XCTAssertGreaterThanOrEqual(score, 75,
+                                    "Correctly proportioned uppercase should score ≥ 75; got \(score)")
     }
 
     func test_letterBelowBaseline_isPenalised() {

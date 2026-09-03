@@ -12,7 +12,7 @@ import RxSwift
 /// by `PracticeViewModel` after all uppercase letters are completed.
 final class LetterRepository: LetterRepositoryProtocol {
 
-    private static let allLetters: [Letter] = Letter.alphabet + Letter.lowercaseAlphabet + Letter.digits
+    private static let allLetters: [Letter] = Letter.alphabet + Letter.lowercaseAlphabet
 
     func fetchAll() -> Single<[Letter]> {
         .just(Self.allLetters)

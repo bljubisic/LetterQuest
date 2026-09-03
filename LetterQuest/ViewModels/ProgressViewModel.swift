@@ -18,27 +18,17 @@ final class ProgressViewModel: ProgressViewModelProtocol {
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var selectedCase: LetterCase = .upper
 
-    var totalCount: Int {
-        switch selectedCase {
-        case .digit: return 10
-        default:     return 26
-        }
-    }
+    var totalCount: Int { 26 }
 
     var completedCount: Int {
         letters.filter { progressMap[$0.id]?.isCompleted == true }.count
     }
 
     var badges: [AchievementBadge] {
-        let completed = completedCount
-        switch selectedCase {
-        case .digit:  return Self.makeDigitBadges(completedCount: completed)
-        default:
-            let uppercaseCompleted = allLetters
-                .filter { $0.letterCase == .upper && progressMap[$0.id]?.isCompleted == true }
-                .count
-            return Self.makeLetterBadges(completedCount: uppercaseCompleted)
-        }
+        let uppercaseCompleted = allLetters
+            .filter { $0.letterCase == .upper && progressMap[$0.id]?.isCompleted == true }
+            .count
+        return Self.makeLetterBadges(completedCount: uppercaseCompleted)
     }
 
     // MARK: - Private
@@ -103,29 +93,6 @@ final class ProgressViewModel: ProgressViewModelProtocol {
                 title:       "Alphabet Champion!",
                 systemImage: "trophy.fill",
                 isEarned:    completedCount == 26
-            )
-        ]
-    }
-
-    private static func makeDigitBadges(completedCount: Int) -> [AchievementBadge] {
-        [
-            AchievementBadge(
-                id:          "first_number",
-                title:       "First Number!",
-                systemImage: "star.fill",
-                isEarned:    completedCount >= 1
-            ),
-            AchievementBadge(
-                id:          "halfway_numbers",
-                title:       "Halfway There!",
-                systemImage: "star.leadinghalf.filled",
-                isEarned:    completedCount >= 5
-            ),
-            AchievementBadge(
-                id:          "number_master",
-                title:       "Number Master!",
-                systemImage: "trophy.fill",
-                isEarned:    completedCount == 10
             )
         ]
     }

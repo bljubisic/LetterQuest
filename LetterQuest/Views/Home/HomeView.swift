@@ -35,10 +35,18 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                 ) {
                     Text("ABC").tag(LetterCase.upper)
                     Text("abc").tag(LetterCase.lower)
-                    Text("123").tag(LetterCase.digit)
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 210)
+                .frame(width: 160)
+            }
+            if viewModel.isWordModeUnlocked {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        viewModel.navigateToWords()
+                    } label: {
+                        Image(systemName: "text.book.closed.fill")
+                    }
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
