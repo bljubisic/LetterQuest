@@ -81,22 +81,33 @@ final class ProportionChecker {
         let band      = guidelines.baselineY - guidelines.xHeightY
         let tolerance = max(band * 0.20, 1)
         let deviation = abs(bounds.maxY - targetY)
-        return max(0, 100 - (deviation / tolerance) * 30)
+        // Multiplier 50: one tolerance-band off → score 50; two bands off → score 0.
+        return max(0, 100 - (deviation / tolerance) * 50)
     }
 
     private func scoreHeight(_ bounds: CGRect, letter: Letter, guidelines: Guidelines) -> Double {
         let expectedHeight: CGFloat = guidelines.baselineY - guidelines.ascenderY
 
         guard expectedHeight > 0 else { return 100 }
-        return max(0, 100 - abs(bounds.height / expectedHeight - 1.0) * 80)
+        // Multiplier 100: letter at 50 % expected height scores 50; near-correct scores well.
+        return max(0, 100 - abs(bounds.height / expectedHeight - 1.0) * 100)
     }
 
-    /// Penalises letters that are too small or too wide relative to the canvas.
+    /// Penalises letters that are too narrow or too wide relative to the canvas.
+    ///
+    /// Continuous scoring: ideal zone is 20–75 % of canvas width.
+    /// - Below 5 %: score 20 (inherently narrow letters like "I" still get a floor).
+    /// - 5–20 %: linear ramp 20 → 100.
+    /// - 20–75 %: score 100.
+    /// - 75–90 %: linear decay 100 → 40.
+    /// - Above 90 %: score 20 (sprawling across the full canvas).
     private func scoreWidth(_ bounds: CGRect, guidelines: Guidelines) -> Double {
         let ratio = bounds.width / guidelines.canvasBounds.width
         if ratio < 0.05 { return 20 }
-        if ratio > 0.80 { return 40 }
-        return 100
+        if ratio < 0.20 { return 20 + (ratio - 0.05) / 0.15 * 80 }
+        if ratio <= 0.75 { return 100 }
+        if ratio <= 0.90 { return 100 - (ratio - 0.75) / 0.15 * 60 }
+        return 20
     }
 
     // MARK: - Helpers

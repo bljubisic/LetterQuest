@@ -3,90 +3,133 @@ import CoreGraphics
 import UIKit
 import PencilKit
 
-/// Compares the overall shape of a drawn letter against a reference rasterised
-/// from the letter's own `StrokeTemplate`s.
+/// Compares each drawn stroke against its matching reference stroke using IoU,
+/// then returns the **minimum** per-stroke score.
 ///
-/// **Algorithm**
-/// 1. Rasterise the drawn strokes onto a 64 × 64 grayscale canvas, scaled to fit.
-/// 2. Rasterise the letter's stroke templates the same way (single source of truth
-///    with the on-canvas guide and the animated demonstration).
-/// 3. Compare the two bitmaps pixel-by-pixel using **Intersection over Union (IoU)**.
+/// **Why minimum instead of average?**
+/// Averaging lets one badly-placed stroke hide behind correct ones — a bottom bar
+/// at the wrong height averages with three perfect strokes and still produces a
+/// high score. Taking the minimum makes a single clearly-wrong stroke fail the
+/// whole shape signal, which is the desired behaviour for a handwriting tutor.
 ///
-/// An IoU of 1.0 (all ink pixels overlap perfectly) maps to a score of 100.
-/// An IoU of 0 (no overlap at all) maps to a score of 0.
-///
-/// If the letter ships a hand-authored asset under `templateImageName`, that
-/// bitmap is preferred; otherwise the templates are rasterised on demand.
+/// **Algorithm per stroke pair**
+/// 1. Normalise the child's canvas coordinates to 0–1 by dividing by canvas size.
+/// 2. Map the template's 0–1 points through the writing zone (the same rectangle
+///    `StrokeGuideOverlay` draws), then normalise to 0–1 canvas space.
+/// 3. Both polylines are now in a common coordinate space — size and position
+///    differences are visible to the scorer.
+/// 4. Rasterise each polyline into a 64 × 64 bitmap and compute IoU.
 final class ShapeAnalyzer {
 
-    /// Side length of the normalised bitmap, in points.
+    /// Side length of the bitmap used for each per-stroke comparison.
     private let targetSize = CGSize(width: 64, height: 64)
 
-    /// Width used when rasterising both the drawn and template strokes.
-    /// Wider lines mean a few pixels of mis-alignment still produce overlap,
-    /// which is essential for finger input from young children.
+    /// Stroke width for rasterisation. Wide enough to tolerate normal child
+    /// drawing variation (~5–10 px on a 400 px canvas) while still zeroing
+    /// out strokes placed far from the expected position.
     private let strokeWidth: CGFloat = 10
 
-    /// IoU value that maps to a perfect score of 100. Anything at or above
-    /// this threshold is treated as "great". Calibrated so a recognisably
-    /// correct letter scores in the 80–100 range rather than 30–50.
-    private let perfectIoU: Double = 0.30
+    /// IoU value that maps to a score of 100. A correctly placed stroke
+    /// typically achieves IoU 0.55–1.0 depending on drawing precision.
+    private let perfectIoU: Double = 0.55
 
     // MARK: - Public interface
 
-    /// Scores the shape of the drawn strokes against the letter's reference (0–100).
+    /// Returns a weighted per-stroke shape score (0–100).
     ///
-    /// - Parameters:
-    ///   - strokes: The strokes drawn on the canvas.
-    ///   - letter: The target letter; supplies either an asset-catalogue
-    ///     reference bitmap or its `StrokeTemplate`s, whichever is available.
-    /// - Returns: An IoU-based score in **0–100**.
-    func score(strokes: [PKStroke], for letter: Letter) -> Int {
-        guard let drawn = renderStrokes(strokes) else { return 0 }
-        guard let template = renderTemplates(letter.strokeTemplates) else {
-            return 0
+    /// Computes IoU for each child stroke N vs template stroke N, then combines
+    /// them as `0.5 * average + 0.5 * minimum`.  Pure average would let a
+    /// clearly misplaced stroke hide behind correct ones (e.g. a bottom bar of
+    /// 'E' drawn at mid-height averages away).  Pure minimum would punish a
+    /// correct G when one stroke has slightly imprecise positioning.  The 50/50
+    /// split keeps sensitivity to a wrong stroke while tolerating small errors
+    /// in individual strokes.
+    ///
+    /// A missing child stroke counts as 0, so skipping strokes always lowers
+    /// the score.
+    func score(strokes: [PKStroke], for letter: Letter, canvasSize: CGSize) -> Int {
+        let templates = letter.strokeTemplates
+        guard !strokes.isEmpty, !templates.isEmpty else { return 0 }
+
+        let zone = writingZone(canvasSize: canvasSize, character: letter.character)
+
+        var perStrokeScores: [Int] = []
+        for i in 0..<templates.count {
+            if i < strokes.count,
+               let drawn    = renderSingleStroke(strokes[i], canvasSize: canvasSize),
+               let template = renderSingleTemplate(templates[i], zone: zone, canvasSize: canvasSize) {
+                perStrokeScores.append(iouScore(drawn: drawn, template: template))
+            } else {
+                perStrokeScores.append(0)   // missing stroke
+            }
         }
-        return iouScore(drawn: drawn, template: template)
+
+        let avg    = Double(perStrokeScores.reduce(0, +)) / Double(perStrokeScores.count)
+        let minVal = Double(perStrokeScores.min() ?? 0)
+        return Int(0.5 * avg + 0.5 * minVal)
     }
 
     // MARK: - Rendering
 
-    /// Renders all PencilKit strokes into a 64 × 64 grayscale bitmap, scaled and centred.
-    ///
-    /// Returns `nil` when `strokes` is empty or produces a degenerate bounding box.
-    private func renderStrokes(_ strokes: [PKStroke]) -> CGImage? {
-        let polylines: [[CGPoint]] = strokes
-            .filter { $0.path.count > 1 }
-            .map { stroke in (0..<stroke.path.count).map { stroke.path[$0].location } }
-        return rasterise(polylines)
+    /// Normalises a PencilKit stroke's canvas-pixel coordinates to 0–1 and rasterises.
+    private func renderSingleStroke(_ stroke: PKStroke, canvasSize: CGSize) -> CGImage? {
+        guard stroke.path.count > 1 else { return nil }
+        let points = (0..<stroke.path.count).map { i -> CGPoint in
+            let loc = stroke.path[i].location
+            return CGPoint(x: loc.x / canvasSize.width,
+                           y: loc.y / canvasSize.height)
+        }
+        return rasterise([points])
     }
 
-    /// Renders the letter's reference `StrokeTemplate`s into a 64 × 64 bitmap
-    /// using the same pipeline as `renderStrokes(_:)`, so the IoU compares
-    /// like-for-like rasters.
-    private func renderTemplates(_ templates: [StrokeTemplate]) -> CGImage? {
-        rasterise(templates.map(\.points).filter { $0.count > 1 })
+    /// Maps a template stroke through the writing zone then normalises to 0–1 canvas
+    /// space, producing a bitmap in the same coordinate system as `renderSingleStroke`.
+    private func renderSingleTemplate(_ template: StrokeTemplate,
+                                      zone: CGRect,
+                                      canvasSize: CGSize) -> CGImage? {
+        guard template.points.count > 1 else { return nil }
+        let points = template.points.map { pt -> CGPoint in
+            let cx = zone.minX + pt.x * zone.width
+            let cy = zone.minY + pt.y * zone.height
+            return CGPoint(x: cx / canvasSize.width,
+                           y: cy / canvasSize.height)
+        }
+        return rasterise([points])
     }
 
-    /// Shared rasteriser. Bounds-fits the supplied polylines into the 64 × 64
-    /// target with 15 % padding, then strokes each as a single round-capped path.
-    private func rasterise(_ polylines: [[CGPoint]]) -> CGImage? {
-        let allPoints = polylines.flatMap { $0 }
-        guard !allPoints.isEmpty else { return nil }
+    /// The rectangle on the canvas where a correctly drawn letter should sit.
+    /// Mirrors `StrokeGuideOverlay.writingZone(in:)` exactly.
+    private func writingZone(canvasSize: CGSize, character: Character) -> CGRect {
+        let ascenderY  = canvasSize.height * 0.20
+        let xHeightY   = canvasSize.height * 0.45
+        let baselineY  = canvasSize.height * 0.70
+        let descenderY = canvasSize.height * 0.85
 
-        let bounds = allPoints.reduce(CGRect.null) { $0.union(CGRect(origin: $1, size: .zero)) }
-        guard !bounds.isNull else { return nil }
+        let top: CGFloat
+        let bottom: CGFloat
+        switch character {
+        case "b", "d", "f", "h", "k", "l", "t":
+            top = ascenderY;  bottom = baselineY
+        case "g", "j", "p", "q", "y":
+            top = ascenderY;  bottom = descenderY
+        default:
+            if character.isUppercase || character.isNumber {
+                top = ascenderY; bottom = baselineY
+            } else {
+                top = xHeightY; bottom = baselineY
+            }
+        }
 
-        // For a pure vertical line (e.g. letter "I") `bounds.width` is 0; for
-        // a pure horizontal line `bounds.height` is 0. Use `.infinity` so the
-        // axis with no extent is ignored when picking the bounds-fit scale.
-        let widthScale  = bounds.width  > 0 ? targetSize.width  / bounds.width  : .infinity
-        let heightScale = bounds.height > 0 ? targetSize.height / bounds.height : .infinity
-        let scale       = min(widthScale, heightScale) * 0.85
-        guard scale.isFinite, scale > 0 else { return nil }   // A single point: nothing to render.
+        let height = bottom - top
+        let width  = height
+        let x      = (canvasSize.width - width) / 2
+        return CGRect(x: x, y: top, width: width, height: height)
+    }
 
-        let offsetX = (targetSize.width  - bounds.width  * scale) / 2 - bounds.minX * scale
-        let offsetY = (targetSize.height - bounds.height * scale) / 2 - bounds.minY * scale
+    /// Rasterises normalised 0–1 polylines directly into a `targetSize` bitmap.
+    /// No bounding-box fitting — position and scale relative to the canvas are preserved.
+    private func rasterise(_ normalizedPolylines: [[CGPoint]]) -> CGImage? {
+        guard !normalizedPolylines.isEmpty else { return nil }
 
         let renderer = UIGraphicsImageRenderer(size: targetSize)
         let image = renderer.image { ctx in
@@ -98,14 +141,14 @@ final class ShapeAnalyzer {
             ctx.cgContext.setLineCap(.round)
             ctx.cgContext.setLineJoin(.round)
 
-            for polyline in polylines {
+            for polyline in normalizedPolylines {
                 guard let first = polyline.first else { continue }
                 ctx.cgContext.beginPath()
-                ctx.cgContext.move(to: CGPoint(x: first.x * scale + offsetX,
-                                               y: first.y * scale + offsetY))
+                ctx.cgContext.move(to: CGPoint(x: first.x * targetSize.width,
+                                               y: first.y * targetSize.height))
                 for pt in polyline.dropFirst() {
-                    ctx.cgContext.addLine(to: CGPoint(x: pt.x * scale + offsetX,
-                                                      y: pt.y * scale + offsetY))
+                    ctx.cgContext.addLine(to: CGPoint(x: pt.x * targetSize.width,
+                                                      y: pt.y * targetSize.height))
                 }
                 ctx.cgContext.strokePath()
             }
@@ -115,9 +158,6 @@ final class ShapeAnalyzer {
 
     // MARK: - IoU
 
-    /// Computes the **Intersection over Union** between two bitmaps and maps it to 0–100.
-    ///
-    /// A pixel is considered "ink" when its grayscale value is < 128 (dark).
     private func iouScore(drawn: CGImage, template: CGImage) -> Int {
         guard let drawnPixels    = extractGrayscalePixels(drawn),
               let templatePixels = extractGrayscalePixels(template),
@@ -135,11 +175,9 @@ final class ShapeAnalyzer {
 
         guard union > 0 else { return 0 }
         let iou = Double(intersection) / Double(union)
-        // Linear ramp from 0 to perfectIoU; anything above caps at 100.
         return Int(min(100, iou / perfectIoU * 100))
     }
 
-    /// Renders the image into a flat `[UInt8]` grayscale pixel buffer.
     private func extractGrayscalePixels(_ image: CGImage) -> [UInt8]? {
         let w = Int(targetSize.width), h = Int(targetSize.height)
         var pixels = [UInt8](repeating: 0, count: w * h)

@@ -99,7 +99,7 @@ final class ProportionCheckerWidthTests: XCTestCase {
 
     func test_excessiveWidth_isPenalised() {
         let letter = Letter.alphabet.first { $0.character == "A" }!
-        // Width = 380 / 400 = 95% > 80% → width sub-score capped at 40.
+        // Width = 380 / 400 = 95% > 90% → width sub-score 20.
         let wideStrokes = [
             makeLineStroke(from: CGPoint(x: 10,  y: 80),
                            to:   CGPoint(x: 390, y: 280))
@@ -116,7 +116,7 @@ final class ProportionCheckerWidthTests: XCTestCase {
 
     func test_tinyWidth_isPenalised() {
         let letter = Letter.alphabet.first { $0.character == "A" }!
-        // 1 px width → ratio = 0.25% < 5% → width sub-score = 20.
+        // 1 px width → ratio < 5% → width sub-score = 20.
         let tinyStrokes = [
             makeLineStroke(from: CGPoint(x: 200, y: 80),
                            to:   CGPoint(x: 201, y: 280))

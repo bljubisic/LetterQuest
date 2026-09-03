@@ -54,8 +54,7 @@ func makeLineStroke(
 }
 
 /// Rasterises every `StrokeTemplate` polyline into `PKStroke`s scaled to fill
-/// `canvasSize`. Used by `ShapeAnalyzerTests` and `HandwritingAssessorTests` to
-/// produce a "perfect" drawing for a given letter.
+/// `canvasSize`. Used by DTW and smoothness tests that are not position-sensitive.
 func makeStrokes(matching templates: [StrokeTemplate], in canvasSize: CGSize) -> [PKStroke] {
     templates.map { template in
         let scaled = template.points.map {
@@ -63,4 +62,52 @@ func makeStrokes(matching templates: [StrokeTemplate], in canvasSize: CGSize) ->
         }
         return makeStroke(points: scaled)
     }
+}
+
+/// Rasterises every `StrokeTemplate` polyline into `PKStroke`s placed inside
+/// the writing zone for `character`, matching exactly where `StrokeGuideOverlay`
+/// and `ShapeAnalyzer` expect the ink to land.
+///
+/// Use this instead of `makeStrokes(matching:in:)` for `ShapeAnalyzerTests`
+/// so that "perfect" test drawings match the template's canvas-space position.
+func makeStrokesInZone(matching templates: [StrokeTemplate],
+                       for character: Character,
+                       in canvasSize: CGSize) -> [PKStroke] {
+    let zone = testWritingZone(canvasSize: canvasSize, character: character)
+    return templates.map { template in
+        let pts = template.points.map {
+            CGPoint(x: zone.minX + $0.x * zone.width,
+                    y: zone.minY + $0.y * zone.height)
+        }
+        return makeStroke(points: pts)
+    }
+}
+
+/// Writing zone calculation — mirrors `ShapeAnalyzer.writingZone` and
+/// `StrokeGuideOverlay.writingZone` exactly.
+func testWritingZone(canvasSize: CGSize, character: Character) -> CGRect {
+    let ascenderY  = canvasSize.height * 0.20
+    let xHeightY   = canvasSize.height * 0.45
+    let baselineY  = canvasSize.height * 0.70
+    let descenderY = canvasSize.height * 0.85
+
+    let top: CGFloat
+    let bottom: CGFloat
+    switch character {
+    case "b", "d", "f", "h", "k", "l", "t":
+        top = ascenderY;  bottom = baselineY
+    case "g", "j", "p", "q", "y":
+        top = ascenderY;  bottom = descenderY
+    default:
+        if character.isUppercase || character.isNumber {
+            top = ascenderY; bottom = baselineY
+        } else {
+            top = xHeightY; bottom = baselineY
+        }
+    }
+
+    let height = bottom - top
+    let width  = height
+    let x      = (canvasSize.width - width) / 2
+    return CGRect(x: x, y: top, width: width, height: height)
 }
