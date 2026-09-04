@@ -28,6 +28,7 @@ private final class MockLetterRepository: LetterRepositoryProtocol {
 private final class MockProgressRepository: ProgressRepositoryProtocol {
     func loadAll() -> Single<[ChildProgress]> { .just([]) }
     func save(_ progress: ChildProgress) -> Completable { .empty() }
+    func resetAll() -> Completable { .empty() }
 }
 
 private final class MockWordProgressRepository: WordProgressRepositoryProtocol {
@@ -35,6 +36,10 @@ private final class MockWordProgressRepository: WordProgressRepositoryProtocol {
     func loadAll() -> Single<[WordProgress]> { .just(saved) }
     func save(_ progress: WordProgress) -> Completable {
         saved.append(progress)
+        return .empty()
+    }
+    func resetAll() -> Completable {
+        saved.removeAll()
         return .empty()
     }
 }

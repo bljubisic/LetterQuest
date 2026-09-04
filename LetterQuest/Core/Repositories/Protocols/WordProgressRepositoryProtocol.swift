@@ -17,4 +17,10 @@ protocol WordProgressRepositoryProtocol {
     /// - Parameter progress: The updated `WordProgress` to save.
     /// - Returns: A `Completable` that signals success or an error.
     func save(_ progress: WordProgress) -> Completable
+
+    /// Erases every stored `WordProgress` record. Used by the Settings
+    /// screen's "Reset All Progress" action.
+    ///
+    /// - Returns: A `Completable` that signals success or an error.
+    func resetAll() -> Completable
 }

@@ -31,6 +31,12 @@ import SwiftUI
 /// ProgressRepository ───────────────────┤─► WordPracticeViewModel ─► WordPracticeView
 /// WordProgressRepository ───────────────┤    (builds a PracticeViewModel per letter)
 /// HandwritingAssessor ──────────────────┘
+///
+/// SoundService  ─────────────────────────┐
+/// HapticsService  ────────────────────────┤
+/// SettingsRepository ─────────────────────┤─► SettingsViewModel ─► SettingsView
+/// ProgressRepository ─────────────────────┤
+/// WordProgressRepository ─────────────────┘
 /// ```
 @main
 struct LetterQuestApp: App {
@@ -41,11 +47,23 @@ struct LetterQuestApp: App {
     // Shared service instances — one per app lifetime.
     private let letterRepository:       LetterRepositoryProtocol       = LetterRepository()
     private let progressRepository:     ProgressRepositoryProtocol     = ProgressRepository()
-    private let assessor:               HandwritingAssessing            = HandwritingAssessor()
+    private let assessor:               HandwritingAssessing
     private let soundService:           SoundServiceProtocol           = SoundService()
     private let hapticsService:         HapticsServiceProtocol         = HapticsService()
     private let wordRepository:         WordRepositoryProtocol         = WordRepository()
     private let wordProgressRepository: WordProgressRepositoryProtocol = WordProgressRepository()
+    private let settingsRepository:     SettingsRepositoryProtocol
+
+    // `assessor` reads the current difficulty from `settingsRepository` at
+    // assessment time, so `settingsRepository` must exist before `assessor`
+    // is constructed — inline property defaults can't reference each other,
+    // hence the explicit init. Every other property above keeps its own
+    // inline default; only these two need to be assigned here.
+    init() {
+        let settingsRepository = SettingsRepository()
+        self.settingsRepository = settingsRepository
+        self.assessor = HandwritingAssessor(settingsRepository: settingsRepository)
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -127,6 +145,15 @@ struct LetterQuestApp: App {
                 router:                 router
             ))
             .id(wordId)
+
+        case .settings:
+            SettingsView(viewModel: SettingsViewModel(
+                soundService:           soundService,
+                hapticsService:         hapticsService,
+                settingsRepository:     settingsRepository,
+                progressRepository:     progressRepository,
+                wordProgressRepository: wordProgressRepository
+            ))
         }
     }
 
