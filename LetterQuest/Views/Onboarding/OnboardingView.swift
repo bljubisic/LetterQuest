@@ -33,6 +33,7 @@ struct OnboardingView<VM: OnboardingViewModelProtocol>: View {
             }
             .font(.body.weight(.medium))
             .padding()
+            .accessibilityHint("Skips the introduction and goes to the letter grid.")
         }
         .background(Color(uiColor: .systemBackground))
     }
@@ -88,23 +89,27 @@ private struct OnboardingPageView: View {
     let isLastPage: Bool
     let onComplete: () -> Void
 
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 80
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
 
             Image(systemName: page.systemImage)
-                .font(.system(size: 80, weight: .light))
+                .font(.system(size: iconSize, weight: .light))
                 .foregroundStyle(Color.accentColor)
                 .padding(32)
                 .background(
                     Circle()
                         .fill(Color.accentColor.opacity(0.10))
                 )
+                .accessibilityHidden(true)
 
             VStack(spacing: 12) {
                 Text(page.title)
                     .font(.title.bold())
                     .multilineTextAlignment(.center)
+                    .accessibilityAddTraits(.isHeader)
 
                 Text(page.body)
                     .font(.body)
@@ -123,6 +128,7 @@ private struct OnboardingPageView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .padding(.top, 8)
+                .accessibilityHint("Finishes the introduction and goes to the letter grid.")
             }
 
             Spacer()

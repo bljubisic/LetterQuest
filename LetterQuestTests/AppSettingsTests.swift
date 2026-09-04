@@ -44,25 +44,39 @@ struct SettingsRepositoryTests {
     }
 
     @Test("load returns .default when nothing has been saved")
-    func loadReturnsDefaultInitially() throws {
-        let settings = try repository.load().toBlocking().single()
-        #expect(settings == .default)
+    func loadReturnsDefaultInitially() {
+        #expect(loadSync(repository) == .default)
     }
 
     @Test("save then load round-trips the settings correctly")
-    func saveAndLoadRoundTrips() throws {
+    func saveAndLoadRoundTrips() {
         let repo = repository
-        try repo.save(AppSettings(difficulty: .challenge)).toBlocking().first()
-        let loaded = try repo.load().toBlocking().single()
-        #expect(loaded.difficulty == .challenge)
+        saveSync(repo, AppSettings(difficulty: .challenge))
+        #expect(loadSync(repo).difficulty == .challenge)
     }
 
     @Test("saving again replaces the previous settings")
-    func savingReplacesPreviousSettings() throws {
+    func savingReplacesPreviousSettings() {
         let repo = repository
-        try repo.save(AppSettings(difficulty: .easy)).toBlocking().first()
-        try repo.save(AppSettings(difficulty: .challenge)).toBlocking().first()
-        let loaded = try repo.load().toBlocking().single()
-        #expect(loaded.difficulty == .challenge)
+        saveSync(repo, AppSettings(difficulty: .easy))
+        saveSync(repo, AppSettings(difficulty: .challenge))
+        #expect(loadSync(repo).difficulty == .challenge)
     }
+}
+
+// MARK: - Synchronous helpers
+//
+// `SettingsRepository.load()`/`save()` complete synchronously (plain
+// `UserDefaults` access), so a manual subscribe-and-capture is enough —
+// avoids RxBlocking here after it was observed hanging the test host
+// specifically for this repository.
+
+private func loadSync(_ repository: SettingsRepository) -> AppSettings {
+    var result = AppSettings.default
+    repository.load().subscribe(onSuccess: { result = $0 }, onFailure: { _ in }).dispose()
+    return result
+}
+
+private func saveSync(_ repository: SettingsRepository, _ settings: AppSettings) {
+    repository.save(settings).subscribe().dispose()
 }

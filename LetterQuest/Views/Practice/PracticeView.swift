@@ -79,6 +79,12 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: viewModel.assessmentResult) { _, result in
+            guard let result else { return }
+            let outcome = result.passed ? "Great job!" : (result.feedback.first?.message ?? "Keep trying!")
+            UIAccessibility.post(notification: .announcement,
+                                 argument: "Overall score \(result.overallScore). \(outcome)")
+        }
     }
 
     // MARK: - Subviews
@@ -89,6 +95,8 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
         VStack(spacing: 4) {
             LetterStrokeAnimation(letter: letter)
                 .id(letter.id)
+                .accessibilityLabel("Letter demonstration")
+                .accessibilityHint("Double-tap to watch how to draw \(String(letter.character)) again.")
 
             Text("Draw the letter \(String(letter.character))")
                 .font(.title3)
@@ -106,6 +114,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
 
                 GuideLines(size: geo.size)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .accessibilityHidden(true)
 
                 if let letter = viewModel.letter {
                     StrokeGuideOverlay(
@@ -114,6 +123,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
                         character: letter.character
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .accessibilityHidden(true)
                 }
 
                 CanvasView(shouldClear: $shouldClearCanvas) { strokes in
@@ -136,6 +146,13 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 380)
+        // The guide lines and stroke overlay beneath are purely decorative;
+        // present the whole card as one direct-manipulation drawing surface
+        // so VoiceOver users double-tap once, then draw normally with touch.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Drawing canvas")
+        .accessibilityHint("Double-tap to begin drawing.")
+        .accessibilityAddTraits(.allowsDirectInteraction)
     }
 
     /// Clear and Check buttons.
@@ -150,6 +167,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
                     .font(.title3.bold())
             }
             .buttonStyle(.bordered)
+            .accessibilityHint("Clears your drawing so you can try again.")
 
             Button {
                 viewModel.submit(strokes: strokesStore.strokes)
@@ -159,6 +177,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(!strokesStore.hasStrokes || viewModel.isAssessing)
+            .accessibilityHint("Submits your drawing to be scored.")
         }
     }
 
@@ -176,6 +195,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
             .padding(32)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
         }
+        .accessibilityElement(children: .combine)
     }
 }
 

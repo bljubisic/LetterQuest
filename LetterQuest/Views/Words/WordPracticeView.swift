@@ -10,6 +10,8 @@ struct WordPracticeView<VM: WordPracticeViewModelProtocol>: View {
     @ObservedObject var viewModel: VM
     @State private var letterViewModel: PracticeViewModel?
 
+    @ScaledMetric(relativeTo: .title) private var headerGlyphSize: CGFloat = 32
+
     var body: some View {
         ZStack {
             if let word = viewModel.word {
@@ -54,7 +56,7 @@ struct WordPracticeView<VM: WordPracticeViewModelProtocol>: View {
             ForEach(Array(word.characters.enumerated()), id: \.offset) { index, character in
                 VStack(spacing: 2) {
                     Text(String(character))
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .font(.system(size: headerGlyphSize, weight: .bold, design: .rounded))
                         .foregroundStyle(index <= viewModel.currentIndex ? Color.accentColor : .gray)
                     Image(systemName: index < viewModel.currentIndex ? "checkmark.circle.fill" : "circle")
                         .foregroundStyle(index < viewModel.currentIndex ? .green : .gray.opacity(0.4))
@@ -62,6 +64,22 @@ struct WordPracticeView<VM: WordPracticeViewModelProtocol>: View {
             }
         }
         .padding(.top)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Spelling \(word.text)")
+        .accessibilityValue(wordProgressDescription(for: word))
+    }
+
+    /// Builds a spoken summary of per-letter progress, e.g.
+    /// "Letter 2 of 3: A. C completed, A in progress, T not started."
+    private func wordProgressDescription(for word: Word) -> String {
+        let letterStates = word.characters.enumerated().map { index, character -> String in
+            let state = index < viewModel.currentIndex ? "completed"
+                : index == viewModel.currentIndex ? "in progress"
+                : "not started"
+            return "\(String(character)) \(state)"
+        }
+        let position = "Letter \(viewModel.currentIndex + 1) of \(word.characters.count)"
+        return "\(position). " + letterStates.joined(separator: ", ")
     }
 
     // MARK: - Private helpers

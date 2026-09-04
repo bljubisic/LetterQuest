@@ -12,6 +12,8 @@ struct LearnView<VM: LearnViewModelProtocol>: View {
 
     @ObservedObject var viewModel: VM
 
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = 72
+
     var body: some View {
         GeometryReader { geo in
             let animationSize = min(geo.size.width, geo.size.height) * 0.55
@@ -47,9 +49,11 @@ struct LearnView<VM: LearnViewModelProtocol>: View {
                 .foregroundStyle(.secondary)
 
             Text(String(letter.character))
-                .font(.system(size: 72, weight: .bold, design: .rounded))
+                .font(.system(size: glyphSize, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.accentColor)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Watch how to draw the letter \(String(letter.character))")
     }
 
     /// The animation area: a rounded card containing the stroke animation.
@@ -67,6 +71,15 @@ struct LearnView<VM: LearnViewModelProtocol>: View {
                 .id(viewModel.replayToken)
         }
         .frame(width: size + 48, height: size + 48)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Letter demonstration")
+        .accessibilityHint("Double-tap to watch again.")
+        .accessibilityAddTraits(.isButton)
+        // The tap-to-replay gesture lives on the now-hidden `LetterStrokeAnimation`
+        // child; `.accessibilityAction` (not another `.onTapGesture`) is the
+        // correct way to re-expose it for VoiceOver without adding a second,
+        // ambiguous gesture recognizer over the same region for sighted users.
+        .accessibilityAction { viewModel.play() }
     }
 
     private var actionButtons: some View {
@@ -80,6 +93,7 @@ struct LearnView<VM: LearnViewModelProtocol>: View {
             }
             .buttonStyle(.bordered)
             .tint(.accentColor)
+            .accessibilityHint("Replays the letter demonstration.")
 
             Button {
                 viewModel.navigateToPractice()
@@ -89,6 +103,7 @@ struct LearnView<VM: LearnViewModelProtocol>: View {
                     .frame(maxWidth: 320)
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityHint("Moves to the drawing practice screen.")
         }
     }
 }

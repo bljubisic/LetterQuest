@@ -11,6 +11,8 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
 
     @ObservedObject var viewModel: VM
 
+    @ScaledMetric(relativeTo: .largeTitle) private var summaryNumberSize: CGFloat = 48
+
     var body: some View {
         List {
             summarySection
@@ -34,6 +36,7 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 160)
+                .accessibilityHint("Switches between uppercase and lowercase letters.")
             }
         }
         .overlay {
@@ -50,7 +53,7 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
         Section {
             VStack(spacing: 12) {
                 Text("\(viewModel.completedCount) / \(viewModel.totalCount)")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(size: summaryNumberSize, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.accentColor)
 
                 Text("letters completed")
@@ -69,6 +72,8 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
         }
         .listRowBackground(Color.clear)
         .listRowInsets(.init())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(viewModel.completedCount) of \(viewModel.totalCount) letters completed")
     }
 
     private var badgesSection: some View {
@@ -120,6 +125,9 @@ private struct BadgeTile: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 4)
         .opacity(badge.isEarned ? 1 : 0.6)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(badge.title)
+        .accessibilityValue(badge.isEarned ? "Earned" : "Not yet earned")
     }
 }
 
@@ -130,11 +138,14 @@ private struct LetterProgressRow: View {
     let letter:   Letter
     let progress: ChildProgress?
 
+    @ScaledMetric(relativeTo: .title) private var glyphSize: CGFloat = 40
+    @ScaledMetric(relativeTo: .caption2) private var ringNumberSize: CGFloat = 11
+
     var body: some View {
         HStack(spacing: 14) {
             // Character glyph
             Text(String(letter.character))
-                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .font(.system(size: glyphSize, weight: .bold, design: .rounded))
                 .foregroundStyle(statusColor)
                 .frame(width: 48, alignment: .center)
 
@@ -169,6 +180,8 @@ private struct LetterProgressRow: View {
             }
         }
         .padding(.vertical, 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityDescription)
     }
 
     // MARK: - Helpers
@@ -177,6 +190,24 @@ private struct LetterProgressRow: View {
         guard let progress else { return "Locked" }
         if progress.isCompleted { return "Completed ⭐" }
         return progress.attempts.isEmpty ? "Not started" : "In progress"
+    }
+
+    /// A single spoken sentence combining everything this row shows visually.
+    private var accessibilityDescription: String {
+        var parts = ["Letter \(String(letter.character))"]
+        guard let progress else {
+            parts.append("Locked")
+            return parts.joined(separator: ", ")
+        }
+        parts.append(progress.isCompleted ? "Completed" : (progress.attempts.isEmpty ? "Not started" : "In progress"))
+        if !progress.attempts.isEmpty {
+            parts.append("\(progress.attempts.count) attempt\(progress.attempts.count == 1 ? "" : "s")")
+            parts.append("best score \(progress.bestScore) percent")
+        }
+        if progress.isCompleted, let date = firstCompletionDate {
+            parts.append("completed \(date.formatted(.dateTime.day().month().year()))")
+        }
+        return parts.joined(separator: ", ")
     }
 
     private var statusColor: Color {
@@ -198,10 +229,11 @@ private struct LetterProgressRow: View {
                 .stroke(statusColor, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             Text("\(score)")
-                .font(.system(size: 11, weight: .bold))
+                .font(.system(size: ringNumberSize, weight: .bold))
                 .foregroundStyle(statusColor)
         }
         .frame(width: 40, height: 40)
+        .accessibilityHidden(true)
     }
 }
 

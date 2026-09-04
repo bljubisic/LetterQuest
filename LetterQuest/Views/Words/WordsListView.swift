@@ -43,11 +43,13 @@ private struct WordCard: View {
     let progress: WordProgress?
     let onTap: () -> Void
 
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = 40
+
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 10) {
                 Text(word.text)
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .font(.system(size: glyphSize, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.accentColor)
 
                 Text(isCompleted ? "⭐ Done!" : "Tap to start")
@@ -61,6 +63,9 @@ private struct WordCard: View {
             .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(word.text)
+        .accessibilityValue(isCompleted ? "Completed" : "Not started")
     }
 
     private var isCompleted: Bool { progress?.isCompleted ?? false }
