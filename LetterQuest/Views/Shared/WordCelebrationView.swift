@@ -12,13 +12,16 @@ struct WordCelebrationView: View {
     /// Called when the child taps the continue button.
     let onContinue: () -> Void
 
+    @ScaledMetric(relativeTo: .largeTitle) private var emojiSize: CGFloat = 80
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.4).ignoresSafeArea()
 
             VStack(spacing: 28) {
                 Text("🎉")
-                    .font(.system(size: 80))
+                    .font(.system(size: emojiSize))
+                    .accessibilityHidden(true)
 
                 VStack(spacing: 8) {
                     Text("You spelled it!")
@@ -29,14 +32,19 @@ struct WordCelebrationView: View {
                         .font(.title3)
                         .foregroundStyle(.white.opacity(0.85))
                 }
+                .accessibilityElement(children: .combine)
 
                 Button("Done! →", action: onContinue)
                     .buttonStyle(.borderedProminent)
                     .font(.title2.bold())
                     .controlSize(.large)
+                    .accessibilityHint("Returns to the home screen.")
             }
             .padding(40)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28))
+        }
+        .onAppear {
+            UIAccessibility.post(notification: .screenChanged, argument: nil)
         }
     }
 }

@@ -38,6 +38,7 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 160)
+                .accessibilityHint("Switches between uppercase and lowercase letters.")
             }
             if viewModel.isWordModeUnlocked {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -46,6 +47,8 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                     } label: {
                         Image(systemName: "text.book.closed.fill")
                     }
+                    .accessibilityLabel("Word practice")
+                    .accessibilityHint("Opens the list of practice words.")
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -54,6 +57,8 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                 } label: {
                     Image(systemName: "chart.bar.fill")
                 }
+                .accessibilityLabel("Progress")
+                .accessibilityHint("Shows your achievements and letter progress.")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -61,6 +66,8 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                 } label: {
                     Image(systemName: "gearshape.fill")
                 }
+                .accessibilityLabel("Settings")
+                .accessibilityHint("Opens sound, haptics, and difficulty settings.")
             }
         }
         .overlay {
@@ -81,12 +88,14 @@ private struct LetterCard: View {
     let progress: ChildProgress?
     let onTap: () -> Void
 
+    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = 64
+
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 10) {
                 // Large character glyph
                 Text(String(letter.character))
-                    .font(.system(size: 64, weight: .bold, design: .rounded))
+                    .font(.system(size: glyphSize, weight: .bold, design: .rounded))
                     .foregroundStyle(isUnlocked ? Color.accentColor : .gray)
 
                 // Progress indicator or status label
@@ -114,10 +123,22 @@ private struct LetterCard: View {
         }
         .disabled(!isUnlocked)
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Letter \(String(letter.character))")
+        .accessibilityValue(accessibilityStatus)
     }
 
     /// Only uppercase "A" starts unlocked; lowercase letters require all uppercase to be completed.
     private var isUnlocked: Bool {
         progress?.isUnlocked ?? (letter.character == "A")
+    }
+
+    private var accessibilityStatus: String {
+        guard let progress else {
+            return isUnlocked ? "Not started" : "Locked"
+        }
+        return progress.isCompleted
+            ? "Completed, best score \(progress.bestScore) percent"
+            : "In progress, best score \(progress.bestScore) percent"
     }
 }

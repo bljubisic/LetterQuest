@@ -34,6 +34,7 @@ struct SettingsView<VM: SettingsViewModelProtocol>: View {
                     }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityHint("Changes how strict scoring is.")
             } header: {
                 Text("Difficulty")
             } footer: {
@@ -44,6 +45,7 @@ struct SettingsView<VM: SettingsViewModelProtocol>: View {
                 Button("Reset All Progress", role: .destructive) {
                     viewModel.requestResetProgress()
                 }
+                .accessibilityHint("Erases progress for every letter and word. This can't be undone.")
             }
         }
         .navigationTitle("Settings")

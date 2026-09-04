@@ -9,6 +9,8 @@ struct CelebrationView: View {
     /// Called when the child taps the continue button.
     let onContinue: () -> Void
 
+    @ScaledMetric(relativeTo: .largeTitle) private var starSize: CGFloat = 80
+
     var body: some View {
         ZStack {
             // Dim the canvas behind the celebration
@@ -16,7 +18,8 @@ struct CelebrationView: View {
 
             VStack(spacing: 28) {
                 Text("⭐")
-                    .font(.system(size: 80))
+                    .font(.system(size: starSize))
+                    .accessibilityHidden(true)
 
                 VStack(spacing: 8) {
                     Text("Amazing!")
@@ -27,14 +30,19 @@ struct CelebrationView: View {
                         .font(.title3)
                         .foregroundStyle(.white.opacity(0.85))
                 }
+                .accessibilityElement(children: .combine)
 
                 Button("Next Letter →", action: onContinue)
                     .buttonStyle(.borderedProminent)
                     .font(.title2.bold())
                     .controlSize(.large)
+                    .accessibilityHint("Moves on to the next letter.")
             }
             .padding(40)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28))
+        }
+        .onAppear {
+            UIAccessibility.post(notification: .screenChanged, argument: nil)
         }
     }
 }
