@@ -40,22 +40,26 @@ final class HandwritingAssessor: HandwritingAssessing {
     private let shapeAnalyzer: ShapeAnalyzer
     private let proportionChecker: ProportionChecker
     private let smoothnessAnalyzer: SmoothnessAnalyzer
+    private let settingsRepository: SettingsRepositoryProtocol
 
     /// - Parameters:
     ///   - dtwMatcher: Compares stroke paths via Dynamic Time Warping.
     ///   - shapeAnalyzer: Compares the rendered bitmap against the reference via IoU.
     ///   - proportionChecker: Checks baseline, x-height, and width geometry.
     ///   - smoothnessAnalyzer: Measures angular jitter and speed variance.
+    ///   - settingsRepository: Source of the current pass-threshold difficulty.
     init(
         dtwMatcher: DTWMatcher         = DTWMatcher(),
         shapeAnalyzer: ShapeAnalyzer   = ShapeAnalyzer(),
         proportionChecker: ProportionChecker  = ProportionChecker(),
-        smoothnessAnalyzer: SmoothnessAnalyzer = SmoothnessAnalyzer()
+        smoothnessAnalyzer: SmoothnessAnalyzer = SmoothnessAnalyzer(),
+        settingsRepository: SettingsRepositoryProtocol = SettingsRepository()
     ) {
         self.dtwMatcher         = dtwMatcher
         self.shapeAnalyzer      = shapeAnalyzer
         self.proportionChecker  = proportionChecker
         self.smoothnessAnalyzer = smoothnessAnalyzer
+        self.settingsRepository = settingsRepository
     }
 
     func assess(
@@ -68,6 +72,16 @@ final class HandwritingAssessor: HandwritingAssessing {
 
             DispatchQueue.global(qos: .userInitiated).async {
                 let canvasSize = guidelines.canvasBounds.size
+
+                // `settingsRepository.load()` is `UserDefaults`-backed and always
+                // completes synchronously (no real async gap), so a plain
+                // subscribe-then-dispose captures the value immediately without
+                // pulling in RxBlocking (test-only; not linked into this target).
+                var settings = AppSettings.default
+                self.settingsRepository.load()
+                    .subscribe(onSuccess: { settings = $0 }, onFailure: { _ in })
+                    .dispose()
+                let passThreshold = settings.difficulty.passThreshold
 
                 // Recognition gate: find the best-matching character in the same group.
                 // If the drawing looks more like a different character, reject early.
@@ -115,7 +129,7 @@ final class HandwritingAssessor: HandwritingAssessing {
                         proportionScore: proportionScore,
                         smoothnessScore: smoothnessScore
                     ),
-                    passed: overall >= 75
+                    passed: overall >= passThreshold
                 )
 
                 observer(.success(result))

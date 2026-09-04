@@ -19,6 +19,26 @@ private func runAssess(
         .single()
 }
 
+private final class MockSettingsRepository: SettingsRepositoryProtocol {
+    let settings: AppSettings
+    init(difficulty: PassDifficulty) { settings = AppSettings(difficulty: difficulty) }
+    func load() -> Single<AppSettings> { .just(settings) }
+    func save(_ settings: AppSettings) -> Completable { .empty() }
+}
+
+private func runAssess(
+    strokes: [PKStroke],
+    letter: Letter,
+    difficulty: PassDifficulty,
+    canvasSize: CGSize = CGSize(width: 400, height: 400)
+) throws -> AssessmentResult {
+    let assessor = HandwritingAssessor(settingsRepository: MockSettingsRepository(difficulty: difficulty))
+    let guides   = ProportionChecker.Guidelines.forCanvas(size: canvasSize)
+    return try assessor.assess(strokes: strokes, for: letter, guidelines: guides)
+        .toBlocking()
+        .single()
+}
+
 // MARK: - Composite weighting
 
 final class HandwritingAssessorWeightingTests: XCTestCase {
@@ -142,6 +162,30 @@ final class HandwritingAssessorRangeTests: XCTestCase {
         ] {
             XCTAssertGreaterThanOrEqual(score, 0,   "\(label) out of range: \(score)")
             XCTAssertLessThanOrEqual(score,    100, "\(label) out of range: \(score)")
+        }
+    }
+}
+
+// MARK: - Difficulty-driven pass threshold
+
+final class HandwritingAssessorDifficultyTests: XCTestCase {
+
+    /// Scoring itself is deterministic given identical strokes/letter/canvas —
+    /// only `passed` should change across difficulties. Rather than reverse
+    /// engineering strokes that land in a specific score band, run the same
+    /// drawing through each difficulty and check `passed` against that
+    /// difficulty's own threshold applied to the (identical) resulting score.
+    func test_passedFlag_reflectsEachDifficultysOwnThreshold() throws {
+        let letter  = Letter.alphabet.first { $0.character == "I" }!
+        let strokes = makeStrokes(matching: letter.strokeTemplates,
+                                  in: CGSize(width: 400, height: 400))
+
+        for difficulty in PassDifficulty.allCases {
+            let result = try runAssess(strokes: strokes, letter: letter, difficulty: difficulty)
+            XCTAssertEqual(
+                result.passed, result.overallScore >= difficulty.passThreshold,
+                "difficulty=\(difficulty) overall=\(result.overallScore) threshold=\(difficulty.passThreshold)"
+            )
         }
     }
 }

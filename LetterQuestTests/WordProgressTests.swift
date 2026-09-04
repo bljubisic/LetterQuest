@@ -64,4 +64,14 @@ struct WordProgressRepositoryTests {
         let all = try repo.loadAll().toBlocking().single()
         #expect(all.count == 2)
     }
+
+    @Test("resetAll erases every stored record")
+    func resetAllErasesEveryRecord() throws {
+        let repo = repository
+        try repo.save(WordProgress(wordId: UUID(), isCompleted: true)).toBlocking().first()
+        try repo.save(WordProgress(wordId: UUID(), isCompleted: false)).toBlocking().first()
+        try repo.resetAll().toBlocking().first()
+        let all = try repo.loadAll().toBlocking().single()
+        #expect(all.isEmpty)
+    }
 }

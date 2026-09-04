@@ -47,6 +47,7 @@ private final class MockLetterRepository: LetterRepositoryProtocol {
 private final class MockProgressRepository: ProgressRepositoryProtocol {
     func loadAll() -> Single<[ChildProgress]> { .just([]) }
     func save(_ progress: ChildProgress) -> Completable { .empty() }
+    func resetAll() -> Completable { .empty() }
 }
 
 // MARK: - Helpers

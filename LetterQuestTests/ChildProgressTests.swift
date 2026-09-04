@@ -252,4 +252,14 @@ struct ProgressRepositoryTests {
         let all = try repo.loadAll().toBlocking().single()
         #expect(all.count == 2)
     }
+
+    @Test("resetAll erases every stored record")
+    func resetAllErasesEveryRecord() throws {
+        let repo = repository
+        try repo.save(makeProgress(letterId: UUID(), bestScore: 60)).toBlocking().first()
+        try repo.save(makeProgress(letterId: UUID(), bestScore: 70)).toBlocking().first()
+        try repo.resetAll().toBlocking().first()
+        let all = try repo.loadAll().toBlocking().single()
+        #expect(all.isEmpty)
+    }
 }

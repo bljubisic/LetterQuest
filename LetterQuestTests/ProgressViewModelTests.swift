@@ -22,6 +22,7 @@ private final class MockProgressRepository: ProgressRepositoryProtocol {
     init(records: [ChildProgress] = []) { self.records = records }
     func loadAll() -> Single<[ChildProgress]>        { .just(records) }
     func save(_ progress: ChildProgress) -> Completable { .empty() }
+    func resetAll() -> Completable { .empty() }
 }
 
 // MARK: - Helpers

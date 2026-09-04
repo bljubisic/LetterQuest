@@ -22,6 +22,7 @@ private final class MockProgressRepository: ProgressRepositoryProtocol {
     init(records: [ChildProgress] = []) { self.records = records }
     func loadAll() -> Single<[ChildProgress]> { .just(records) }
     func save(_ progress: ChildProgress) -> Completable { .empty() }
+    func resetAll() -> Completable { .empty() }
 }
 
 // MARK: - Helpers
@@ -36,11 +37,15 @@ private func makeCompletedProgress(for letter: Letter) -> ChildProgress {
     )
 }
 
-private func makeVM(letters: [Letter], records: [ChildProgress]) -> HomeViewModel {
+private func makeVM(
+    letters: [Letter],
+    records: [ChildProgress],
+    router: AppRouter = AppRouter()
+) -> HomeViewModel {
     HomeViewModel(
         letterRepository:   MockLetterRepository(letters: letters),
         progressRepository: MockProgressRepository(records: records),
-        router:             AppRouter()
+        router:             router
     )
 }
 
@@ -72,5 +77,17 @@ struct HomeViewModelWordUnlockTests {
         let vm = makeVM(letters: letters, records: records)
         DispatchQueue.main.sync {}
         #expect(vm.isWordModeUnlocked == true)
+    }
+}
+
+struct HomeViewModelNavigationTests {
+
+    @Test("navigateToSettings pushes one route onto the stack")
+    func navigateToSettingsPushesRoute() {
+        let router = AppRouter()
+        let vm = makeVM(letters: Letter.alphabet, records: [], router: router)
+        vm.navigateToSettings()
+        DispatchQueue.main.sync {}
+        #expect(router.path.count == 1)
     }
 }

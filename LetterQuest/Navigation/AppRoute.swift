@@ -34,4 +34,7 @@ enum AppRoute: Hashable {
     /// The word-practice screen for the word identified by `wordId`, tracing
     /// its letters in sequence via the existing single-letter practice flow.
     case word(wordId: UUID)
+
+    /// The Settings screen: sound/haptics toggles, difficulty, reset progress.
+    case settings
 }

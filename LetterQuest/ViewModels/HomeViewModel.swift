@@ -81,6 +81,11 @@ final class HomeViewModel: HomeViewModelProtocol {
         router.push(.words)
     }
 
+    /// Pushes the Settings screen.
+    func navigateToSettings() {
+        router.push(.settings)
+    }
+
     /// Switches the letter grid between uppercase and lowercase.
     func selectCase(_ letterCase: LetterCase) {
         selectedCase = letterCase

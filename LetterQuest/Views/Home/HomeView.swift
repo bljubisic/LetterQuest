@@ -55,6 +55,13 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                     Image(systemName: "chart.bar.fill")
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.navigateToSettings()
+                } label: {
+                    Image(systemName: "gearshape.fill")
+                }
+            }
         }
         .overlay {
             if viewModel.isLoading {

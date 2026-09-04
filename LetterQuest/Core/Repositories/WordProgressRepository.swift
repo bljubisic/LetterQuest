@@ -52,6 +52,15 @@ final class WordProgressRepository: WordProgressRepositoryProtocol {
         }
     }
 
+    func resetAll() -> Completable {
+        Completable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            self.userDefaults.removeObject(forKey: self.storageKey)
+            observer(.completed)
+            return Disposables.create()
+        }
+    }
+
     // MARK: - Private
 
     /// Synchronous read used inside `save(_:)` to avoid nested async calls.

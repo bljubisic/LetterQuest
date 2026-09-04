@@ -40,6 +40,9 @@ protocol HomeViewModelProtocol: ObservableObject {
     /// Navigates to the word-practice list screen.
     func navigateToWords()
 
+    /// Navigates to the Settings screen.
+    func navigateToSettings()
+
     /// Switches the grid between uppercase and lowercase letters.
     ///
     /// - Parameter letterCase: The case to display.
