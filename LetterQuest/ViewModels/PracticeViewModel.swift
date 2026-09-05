@@ -77,6 +77,15 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     ///   - onWordAdvance: When provided, `continueToNext()` calls this closure
     ///     instead of navigating via `router`. Used when this view model is
     ///     embedded in a word-practice session by `WordPracticeViewModel`.
+    ///   - demoResult: Screenshot/demo only — when provided, displays this
+    ///     result's `ScorePanel` shortly after the letter loads, without
+    ///     running the real assessment pipeline or any of its side effects
+    ///     (no progress save, no sound/haptics). Used by `ScreenshotDemo` to
+    ///     produce a populated score panel deterministically.
+    ///   - demoShowCelebration: Screenshot/demo only — when `true` alongside
+    ///     `demoResult`, also shows the `CelebrationView` overlay shortly
+    ///     after, so the celebration screenshot is layered over a real
+    ///     practice scene instead of an empty background.
     init(
         letterId: UUID,
         letterRepository: LetterRepositoryProtocol,
@@ -85,7 +94,9 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         soundService: SoundServiceProtocol,
         hapticsService: HapticsServiceProtocol,
         router: AppRouter,
-        onWordAdvance: (() -> Void)? = nil
+        onWordAdvance: (() -> Void)? = nil,
+        demoResult: AssessmentResult? = nil,
+        demoShowCelebration: Bool = false
     ) {
         self.assessor           = assessor
         self.letterRepository   = letterRepository
@@ -97,6 +108,15 @@ final class PracticeViewModel: PracticeViewModelProtocol {
 
         fetchLetter(letterId: letterId, from: letterRepository)
         bindSubmissionPipeline()
+
+        if let demoResult {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                self?.assessmentResult = demoResult
+                if demoShowCelebration {
+                    self?.showCelebration = true
+                }
+            }
+        }
     }
 
     // MARK: - PracticeViewModelProtocol inputs

@@ -52,22 +52,29 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
         ZStack {
             Color(uiColor: .systemYellow).opacity(0.05).ignoresSafeArea()
 
-            VStack(spacing: 24) {
-                if let letter = viewModel.letter {
-                    letterHeader(for: letter)
+            // A plain fixed `VStack` clipped the Check/Clear buttons in
+            // landscape (much less available height than portrait, on top of
+            // the canvas's fixed 380pt height) or at larger Dynamic Type
+            // sizes — a `ScrollView` makes the content scrollable instead of
+            // clipped when it doesn't fit, with no visible change when it does.
+            ScrollView {
+                VStack(spacing: 24) {
+                    if let letter = viewModel.letter {
+                        letterHeader(for: letter)
+                    }
+
+                    drawingArea
+
+                    if let result = viewModel.assessmentResult {
+                        ScorePanel(result: result)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+
+                    actionButtons
                 }
-
-                drawingArea
-
-                if let result = viewModel.assessmentResult {
-                    ScorePanel(result: result)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-
-                actionButtons
+                .padding()
+                .animation(.spring(), value: viewModel.assessmentResult != nil)
             }
-            .padding()
-            .animation(.spring(), value: viewModel.assessmentResult != nil)
 
             if viewModel.isAssessing {
                 assessingOverlay

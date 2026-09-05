@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LetterQuest is an iPad app that teaches children to write uppercase letters using finger or Apple Pencil. The child draws on a PencilKit canvas; a four-signal scoring pipeline evaluates the drawing and gives feedback.
+LetterQuest is a universal iPhone/iPad app that teaches children to write uppercase letters using finger or Apple Pencil. The child draws on a PencilKit canvas; a four-signal scoring pipeline evaluates the drawing and gives feedback.
 
-- **Platform**: iPad only (iOS 17+), Swift 5.9 (main target), Swift 6.0 (test target)
+- **Platform**: Universal — iPhone and iPad (iOS 17+), Swift 5.9 (main target), Swift 6.0 (test target)
 - **Dependency manager**: Swift Package Manager (resolved inside the Xcode project)
 - **External dependencies**: RxSwift 6.10.2 (RxSwift, RxCocoa, RxRelay) + RxBlocking (tests only)
 - **Project file generator**: XcodeGen (`project.yml` → `LetterQuest.xcodeproj`)
