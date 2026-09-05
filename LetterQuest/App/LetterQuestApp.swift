@@ -44,6 +44,12 @@ struct LetterQuestApp: App {
     @StateObject private var router             = AppRouter()
     @StateObject private var onboardingViewModel = OnboardingViewModel()
 
+    /// Gates the real UI behind `ScreenshotDemo` seeding when enabled, so
+    /// `HomeViewModel`/`ProgressViewModel`/etc. are only constructed (and
+    /// read progress data) after demo data has finished saving. Always
+    /// `true` on a normal launch — see `ScreenshotDemo`.
+    @State private var isReadyToShowContent = !ScreenshotDemo.isEnabled
+
     // Shared service instances — one per app lifetime.
     private let letterRepository:       LetterRepositoryProtocol       = LetterRepository()
     private let progressRepository:     ProgressRepositoryProtocol     = ProgressRepository()
@@ -67,18 +73,36 @@ struct LetterQuestApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack(path: $router.path) {
-                HomeView(viewModel: makeHomeViewModel())
-                    .navigationDestination(for: AppRoute.self) { route in
-                        destination(for: route)
+            Group {
+                if isReadyToShowContent {
+                    NavigationStack(path: $router.path) {
+                        HomeView(viewModel: makeHomeViewModel())
+                            .navigationDestination(for: AppRoute.self) { route in
+                                destination(for: route)
+                            }
                     }
+                    .environmentObject(router)
+                    .fullScreenCover(isPresented: Binding(
+                        get: { onboardingViewModel.showOnboarding },
+                        set: { _ in }
+                    )) {
+                        OnboardingView(viewModel: onboardingViewModel)
+                    }
+                } else {
+                    Color(uiColor: .systemBackground).ignoresSafeArea()
+                }
             }
-            .environmentObject(router)
-            .fullScreenCover(isPresented: Binding(
-                get: { onboardingViewModel.showOnboarding },
-                set: { _ in }
-            )) {
-                OnboardingView(viewModel: onboardingViewModel)
+            .task {
+                guard ScreenshotDemo.isEnabled else { return }
+                onboardingViewModel.complete()
+                await ScreenshotDemo.run(
+                    letterRepository:       letterRepository,
+                    wordRepository:         wordRepository,
+                    progressRepository:     progressRepository,
+                    wordProgressRepository: wordProgressRepository,
+                    router:                 router
+                )
+                isReadyToShowContent = true
             }
         }
     }
@@ -102,7 +126,11 @@ struct LetterQuestApp: App {
                 assessor:           assessor,
                 soundService:       soundService,
                 hapticsService:     hapticsService,
-                router:             router
+                router:             router,
+                demoResult: ScreenshotDemo.isEnabled && (ScreenshotDemo.route == .score || ScreenshotDemo.route == .celebration)
+                    ? ScreenshotDemo.previewAssessmentResult
+                    : nil,
+                demoShowCelebration: ScreenshotDemo.isEnabled && ScreenshotDemo.route == .celebration
             ))
             // Force a fully fresh view tree (including the PencilKit canvas)
             // when navigating from one letter to another.

@@ -128,6 +128,11 @@ struct SettingsViewModelTests {
     @Test("setDifficulty updates published state and persists via the settings repository")
     func setDifficultyPersists() {
         let fixture = makeFixture()
+        // Let the init-time async load settle first — otherwise its
+        // main-thread completion can race with `setDifficulty` below and
+        // overwrite `.easy` back to the loaded default under heavy parallel
+        // test load (flaky only under full-suite runs, not in isolation).
+        DispatchQueue.main.sync {}
         fixture.vm.setDifficulty(.easy)
         #expect(fixture.vm.difficulty == .easy)
         #expect(fixture.settingsRepository.saved.last?.difficulty == .easy)

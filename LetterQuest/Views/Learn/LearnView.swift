@@ -18,23 +18,31 @@ struct LearnView<VM: LearnViewModelProtocol>: View {
         GeometryReader { geo in
             let animationSize = min(geo.size.width, geo.size.height) * 0.55
 
-            VStack(spacing: 32) {
-                Spacer()
+            // A plain fixed `VStack` clipped the bottom button in landscape
+            // (much less available height than portrait) or at larger Dynamic
+            // Type sizes — wrapping in a `ScrollView` with a `minHeight` equal
+            // to the screen keeps content vertically centered when it fits,
+            // and makes it scrollable (instead of clipped) when it doesn't.
+            ScrollView {
+                VStack(spacing: 32) {
+                    Spacer(minLength: 0)
 
-                if let letter = viewModel.letter {
-                    titleText(for: letter)
+                    if let letter = viewModel.letter {
+                        titleText(for: letter)
 
-                    animationArea(letter: letter, size: animationSize)
+                        animationArea(letter: letter, size: animationSize)
 
-                    actionButtons
-                } else {
-                    ProgressView()
+                        actionButtons
+                    } else {
+                        ProgressView()
+                    }
+
+                    Spacer(minLength: 0)
                 }
-
-                Spacer()
+                .frame(maxWidth: .infinity, minHeight: geo.size.height)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 16)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 32)
         }
         .navigationBarTitleDisplayMode(.inline)
         .background(Color(uiColor: .systemYellow).opacity(0.05).ignoresSafeArea())
