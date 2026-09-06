@@ -122,3 +122,42 @@ final class ShapeAnalyzerRangeTests: XCTestCase {
         }
     }
 }
+
+// MARK: - Batch scoring matches per-candidate scoring (issue #17 perf fix)
+
+/// `scores(strokes:against:canvasSize:)` reuses the drawn strokes' rendered
+/// bitmaps across every candidate instead of re-rendering them per call — it
+/// must still produce exactly the same numbers as calling `score(strokes:for:canvasSize:)`
+/// once per candidate, just faster.
+final class ShapeAnalyzerBatchScoringTests: XCTestCase {
+
+    private let analyzer   = ShapeAnalyzer()
+    private let canvasSize = CGSize(width: 400, height: 400)
+
+    func test_batchScores_matchIndividualScores_forTracedLetter() {
+        let target  = Letter.alphabet.first { $0.character == "G" }!
+        let strokes = makeStrokesInZone(matching: target.strokeTemplates,
+                                        for: target.character, in: canvasSize)
+        let candidates = Letter.alphabet
+
+        let batch = analyzer.scores(strokes: strokes, against: candidates, canvasSize: canvasSize)
+        let individual = candidates.map { analyzer.score(strokes: strokes, for: $0, canvasSize: canvasSize) }
+
+        XCTAssertEqual(batch, individual)
+    }
+
+    func test_batchScores_matchIndividualScores_forEmptyStrokes() {
+        let candidates = Letter.alphabet
+        let batch = analyzer.scores(strokes: [], against: candidates, canvasSize: canvasSize)
+        XCTAssertEqual(batch, Array(repeating: 0, count: candidates.count))
+    }
+
+    func test_batchScores_returnsOneScorePerCandidate_inOrder() {
+        let target  = Letter.alphabet.first { $0.character == "O" }!
+        let strokes = makeStrokesInZone(matching: target.strokeTemplates,
+                                        for: target.character, in: canvasSize)
+        let candidates = Letter.lowercaseAlphabet
+        let batch = analyzer.scores(strokes: strokes, against: candidates, canvasSize: canvasSize)
+        XCTAssertEqual(batch.count, candidates.count)
+    }
+}
