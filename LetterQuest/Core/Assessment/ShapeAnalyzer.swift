@@ -33,6 +33,30 @@ final class ShapeAnalyzer {
     /// typically achieves IoU 0.55–1.0 depending on drawing precision.
     private let perfectIoU: Double = 0.55
 
+    /// Caches rendered template bitmaps across calls (and across candidates
+    /// within the recognition gate's ~26-candidate scan). A template's
+    /// rasterised bitmap is fully determined by its letter, stroke index, and
+    /// canvas size — it never depends on what the child actually drew — but
+    /// without this cache it was being re-rasterised on every single
+    /// submission for every candidate, which measured as the majority of the
+    /// recognition gate's cost in practice (see issue #17). At most a few
+    /// hundred small bitmaps ever get cached (26 letters × ~2 strokes × the
+    /// handful of canvas sizes a session actually uses), so this is
+    /// negligible against the app's memory budget.
+    ///
+    /// Guarded by `templateCacheQueue` because `HandwritingAssessor.assess()`
+    /// runs on a concurrent background queue and rapid double-submissions
+    /// could otherwise mutate this dictionary from two threads at once.
+    private var templateBitmapCache: [TemplateCacheKey: CGImage] = [:]
+    private let templateCacheQueue = DispatchQueue(label: "com.letterquest.shapeAnalyzer.templateCache")
+
+    private struct TemplateCacheKey: Hashable {
+        let character: Character
+        let strokeIndex: Int
+        let canvasWidth: Int
+        let canvasHeight: Int
+    }
+
     // MARK: - Public interface
 
     /// Returns a weighted per-stroke shape score (0–100).
@@ -48,16 +72,42 @@ final class ShapeAnalyzer {
     /// A missing child stroke counts as 0, so skipping strokes always lowers
     /// the score.
     func score(strokes: [PKStroke], for letter: Letter, canvasSize: CGSize) -> Int {
+        guard !strokes.isEmpty else { return 0 }
+        let drawnBitmaps = strokes.map { renderSingleStroke($0, canvasSize: canvasSize) }
+        return score(drawnBitmaps: drawnBitmaps, for: letter, canvasSize: canvasSize)
+    }
+
+    /// Scores the same drawn strokes against every letter in `candidates` in
+    /// one pass, rendering each drawn stroke's bitmap only once instead of
+    /// once per candidate.
+    ///
+    /// `HandwritingAssessor`'s recognition gate calls `score(strokes:for:canvasSize:)`
+    /// once per letter in the alphabet (~26 times) to find the best-matching
+    /// character — with the naive per-call rendering, that re-rasterises the
+    /// *identical* drawn strokes ~26 times even though only the template side
+    /// actually differs between candidates. This measured as the dominant cost
+    /// of the recognition gate in practice (see issue #17). Returns scores in
+    /// the same order as `candidates`.
+    func scores(strokes: [PKStroke], against candidates: [Letter], canvasSize: CGSize) -> [Int] {
+        guard !strokes.isEmpty else { return candidates.map { _ in 0 } }
+        let drawnBitmaps = strokes.map { renderSingleStroke($0, canvasSize: canvasSize) }
+        return candidates.map { score(drawnBitmaps: drawnBitmaps, for: $0, canvasSize: canvasSize) }
+    }
+
+    /// Shared scoring logic for both `score(strokes:for:canvasSize:)` and
+    /// `scores(strokes:against:canvasSize:)` — takes already-rendered drawn
+    /// stroke bitmaps so callers can reuse them across multiple candidates.
+    private func score(drawnBitmaps: [CGImage?], for letter: Letter, canvasSize: CGSize) -> Int {
         let templates = letter.strokeTemplates
-        guard !strokes.isEmpty, !templates.isEmpty else { return 0 }
+        guard !drawnBitmaps.isEmpty, !templates.isEmpty else { return 0 }
 
         let zone = writingZone(canvasSize: canvasSize, character: letter.character)
 
         var perStrokeScores: [Int] = []
         for i in 0..<templates.count {
-            if i < strokes.count,
-               let drawn    = renderSingleStroke(strokes[i], canvasSize: canvasSize),
-               let template = renderSingleTemplate(templates[i], zone: zone, canvasSize: canvasSize) {
+            if i < drawnBitmaps.count,
+               let drawn    = drawnBitmaps[i],
+               let template = renderSingleTemplate(templates[i], zone: zone, canvasSize: canvasSize, character: letter.character) {
                 perStrokeScores.append(iouScore(drawn: drawn, template: template))
             } else {
                 perStrokeScores.append(0)   // missing stroke
@@ -67,7 +117,7 @@ final class ShapeAnalyzer {
         // Extra child strokes with no matching template slot count as 0.
         // Without this, drawing G (3 strokes) against C's template (1 stroke) only
         // compares the arc and ignores the bar + vertical, inflating C's shape score.
-        let extraStrokes = max(0, strokes.count - templates.count)
+        let extraStrokes = max(0, drawnBitmaps.count - templates.count)
         perStrokeScores.append(contentsOf: Array(repeating: 0, count: extraStrokes))
 
         let avg    = Double(perStrokeScores.reduce(0, +)) / Double(perStrokeScores.count)
@@ -90,9 +140,23 @@ final class ShapeAnalyzer {
 
     /// Maps a template stroke through the writing zone then normalises to 0–1 canvas
     /// space, producing a bitmap in the same coordinate system as `renderSingleStroke`.
+    ///
+    /// Cached by (character, stroke index, canvas size) since `zone` itself is
+    /// fully determined by `character` and `canvasSize` — see `templateBitmapCache`.
     private func renderSingleTemplate(_ template: StrokeTemplate,
                                       zone: CGRect,
-                                      canvasSize: CGSize) -> CGImage? {
+                                      canvasSize: CGSize,
+                                      character: Character) -> CGImage? {
+        let key = TemplateCacheKey(
+            character:   character,
+            strokeIndex: template.strokeIndex,
+            canvasWidth:  Int(canvasSize.width.rounded()),
+            canvasHeight: Int(canvasSize.height.rounded())
+        )
+        if let cached = templateCacheQueue.sync(execute: { templateBitmapCache[key] }) {
+            return cached
+        }
+
         guard template.points.count > 1 else { return nil }
         let points = template.points.map { pt -> CGPoint in
             let cx = zone.minX + pt.x * zone.width
@@ -100,7 +164,9 @@ final class ShapeAnalyzer {
             return CGPoint(x: cx / canvasSize.width,
                            y: cy / canvasSize.height)
         }
-        return rasterise([points])
+        guard let image = rasterise([points]) else { return nil }
+        templateCacheQueue.sync { templateBitmapCache[key] = image }
+        return image
     }
 
     /// The rectangle on the canvas where a correctly drawn letter should sit.
