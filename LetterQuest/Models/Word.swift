@@ -23,5 +23,5 @@ extension Word {
         "cat", "dog", "sun", "hat", "pig", "run", "bed", "cup", "box", "red",
         "big", "hot", "wet", "top", "mop", "bag", "log", "mud", "net", "pen",
         "van", "zip", "jam", "fox"
-    ].map { Word(id: UUID(), text: $0) }
+    ].map { Word(id: DeterministicID.uuid(name: "word.\($0)"), text: $0) }
 }

@@ -236,6 +236,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
                 let existing = all.first { $0.letterId == letter.id }
                     ?? ChildProgress(
                         letterId:    letter.id,
+                        alphabetId:  letter.alphabetId,
                         attempts:    [],
                         bestScore:   0,
                         isUnlocked:  true,
@@ -314,6 +315,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
                     let existing = progressMap[lowercase.id]
                         ?? ChildProgress(
                             letterId:    lowercase.id,
+                            alphabetId:  lowercase.alphabetId,
                             attempts:    [],
                             bestScore:   0,
                             isUnlocked:  false,
@@ -340,6 +342,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
                         let existing = all.first { $0.letterId == next.id }
                             ?? ChildProgress(
                                 letterId:    next.id,
+                                alphabetId:  next.alphabetId,
                                 attempts:    [],
                                 bestScore:   0,
                                 isUnlocked:  false,

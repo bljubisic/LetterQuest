@@ -8,6 +8,7 @@ import RxBlocking
 
 private func makeProgress(
     letterId: UUID    = UUID(),
+    alphabetId: String = Alphabet.latinId,
     bestScore: Int    = 0,
     attempts: [ChildProgress.Attempt] = [],
     isUnlocked: Bool  = true,
@@ -15,6 +16,7 @@ private func makeProgress(
 ) -> ChildProgress {
     ChildProgress(
         letterId:    letterId,
+        alphabetId:  alphabetId,
         attempts:    attempts,
         bestScore:   bestScore,
         isUnlocked:  isUnlocked,
@@ -197,6 +199,39 @@ struct ChildProgressLensTests {
         let unlocked = ChildProgress.lensIsUnlocked.over(locked) { !$0 }
         #expect(unlocked.isUnlocked == true)
         #expect(locked.isUnlocked == false)
+    }
+}
+
+// MARK: - alphabetId
+
+struct ChildProgressAlphabetIdTests {
+
+    @Test("alphabetId defaults to \"latin\" when not specified")
+    func alphabetIdDefaultsToLatin() {
+        let progress = makeProgress()
+        #expect(progress.alphabetId == "latin")
+    }
+
+    @Test("alphabetId can be set explicitly")
+    func alphabetIdCanBeSetExplicitly() {
+        let progress = makeProgress(alphabetId: "cyrillic-sr")
+        #expect(progress.alphabetId == "cyrillic-sr")
+    }
+
+    @Test("recording(_:) preserves alphabetId")
+    func recordingPreservesAlphabetId() {
+        let progress = makeProgress(alphabetId: "cyrillic-sr")
+        let updated  = progress.recording(makeResult(score: 90))
+        #expect(updated.alphabetId == "cyrillic-sr")
+    }
+
+    @Test("every lens preserves alphabetId")
+    func lensesPreserveAlphabetId() {
+        let progress = makeProgress(alphabetId: "cyrillic-sr")
+        #expect(ChildProgress.lensAttempts.set(progress, []).alphabetId == "cyrillic-sr")
+        #expect(ChildProgress.lensBestScore.set(progress, 50).alphabetId == "cyrillic-sr")
+        #expect(ChildProgress.lensIsUnlocked.set(progress, false).alphabetId == "cyrillic-sr")
+        #expect(ChildProgress.lensIsCompleted.set(progress, true).alphabetId == "cyrillic-sr")
     }
 }
 
