@@ -34,6 +34,7 @@ struct OnboardingView<VM: OnboardingViewModelProtocol>: View {
             .font(.body.weight(.medium))
             .padding()
             .accessibilityHint("Skips the introduction and goes to the letter grid.")
+            .accessibilityIdentifier("onboarding.skip")
         }
         .background(Color(uiColor: .systemBackground))
     }

@@ -37,6 +37,7 @@ struct CelebrationView: View {
                     .font(.title2.bold())
                     .controlSize(.large)
                     .accessibilityHint("Moves on to the next letter.")
+                    .accessibilityIdentifier("celebration.continueButton")
             }
             .padding(40)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 28))

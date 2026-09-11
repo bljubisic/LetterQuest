@@ -160,6 +160,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
         .accessibilityLabel("Drawing canvas")
         .accessibilityHint("Double-tap to begin drawing.")
         .accessibilityAddTraits(.allowsDirectInteraction)
+        .accessibilityIdentifier("practice.canvas")
     }
 
     /// Clear and Check buttons.
@@ -175,6 +176,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
             }
             .buttonStyle(.bordered)
             .accessibilityHint("Clears your drawing so you can try again.")
+            .accessibilityIdentifier("practice.clearButton")
 
             Button {
                 viewModel.submit(strokes: strokesStore.strokes)
@@ -185,6 +187,7 @@ struct PracticeView<VM: PracticeViewModelProtocol>: View {
             .buttonStyle(.borderedProminent)
             .disabled(!strokesStore.hasStrokes || viewModel.isAssessing)
             .accessibilityHint("Submits your drawing to be scored.")
+            .accessibilityIdentifier("practice.checkButton")
         }
     }
 

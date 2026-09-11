@@ -64,6 +64,9 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     /// alphabet-wide advance/unlock navigation.
     private let onWordAdvance: (() -> Void)?
 
+    /// Screenshot/E2E-test only — see the `injectedResult` init parameter.
+    private let injectedResult: AssessmentResult?
+
     // MARK: - Init
 
     /// - Parameters:
@@ -77,15 +80,25 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     ///   - onWordAdvance: When provided, `continueToNext()` calls this closure
     ///     instead of navigating via `router`. Used when this view model is
     ///     embedded in a word-practice session by `WordPracticeViewModel`.
-    ///   - demoResult: Screenshot/demo only — when provided, displays this
+    ///   - previewResult: Screenshot-demo only — when provided, displays this
     ///     result's `ScorePanel` shortly after the letter loads, without
     ///     running the real assessment pipeline or any of its side effects
-    ///     (no progress save, no sound/haptics). Used by `ScreenshotDemo` to
-    ///     produce a populated score panel deterministically.
-    ///   - demoShowCelebration: Screenshot/demo only — when `true` alongside
-    ///     `demoResult`, also shows the `CelebrationView` overlay shortly
-    ///     after, so the celebration screenshot is layered over a real
-    ///     practice scene instead of an empty background.
+    ///     (no progress save, no sound/haptics, no unlock). Used by
+    ///     `ScreenshotDemo`'s `.score` and `.celebration` routes to produce a
+    ///     populated screen deterministically and without user interaction.
+    ///   - previewShowsCelebration: Pairs with `previewResult` — when both are
+    ///     set, `showCelebration` is also set cosmetically, so
+    ///     `ScreenshotDemo`'s `.celebration` route can show the overlay
+    ///     layered over a real-looking practice scene.
+    ///   - injectedResult: E2E-test only — when provided, this result is
+    ///     substituted for the real `assessor.assess(...)` call the *next*
+    ///     time the child taps "Check!" (i.e. still gated on a genuine
+    ///     `submit(strokes:)` call, so Clear/redraw/button-enablement all
+    ///     still exercise real UI logic). Once substituted, it runs through
+    ///     `handle(result:)` exactly like a real assessment: progress is
+    ///     saved, the next letter unlocks on a pass, and the celebration
+    ///     overlay appears. Used by `E2ETestSupport` to verify unlock
+    ///     behavior without needing a pixel-perfect PencilKit stroke.
     init(
         letterId: UUID,
         letterRepository: LetterRepositoryProtocol,
@@ -95,8 +108,9 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         hapticsService: HapticsServiceProtocol,
         router: AppRouter,
         onWordAdvance: (() -> Void)? = nil,
-        demoResult: AssessmentResult? = nil,
-        demoShowCelebration: Bool = false
+        previewResult: AssessmentResult? = nil,
+        previewShowsCelebration: Bool = false,
+        injectedResult: AssessmentResult? = nil
     ) {
         self.assessor           = assessor
         self.letterRepository   = letterRepository
@@ -105,14 +119,15 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         self.hapticsService     = hapticsService
         self.router             = router
         self.onWordAdvance      = onWordAdvance
+        self.injectedResult     = injectedResult
 
         fetchLetter(letterId: letterId, from: letterRepository)
         bindSubmissionPipeline()
 
-        if let demoResult {
+        if let previewResult {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-                self?.assessmentResult = demoResult
-                if demoShowCelebration {
+                self?.assessmentResult = previewResult
+                if previewShowsCelebration {
                     self?.showCelebration = true
                 }
             }
@@ -188,6 +203,9 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             })
             .flatMapLatest { [weak self] pair -> Observable<AssessmentResult> in
                 guard let self else { return .empty() }
+                if let injectedResult = self.injectedResult {
+                    return .just(injectedResult)
+                }
                 return self.assessor
                     .assess(strokes: pair.strokes, for: pair.letter, guidelines: self.guidelines)
                     .asObservable()
