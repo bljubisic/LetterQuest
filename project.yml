@@ -27,7 +27,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.letterquest.app
-        DEVELOPMENT_TEAM: ""
+        DEVELOPMENT_TEAM: ENT89NLKC9
+        CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: "NO"
         INFOPLIST_FILE: LetterQuest/Resources/Info.plist
@@ -45,7 +46,25 @@ targets:
         product: RxBlocking
     settings:
       base:
+        DEVELOPMENT_TEAM: ENT89NLKC9
+        CODE_SIGN_STYLE: Automatic
         SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: "YES"
+
+  LetterQuestUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - LetterQuestUITests
+    dependencies:
+      - target: LetterQuest
+    settings:
+      base:
+        DEVELOPMENT_TEAM: ENT89NLKC9
+        CODE_SIGN_STYLE: Automatic
+        TEST_TARGET_NAME: LetterQuest
+        SWIFT_VERSION: "5.9"
         GENERATE_INFOPLIST_FILE: "YES"
 
 configs:

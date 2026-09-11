@@ -112,6 +112,7 @@ struct LearnView<VM: LearnViewModelProtocol>: View {
             }
             .buttonStyle(.borderedProminent)
             .accessibilityHint("Moves to the drawing practice screen.")
+            .accessibilityIdentifier("learn.practiceButton")
         }
     }
 }

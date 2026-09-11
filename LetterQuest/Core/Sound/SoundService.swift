@@ -23,6 +23,14 @@ final class SoundService: SoundServiceProtocol {
 
     private static let enabledKey = "letter_quest_sound_enabled_v1"
 
+    /// Every `AVAudioSession`/`AVAudioPlayer` call is serialized on this
+    /// queue — none of them are safe to call from the main thread (Apple's
+    /// own runtime warning: "This method can lead to UI unresponsiveness if
+    /// called on the main thread"), and routing both the init-time setup and
+    /// every `play()` call through the same queue avoids a data race on the
+    /// player properties themselves.
+    private let audioQueue = DispatchQueue(label: "com.letterquest.sound", qos: .userInitiated)
+
     private var successPlayer:       AVAudioPlayer?
     private var encouragementPlayer: AVAudioPlayer?
     private var errorPlayer:         AVAudioPlayer?
@@ -35,18 +43,19 @@ final class SoundService: SoundServiceProtocol {
             UserDefaults.standard.set(true, forKey: Self.enabledKey)
         }
 
-        configureAudioSession()
-
-        successPlayer       = makePlayer(named: "sound_success")
-        encouragementPlayer = makePlayer(named: "sound_encouragement")
-        errorPlayer         = makePlayer(named: "sound_error")
+        audioQueue.async { [weak self] in
+            self?.configureAudioSession()
+            self?.successPlayer       = self?.makePlayer(named: "sound_success")
+            self?.encouragementPlayer = self?.makePlayer(named: "sound_encouragement")
+            self?.errorPlayer         = self?.makePlayer(named: "sound_error")
+        }
     }
 
     // MARK: - SoundServiceProtocol methods
 
-    func playSuccess()       { play(successPlayer) }
-    func playEncouragement() { play(encouragementPlayer) }
-    func playSoftError()     { play(errorPlayer) }
+    func playSuccess()       { play(\.successPlayer) }
+    func playEncouragement() { play(\.encouragementPlayer) }
+    func playSoftError()     { play(\.errorPlayer) }
 
     // MARK: - Helpers
 
@@ -64,9 +73,12 @@ final class SoundService: SoundServiceProtocol {
         return player
     }
 
-    private func play(_ player: AVAudioPlayer?) {
-        guard isSoundEnabled, let player else { return }
-        player.currentTime = 0
-        player.play()
+    private func play(_ keyPath: KeyPath<SoundService, AVAudioPlayer?>) {
+        guard isSoundEnabled else { return }
+        audioQueue.async { [weak self] in
+            guard let self, let player = self[keyPath: keyPath] else { return }
+            player.currentTime = 0
+            player.play()
+        }
     }
 }

@@ -74,6 +74,7 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
         .listRowInsets(.init())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(viewModel.completedCount) of \(viewModel.totalCount) letters completed")
+        .accessibilityIdentifier("progress.summary")
     }
 
     private var badgesSection: some View {
@@ -182,6 +183,7 @@ private struct LetterProgressRow: View {
         .padding(.vertical, 2)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityDescription)
+        .accessibilityIdentifier("progress.letterRow.\(letter.character)")
     }
 
     // MARK: - Helpers

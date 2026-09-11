@@ -49,6 +49,7 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                     }
                     .accessibilityLabel("Word practice")
                     .accessibilityHint("Opens the list of practice words.")
+                    .accessibilityIdentifier("home.wordsButton")
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -59,6 +60,7 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                 }
                 .accessibilityLabel("Progress")
                 .accessibilityHint("Shows your achievements and letter progress.")
+                .accessibilityIdentifier("home.progressButton")
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -68,6 +70,7 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
                 }
                 .accessibilityLabel("Settings")
                 .accessibilityHint("Opens sound, haptics, and difficulty settings.")
+                .accessibilityIdentifier("home.settingsButton")
             }
         }
         .overlay {
@@ -126,6 +129,7 @@ private struct LetterCard: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Letter \(String(letter.character))")
         .accessibilityValue(accessibilityStatus)
+        .accessibilityIdentifier("home.letterCard.\(letter.character)")
     }
 
     /// Only uppercase "A" starts unlocked; lowercase letters require all uppercase to be completed.
