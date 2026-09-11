@@ -46,6 +46,7 @@ struct SettingsView<VM: SettingsViewModelProtocol>: View {
                     viewModel.requestResetProgress()
                 }
                 .accessibilityHint("Erases progress for every letter and word. This can't be undone.")
+                .accessibilityIdentifier("settings.resetButton")
             }
         }
         .navigationTitle("Settings")

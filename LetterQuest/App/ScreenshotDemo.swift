@@ -113,9 +113,10 @@ enum ScreenshotDemo {
 
         case .celebration:
             // Pushes the same `.practice` route as `.score` — `destination(for:)`
-            // in `LetterQuestApp` checks `ScreenshotDemo.route` itself and adds
-            // `demoShowCelebration: true`, so the celebration overlay appears
-            // layered over a real practice scene instead of an empty background.
+            // in `LetterQuestApp` checks `ScreenshotDemo.route` itself and also
+            // sets `previewShowsCelebration`, so the celebration overlay appears
+            // layered over a real-looking practice scene instead of an empty
+            // background.
             if let target = uppercase.first {
                 router.push(.practice(letterId: target.id))
             }
@@ -158,46 +159,5 @@ enum ScreenshotDemo {
             isCompleted: false
         )
         await awaitCompletable(repository.save(progress))
-    }
-}
-
-// MARK: - Async bridging
-//
-// Small, self-contained Single/Completable → async bridges so this file
-// doesn't depend on a specific RxSwift version's own concurrency bridging.
-
-private func awaitSingle<T>(_ single: Single<T>) async -> T? {
-    await withCheckedContinuation { continuation in
-        var didResume = false
-        _ = single.subscribe(
-            onSuccess: { value in
-                guard !didResume else { return }
-                didResume = true
-                continuation.resume(returning: value)
-            },
-            onFailure: { _ in
-                guard !didResume else { return }
-                didResume = true
-                continuation.resume(returning: nil)
-            }
-        )
-    }
-}
-
-private func awaitCompletable(_ completable: Completable) async {
-    await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-        var didResume = false
-        _ = completable.subscribe(
-            onCompleted: {
-                guard !didResume else { return }
-                didResume = true
-                continuation.resume()
-            },
-            onError: { _ in
-                guard !didResume else { return }
-                didResume = true
-                continuation.resume()
-            }
-        )
     }
 }
