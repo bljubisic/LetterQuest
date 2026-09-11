@@ -15,6 +15,7 @@ import Foundation
 struct ChildProgress: ChildProgressProtocol, Codable, Equatable {
 
     let letterId: UUID
+    let alphabetId: String
     let attempts: [Attempt]
     let bestScore: Int
     let isUnlocked: Bool
@@ -24,6 +25,26 @@ struct ChildProgress: ChildProgressProtocol, Codable, Equatable {
     struct Attempt: Codable, Equatable {
         let timestamp: Date
         let score: Int
+    }
+
+    /// - Parameter alphabetId: Which `Alphabet` `letterId` belongs to.
+    ///   Defaults to `"latin"`, the only alphabet that exists today — callers
+    ///   that already have the real `Letter` in hand should pass its
+    ///   `alphabetId` explicitly instead of relying on the default.
+    init(
+        letterId: UUID,
+        alphabetId: String = Alphabet.latinId,
+        attempts: [Attempt],
+        bestScore: Int,
+        isUnlocked: Bool,
+        isCompleted: Bool
+    ) {
+        self.letterId    = letterId
+        self.alphabetId  = alphabetId
+        self.attempts    = attempts
+        self.bestScore   = bestScore
+        self.isUnlocked  = isUnlocked
+        self.isCompleted = isCompleted
     }
 }
 
@@ -59,6 +80,7 @@ extension ChildProgress {
         set: { whole, value in
             ChildProgress(
                 letterId:    whole.letterId,
+                alphabetId:  whole.alphabetId,
                 attempts:    value,
                 bestScore:   whole.bestScore,
                 isUnlocked:  whole.isUnlocked,
@@ -73,6 +95,7 @@ extension ChildProgress {
         set: { whole, value in
             ChildProgress(
                 letterId:    whole.letterId,
+                alphabetId:  whole.alphabetId,
                 attempts:    whole.attempts,
                 bestScore:   value,
                 isUnlocked:  whole.isUnlocked,
@@ -87,6 +110,7 @@ extension ChildProgress {
         set: { whole, value in
             ChildProgress(
                 letterId:    whole.letterId,
+                alphabetId:  whole.alphabetId,
                 attempts:    whole.attempts,
                 bestScore:   whole.bestScore,
                 isUnlocked:  value,
@@ -101,6 +125,7 @@ extension ChildProgress {
         set: { whole, value in
             ChildProgress(
                 letterId:    whole.letterId,
+                alphabetId:  whole.alphabetId,
                 attempts:    whole.attempts,
                 bestScore:   whole.bestScore,
                 isUnlocked:  whole.isUnlocked,

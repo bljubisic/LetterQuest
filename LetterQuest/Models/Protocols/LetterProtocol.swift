@@ -34,4 +34,7 @@ protocol LetterProtocol {
 
     /// Whether this letter belongs to the uppercase or lowercase set.
     var letterCase: LetterCase { get }
+
+    /// The `Alphabet.id` this letter belongs to, e.g. `"latin"`.
+    var alphabetId: String { get }
 }

@@ -16,6 +16,7 @@ struct Letter: LetterProtocol, Equatable, Identifiable {
     let difficulty: LetterDifficulty
     let templateImageName: String?
     let letterCase: LetterCase
+    let alphabetId: String
 
     /// Decodes the reference bitmap from the asset catalogue on demand.
     /// Returns `nil` when no asset has been added yet.
@@ -30,31 +31,15 @@ struct Letter: LetterProtocol, Equatable, Identifiable {
 // MARK: - Alphabet seed data
 
 extension Letter {
-    /// The full Latin uppercase alphabet, seeded with stroke templates and
-    /// difficulty tiers. Letters A–E are easy, F–O medium, P–Z hard.
-    static let alphabet: [Letter] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".enumerated().map { index, char in
-        Letter(
-            id: UUID(),
-            character: char,
-            strokeTemplates: StrokeTemplate.templates(for: char),
-            difficulty: index < 5 ? .easy : index < 15 ? .medium : .hard,
-            templateImageName: "template_\(char)",
-            letterCase: .upper
-        )
-    }
+    /// The built-in Latin uppercase alphabet. Kept for convenience and to
+    /// avoid touching every existing call site — equivalent to
+    /// `Alphabet.latin.letters.filter { $0.letterCase == .upper }`. See
+    /// `Alphabets/LatinAlphabet.swift` for how it's actually built.
+    static let alphabet: [Letter] = Alphabet.latin.letters.filter { $0.letterCase == .upper }
 
-    /// The full Latin lowercase alphabet. Letters a–e are easy, f–o medium, p–z hard.
-    /// Unlocked as a group when the child passes all 26 uppercase letters.
-    static let lowercaseAlphabet: [Letter] = "abcdefghijklmnopqrstuvwxyz".enumerated().map { index, char in
-        Letter(
-            id: UUID(),
-            character: char,
-            strokeTemplates: StrokeTemplate.templates(for: char),
-            difficulty: index < 5 ? .easy : index < 15 ? .medium : .hard,
-            templateImageName: "template_lc_\(char)",  // prefix avoids case-collision with uppercase assets on macOS HFS+/APFS
-            letterCase: .lower
-        )
-    }
+    /// The built-in Latin lowercase alphabet. Unlocked as a group when the
+    /// child passes all 26 uppercase letters. See `Alphabets/LatinAlphabet.swift`.
+    static let lowercaseAlphabet: [Letter] = Alphabet.latin.letters.filter { $0.letterCase == .lower }
 }
 
 // MARK: - Lenses
@@ -71,7 +56,8 @@ extension Letter {
                 strokeTemplates: value,
                 difficulty: whole.difficulty,
                 templateImageName: whole.templateImageName,
-                letterCase: whole.letterCase
+                letterCase: whole.letterCase,
+                alphabetId: whole.alphabetId
             )
         }
     )
@@ -86,7 +72,8 @@ extension Letter {
                 strokeTemplates: whole.strokeTemplates,
                 difficulty: whole.difficulty,
                 templateImageName: value,
-                letterCase: whole.letterCase
+                letterCase: whole.letterCase,
+                alphabetId: whole.alphabetId
             )
         }
     )
@@ -101,7 +88,8 @@ extension Letter {
                 strokeTemplates: whole.strokeTemplates,
                 difficulty: value,
                 templateImageName: whole.templateImageName,
-                letterCase: whole.letterCase
+                letterCase: whole.letterCase,
+                alphabetId: whole.alphabetId
             )
         }
     )
@@ -116,7 +104,8 @@ extension Letter {
                 strokeTemplates: whole.strokeTemplates,
                 difficulty: whole.difficulty,
                 templateImageName: whole.templateImageName,
-                letterCase: value
+                letterCase: value,
+                alphabetId: whole.alphabetId
             )
         }
     )

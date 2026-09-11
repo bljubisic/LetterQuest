@@ -1,36 +1,38 @@
 import Foundation
 import RxSwift
 
-/// In-memory implementation of `LetterRepositoryProtocol`.
+/// Sources letters from every currently *installed* `Alphabet` (the built-in
+/// Latin alphabet is always installed; purchased ones are added once their
+/// entitlement is verified — see `AlphabetRepositoryProtocol`).
 ///
-/// The letter catalogue is the static `Letter.alphabet + Letter.lowercaseAlphabet` arrays,
-/// seeded at compile time. No network or disk I/O takes place; the `Single` completes
-/// synchronously.
+/// No network or disk I/O takes place; the `Single`s complete synchronously.
 ///
 /// `fetchNext(after:)` advances only within the same `LetterCase` — passing 'Z' returns
 /// `nil`, and passing 'z' also returns `nil`. Lowercase letters are unlocked as a group
 /// by `PracticeViewModel` after all uppercase letters are completed.
 final class LetterRepository: LetterRepositoryProtocol {
 
-    private static let allLetters: [Letter] = Letter.alphabet + Letter.lowercaseAlphabet
+    private let alphabetRepository: AlphabetRepositoryProtocol
+
+    init(alphabetRepository: AlphabetRepositoryProtocol = AlphabetRepository()) {
+        self.alphabetRepository = alphabetRepository
+    }
 
     func fetchAll() -> Single<[Letter]> {
-        .just(Self.allLetters)
+        alphabetRepository.fetchInstalled().map { $0.flatMap(\.letters) }
     }
 
     func fetch(by id: UUID) -> Single<Letter?> {
-        .just(Self.allLetters.first { $0.id == id })
+        fetchAll().map { $0.first { $0.id == id } }
     }
 
     func fetchNext(after id: UUID) -> Single<Letter?> {
-        guard let current = Self.allLetters.first(where: { $0.id == id }) else {
-            return .just(nil)
+        fetchAll().map { allLetters in
+            guard let current = allLetters.first(where: { $0.id == id }) else { return nil }
+            let sameCase = allLetters.filter { $0.letterCase == current.letterCase }
+            guard let index = sameCase.firstIndex(where: { $0.id == id }),
+                  index + 1 < sameCase.count else { return nil }
+            return sameCase[index + 1]
         }
-        let sameCase = Self.allLetters.filter { $0.letterCase == current.letterCase }
-        guard let index = sameCase.firstIndex(where: { $0.id == id }),
-              index + 1 < sameCase.count else {
-            return .just(nil)
-        }
-        return .just(sameCase[index + 1])
     }
 }

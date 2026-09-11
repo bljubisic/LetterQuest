@@ -108,6 +108,7 @@ enum E2ETestSupport {
 
             let progress = ChildProgress(
                 letterId:    letter.id,
+                alphabetId:  letter.alphabetId,
                 attempts:    [ChildProgress.Attempt(timestamp: Date(), score: seed.score)],
                 bestScore:   seed.score,
                 isUnlocked:  true,

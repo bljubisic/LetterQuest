@@ -138,6 +138,7 @@ enum ScreenshotDemo {
     ) async {
         let progress = ChildProgress(
             letterId:    letter.id,
+            alphabetId:  letter.alphabetId,
             attempts:    [ChildProgress.Attempt(timestamp: Date(), score: score)],
             bestScore:   score,
             isUnlocked:  true,
@@ -153,6 +154,7 @@ enum ScreenshotDemo {
     ) async {
         let progress = ChildProgress(
             letterId:    letter.id,
+            alphabetId:  letter.alphabetId,
             attempts:    [ChildProgress.Attempt(timestamp: Date(), score: score)],
             bestScore:   score,
             isUnlocked:  true,

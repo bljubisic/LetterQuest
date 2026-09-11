@@ -179,3 +179,85 @@ struct LetterRepositoryTests {
         }
     }
 }
+
+// MARK: - Multi-alphabet resolution
+
+private struct MockAlphabetRepository: AlphabetRepositoryProtocol {
+    let alphabets: [Alphabet]
+    func fetchAvailable() -> Single<[Alphabet]> { .just(alphabets) }
+    func fetchInstalled() -> Single<[Alphabet]> { .just(alphabets) }
+}
+
+struct LetterRepositoryMultiAlphabetTests {
+
+    private let fakeAlphabetA = Alphabet(
+        id: "fake-a",
+        displayName: "Fake A",
+        nativeName: "Fake A",
+        scriptCode: "Zzzz",
+        localeIdentifier: "und",
+        isFree: true,
+        letters: [
+            Letter(
+                id: DeterministicID.uuid(name: "letter.fake-a.upper.X"),
+                character: "X",
+                strokeTemplates: StrokeTemplate.templates(for: "X"),
+                difficulty: .easy,
+                templateImageName: nil,
+                letterCase: .upper,
+                alphabetId: "fake-a"
+            )
+        ]
+    )
+
+    private let fakeAlphabetB = Alphabet(
+        id: "fake-b",
+        displayName: "Fake B",
+        nativeName: "Fake B",
+        scriptCode: "Zzzz",
+        localeIdentifier: "und",
+        isFree: true,
+        letters: [
+            Letter(
+                id: DeterministicID.uuid(name: "letter.fake-b.upper.X"),
+                character: "X",
+                strokeTemplates: StrokeTemplate.templates(for: "X"),
+                difficulty: .easy,
+                templateImageName: nil,
+                letterCase: .upper,
+                alphabetId: "fake-b"
+            )
+        ]
+    )
+
+    @Test("fetchAll merges letters from every installed alphabet")
+    func fetchAllMergesInstalledAlphabets() throws {
+        let repository = LetterRepository(alphabetRepository: MockAlphabetRepository(alphabets: [fakeAlphabetA, fakeAlphabetB]))
+        let letters = try repository.fetchAll().toBlocking().single()
+        #expect(letters.count == 2)
+        #expect(Set(letters.map(\.alphabetId)) == ["fake-a", "fake-b"])
+    }
+
+    @Test("two alphabets' same character produces two distinct, non-colliding ids")
+    func sameCharacterDifferentAlphabetsDoNotCollide() throws {
+        let repository = LetterRepository(alphabetRepository: MockAlphabetRepository(alphabets: [fakeAlphabetA, fakeAlphabetB]))
+        let letters = try repository.fetchAll().toBlocking().single()
+        let ids = Set(letters.map(\.id))
+        #expect(ids.count == 2, "both letters are the character 'X' but belong to different alphabets, so their ids must differ")
+    }
+
+    @Test("fetch(by:) resolves a letter belonging to a non-default installed alphabet")
+    func fetchByIdResolvesAcrossAlphabets() throws {
+        let repository = LetterRepository(alphabetRepository: MockAlphabetRepository(alphabets: [fakeAlphabetA, fakeAlphabetB]))
+        let target = fakeAlphabetB.letters[0]
+        let fetched = try repository.fetch(by: target.id).toBlocking().single()
+        #expect(fetched?.alphabetId == "fake-b")
+    }
+
+    @Test("an alphabet the repository doesn't report as installed contributes no letters")
+    func uninstalledAlphabetContributesNoLetters() throws {
+        let repository = LetterRepository(alphabetRepository: MockAlphabetRepository(alphabets: [fakeAlphabetA]))
+        let letters = try repository.fetchAll().toBlocking().single()
+        #expect(letters.allSatisfy { $0.alphabetId == "fake-a" })
+    }
+}
