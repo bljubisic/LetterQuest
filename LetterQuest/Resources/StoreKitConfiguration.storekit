@@ -1,14 +1,26 @@
 {
-  "identifier" : "9A194935-9187-443D-996E-E7C1F3035663",
-  "nonRenewingSubscriptions" : [],
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "C7B7A05B",
+  "nonRenewingSubscriptions" : [
+
+  ],
   "products" : [
     {
       "displayPrice" : "0.99",
-      "familyShareable" : false,
-      "internalID" : "0FD65BDB-C090-4ABC-BAC6-BDDBB9CC27BD",
+      "familyShareable" : true,
+      "internalID" : "AE5B34A2",
       "localizations" : [
         {
-          "description" : "Unlocks the Serbian Cyrillic alphabet pack for letter practice.",
+          "description" : "Unlocks the Serbian Cyrillic alphabet pack for letter practice",
           "displayName" : "Serbian Cyrillic Alphabet",
           "locale" : "en_US"
         }
@@ -20,62 +32,29 @@
   ],
   "settings" : {
     "_askToBuyEnabled" : true,
+    "_billingGracePeriodEnabled" : false,
     "_billingIssuesEnabled" : false,
-    "_disableDialogView" : false,
+    "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
     "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
     "_storefront" : "USA",
     "_storeKitErrors" : [
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Load Products"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Purchase"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Verification"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "App Transaction"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Manage Subscriptions Sheet"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Refund Request Sheet"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Offer Code Redeem Sheet"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Sync"
-      },
-      {
-        "current" : null,
-        "enabled" : false,
-        "name" : "Subscription Status"
-      }
-    ]
+
+    ],
+    "_timeRate" : 0
   },
-  "subscriptionGroups" : [],
+  "subscriptionBundleGroups" : [
+
+  ],
+  "subscriptionGroups" : [
+
+  ],
+  "subscriptionSuiteGroups" : [
+
+  ],
   "version" : {
-    "major" : 3,
-    "minor" : 0
+    "major" : 6,
+    "minor" : 3
   }
 }
