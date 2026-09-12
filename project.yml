@@ -70,6 +70,33 @@ targets:
         SWIFT_VERSION: "5.9"
         GENERATE_INFOPLIST_FILE: "YES"
 
+schemes:
+  LetterQuest:
+    build:
+      targets:
+        LetterQuest: all
+        LetterQuestTests: [test]
+        LetterQuestUITests: [test]
+    run:
+      config: Debug
+      storeKitConfiguration: LetterQuest/Resources/StoreKitConfiguration.storekit
+    # storeKitConfiguration here is currently only honored by XcodeGen for the
+    # `run` action (verified against XcodeGen 2.46.0's generated scheme) — the
+    # Test action falls back to no StoreKit data, which is harmless (StoreKit
+    # calls just return empty products/entitlements rather than erroring) and
+    # doesn't affect LetterQuestUITests, which has no purchase-flow coverage
+    # yet. Kept here anyway so a future XcodeGen version picks it up for free.
+    test:
+      config: Debug
+      storeKitConfiguration: LetterQuest/Resources/StoreKitConfiguration.storekit
+      targets:
+        - LetterQuestTests
+        - LetterQuestUITests
+    profile:
+      config: Release
+    archive:
+      config: Release
+
 configs:
   Debug: debug
   Release: release

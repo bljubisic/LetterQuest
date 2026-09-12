@@ -1,0 +1,81 @@
+{
+  "identifier" : "9A194935-9187-443D-996E-E7C1F3035663",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "0FD65BDB-C090-4ABC-BAC6-BDDBB9CC27BD",
+      "localizations" : [
+        {
+          "description" : "Unlocks the Serbian Cyrillic alphabet pack for letter practice.",
+          "displayName" : "Serbian Cyrillic Alphabet",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.persukibo.letterquest.alphabet.cyrillic_sr",
+      "referenceName" : "Serbian Cyrillic Alphabet",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : true,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogView" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      }
+    ]
+  },
+  "subscriptionGroups" : [],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

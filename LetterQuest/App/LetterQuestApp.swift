@@ -44,14 +44,13 @@ struct LetterQuestApp: App {
     @StateObject private var router             = AppRouter()
     @StateObject private var onboardingViewModel = OnboardingViewModel()
 
-    /// Gates the real UI behind `ScreenshotDemo`/`E2ETestSupport` seeding when
-    /// either is enabled, so `HomeViewModel`/`ProgressViewModel`/etc. are only
-    /// constructed (and read progress data) after seed data has finished
-    /// saving. Always `true` on a normal launch.
-    @State private var isReadyToShowContent = !ScreenshotDemo.isEnabled && !E2ETestSupport.isEnabled
+    /// Gates the real UI until startup finishes: entitlements are always
+    /// refreshed from StoreKit first (see `entitlementProvider`), and
+    /// `ScreenshotDemo`/`E2ETestSupport` seeding also needs to complete
+    /// before `HomeViewModel`/`ProgressViewModel`/etc. read progress data.
+    @State private var isReadyToShowContent = false
 
     // Shared service instances — one per app lifetime.
-    private let letterRepository:       LetterRepositoryProtocol       = LetterRepository()
     private let progressRepository:     ProgressRepositoryProtocol     = ProgressRepository()
     private let assessor:               HandwritingAssessing
     private let soundService:           SoundServiceProtocol           = SoundService()
@@ -59,16 +58,29 @@ struct LetterQuestApp: App {
     private let wordRepository:         WordRepositoryProtocol         = WordRepository()
     private let wordProgressRepository: WordProgressRepositoryProtocol = WordProgressRepository()
     private let settingsRepository:     SettingsRepositoryProtocol
+    private let purchaseService:        PurchaseServiceProtocol
+    private let entitlementProvider:    StoreKitAlphabetEntitlementProvider
+    private let alphabetRepository:     AlphabetRepositoryProtocol
+    private let letterRepository:       LetterRepositoryProtocol
 
     // `assessor` reads the current difficulty from `settingsRepository` at
-    // assessment time, so `settingsRepository` must exist before `assessor`
-    // is constructed — inline property defaults can't reference each other,
-    // hence the explicit init. Every other property above keeps its own
-    // inline default; only these two need to be assigned here.
+    // assessment time, and `letterRepository` needs `alphabetRepository`
+    // needs `entitlementProvider` needs `purchaseService` — none of these
+    // chains can be independent inline property defaults, hence the
+    // explicit init. Every other property above keeps its own inline
+    // default; only these need to be assigned here.
     init() {
         let settingsRepository = SettingsRepository()
         self.settingsRepository = settingsRepository
         self.assessor = HandwritingAssessor(settingsRepository: settingsRepository)
+
+        let purchaseService = StoreKitPurchaseService()
+        self.purchaseService = purchaseService
+        let entitlementProvider = StoreKitAlphabetEntitlementProvider(purchaseService: purchaseService)
+        self.entitlementProvider = entitlementProvider
+        let alphabetRepository = AlphabetRepository(entitlementProvider: entitlementProvider)
+        self.alphabetRepository = alphabetRepository
+        self.letterRepository = LetterRepository(alphabetRepository: alphabetRepository)
     }
 
     var body: some Scene {
@@ -93,6 +105,12 @@ struct LetterQuestApp: App {
                 }
             }
             .task {
+                // Always primed first, so the very first `LetterRepository`/
+                // `AlphabetRepository` read already reflects real StoreKit
+                // entitlements — never a flash of "locked" that unlocks a
+                // moment later.
+                await awaitCompletable(entitlementProvider.refresh())
+
                 if ScreenshotDemo.isEnabled {
                     onboardingViewModel.complete()
                     await ScreenshotDemo.run(
@@ -102,7 +120,6 @@ struct LetterQuestApp: App {
                         wordProgressRepository: wordProgressRepository,
                         router:                 router
                     )
-                    isReadyToShowContent = true
                 } else if E2ETestSupport.isEnabled {
                     await E2ETestSupport.run(
                         letterRepository:       letterRepository,
@@ -110,8 +127,8 @@ struct LetterQuestApp: App {
                         wordProgressRepository: wordProgressRepository,
                         onboardingViewModel:    onboardingViewModel
                     )
-                    isReadyToShowContent = true
                 }
+                isReadyToShowContent = true
             }
         }
     }

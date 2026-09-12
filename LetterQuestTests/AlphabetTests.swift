@@ -18,6 +18,11 @@ struct AlphabetLatinTests {
         #expect(alphabet.localeIdentifier == "en")
     }
 
+    @Test("Alphabet.latin has no StoreKit product id, since it's free and built-in")
+    func latinHasNoProductId() {
+        #expect(Alphabet.latin.productId == nil)
+    }
+
     @Test("every letter in Alphabet.latin is stamped with alphabetId \"latin\"")
     func everyLetterHasLatinAlphabetId() {
         for letter in Alphabet.latin.letters {

@@ -207,7 +207,8 @@ struct LetterRepositoryMultiAlphabetTests {
                 letterCase: .upper,
                 alphabetId: "fake-a"
             )
-        ]
+        ],
+        productId: nil
     )
 
     private let fakeAlphabetB = Alphabet(
@@ -227,7 +228,8 @@ struct LetterRepositoryMultiAlphabetTests {
                 letterCase: .upper,
                 alphabetId: "fake-b"
             )
-        ]
+        ],
+        productId: nil
     )
 
     @Test("fetchAll merges letters from every installed alphabet")
