@@ -27,4 +27,8 @@ protocol AlphabetProtocol {
 
     /// Every letter (all cases) belonging to this alphabet.
     var letters: [Letter] { get }
+
+    /// The StoreKit non-consumable product id that unlocks this alphabet.
+    /// `nil` for free/built-in alphabets, which never need a purchase.
+    var productId: String? { get }
 }

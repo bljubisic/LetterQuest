@@ -29,6 +29,10 @@ final class AlphabetRepository: AlphabetRepositoryProtocol {
     }
 
     func fetchInstalled() -> Single<[Alphabet]> {
-        .just(catalogue.filter { $0.isFree || entitlementProvider.isEntitled(to: $0.id) })
+        .just(catalogue.filter { alphabet in
+            guard !alphabet.isFree else { return true }
+            guard let productId = alphabet.productId else { return false }
+            return entitlementProvider.isEntitled(to: productId)
+        })
     }
 }

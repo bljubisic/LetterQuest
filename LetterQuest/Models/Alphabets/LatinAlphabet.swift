@@ -18,7 +18,8 @@ extension Alphabet {
             scriptCode: "Latn",
             localeIdentifier: "en",
             isFree: true,
-            letters: upper + lower
+            letters: upper + lower,
+            productId: nil
         )
     }()
 

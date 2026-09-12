@@ -8,7 +8,7 @@ import RxBlocking
 
 private struct MockEntitlementProvider: AlphabetEntitlementProviding {
     let entitledIds: Set<String>
-    func isEntitled(to alphabetId: String) -> Bool { entitledIds.contains(alphabetId) }
+    func isEntitled(to productId: String) -> Bool { entitledIds.contains(productId) }
 }
 
 private let fakePaidAlphabet = Alphabet(
@@ -18,7 +18,8 @@ private let fakePaidAlphabet = Alphabet(
     scriptCode: "Zzzz",
     localeIdentifier: "und",
     isFree: false,
-    letters: []
+    letters: [],
+    productId: "com.letterquest.tests.fictional"
 )
 
 struct AlphabetRepositoryTests {
@@ -59,7 +60,7 @@ struct AlphabetRepositoryTests {
     func fetchInstalledIncludesOwnedPaidAlphabet() throws {
         let repository = AlphabetRepository(
             catalogue: [.latin, fakePaidAlphabet],
-            entitlementProvider: MockEntitlementProvider(entitledIds: ["fictional"])
+            entitlementProvider: MockEntitlementProvider(entitledIds: ["com.letterquest.tests.fictional"])
         )
         let installed = try repository.fetchInstalled().toBlocking().single()
         #expect(installed.contains { $0.id == "fictional" })

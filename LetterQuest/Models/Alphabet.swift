@@ -10,4 +10,8 @@ struct Alphabet: AlphabetProtocol, Equatable, Identifiable {
     let localeIdentifier: String
     let isFree: Bool
     let letters: [Letter]
+
+    /// The StoreKit non-consumable product id that unlocks this alphabet.
+    /// `nil` for free/built-in alphabets, which never need a purchase.
+    let productId: String?
 }
