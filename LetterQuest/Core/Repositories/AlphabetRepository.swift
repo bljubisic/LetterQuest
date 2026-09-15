@@ -17,7 +17,7 @@ final class AlphabetRepository: AlphabetRepositoryProtocol {
     ///     to exercise entitlement filtering.
     ///   - entitlementProvider: Answers ownership checks for non-free entries.
     init(
-        catalogue: [Alphabet] = [.latin],
+        catalogue: [Alphabet] = [.latin, .cyrillicSr],
         entitlementProvider: AlphabetEntitlementProviding = StubAlphabetEntitlementProvider()
     ) {
         self.catalogue = catalogue

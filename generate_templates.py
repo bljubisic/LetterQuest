@@ -301,6 +301,327 @@ def all_letter_strokes():
     }
 
 
+def cyrillic_uppercase_letter_strokes():
+    # Cap box: x and y both 0.05-0.95, mirrors CyrillicStrokeDefinitions.swift.
+    # Dict keys are the ASCII asset-name fragments from CyrillicAlphabet.swift
+    # (not the Cyrillic characters themselves), since this script only needs
+    # to know which strokes go with which output filename.
+    return {
+        'a': [
+            line_pts((0.5, 0.05), (0.95, 0.95)),
+            line_pts((0.5, 0.05), (0.05, 0.95)),
+            line_pts((0.2, 0.6), (0.8, 0.6)),
+        ],
+        'b': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            line_pts((0.15, 0.05), (0.75, 0.05)),
+            elliptic_arc(0.15, 0.65, 0.55, 0.3, -pi/2, pi/2),
+        ],
+        'v': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            (elliptic_arc(0.15, 0.275, 0.55, 0.225, -pi/2, pi/2) +
+             elliptic_arc(0.15, 0.725, 0.65, 0.225, -pi/2, pi/2)[1:]),
+        ],
+        'g': [
+            line_pts((0.15, 0.05), (0.85, 0.05)),
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+        ],
+        'd': [
+            line_pts((0.15, 0.05), (0.85, 0.05)),
+            (line_pts((0.15, 0.05), (0.15, 0.85)) + line_pts((0.15, 0.85), (0.05, 0.95))[1:]),
+            (line_pts((0.85, 0.05), (0.85, 0.85)) + line_pts((0.85, 0.85), (0.95, 0.95))[1:]),
+            line_pts((0.15, 0.85), (0.85, 0.85)),
+        ],
+        'dj': [
+            line_pts((0.1, 0.05), (0.7, 0.05)),
+            line_pts((0.4, 0.05), (0.4, 0.95)),
+            (elliptic_arc(0.4, 0.75, 0.45, 0.2, -pi/2, 0) +
+             line_pts((0.85, 0.75), (0.85, 0.8), 2)[1:] +
+             curve_through((0.85, 0.8), (0.75, 0.98), (0.6, 0.9))[1:]),
+        ],
+        'e': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            line_pts((0.15, 0.05), (0.85, 0.05)),
+            line_pts((0.15, 0.5), (0.7, 0.5)),
+            line_pts((0.15, 0.95), (0.85, 0.95)),
+        ],
+        'zh': [
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            line_pts((0.08, 0.05), (0.5, 0.5)),
+            line_pts((0.5, 0.5), (0.08, 0.95)),
+            line_pts((0.92, 0.05), (0.5, 0.5)),
+            line_pts((0.5, 0.5), (0.92, 0.95)),
+        ],
+        'z': [
+            (elliptic_arc(0.4, 0.28, 0.45, 0.23, -pi/2, pi/2) +
+             elliptic_arc(0.4, 0.72, 0.5, 0.23, -pi/2, pi/2)[1:]),
+        ],
+        'i': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            line_pts((0.15, 0.95), (0.85, 0.05)),
+            line_pts((0.85, 0.05), (0.85, 0.95)),
+        ],
+        'j': [
+            line_pts((0.7, 0.05), (0.7, 0.70)),
+            curve_through((0.7, 0.70), (0.45, 0.97), (0.2, 0.85)),
+        ],
+        'k': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            line_pts((0.85, 0.05), (0.15, 0.50)),
+            line_pts((0.15, 0.50), (0.85, 0.95)),
+        ],
+        'l': [
+            line_pts((0.15, 0.95), (0.5, 0.05)),
+            line_pts((0.5, 0.05), (0.85, 0.95)),
+        ],
+        'lj': [
+            line_pts((0.25, 0.05), (0.6, 0.05)),
+            (line_pts((0.25, 0.05), (0.25, 0.75), 6) + curve_through((0.25, 0.75), (0.15, 0.93), (0.05, 0.85))[1:]),
+            line_pts((0.6, 0.05), (0.6, 0.95)),
+            elliptic_arc(0.6, 0.72, 0.4, 0.23, -pi/2, pi/2),
+        ],
+        'm': [
+            line_pts((0.1, 0.05), (0.1, 0.95)),
+            line_pts((0.1, 0.05), (0.5, 0.70)),
+            line_pts((0.5, 0.70), (0.9, 0.05)),
+            line_pts((0.9, 0.05), (0.9, 0.95)),
+        ],
+        'n': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            line_pts((0.85, 0.05), (0.85, 0.95)),
+            line_pts((0.15, 0.50), (0.85, 0.50)),
+        ],
+        'nj': [
+            line_pts((0.1, 0.05), (0.1, 0.95)),
+            line_pts((0.45, 0.05), (0.45, 0.95)),
+            line_pts((0.1, 0.50), (0.45, 0.50)),
+            elliptic_arc(0.45, 0.72, 0.45, 0.23, -pi/2, pi/2),
+        ],
+        'o': [
+            circle_arc(0.5, 0.5, 0.45, -pi/2, 3*pi/2),
+        ],
+        'p': [
+            line_pts((0.1, 0.05), (0.9, 0.05)),
+            line_pts((0.1, 0.05), (0.1, 0.95)),
+            line_pts((0.9, 0.05), (0.9, 0.95)),
+        ],
+        'r': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            elliptic_arc(0.15, 0.30, 0.6, 0.25, -pi/2, pi/2),
+        ],
+        's': [
+            circle_arc(0.5, 0.5, 0.45, -pi/3, -5*pi/3),
+        ],
+        't': [
+            line_pts((0.1, 0.05), (0.9, 0.05)),
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+        ],
+        'tj': [
+            line_pts((0.1, 0.05), (0.7, 0.05)),
+            line_pts((0.4, 0.05), (0.4, 0.95)),
+            (elliptic_arc(0.4, 0.75, 0.45, 0.2, -pi/2, 0) + line_pts((0.85, 0.75), (0.85, 0.95))[1:]),
+        ],
+        'u': [
+            line_pts((0.1, 0.05), (0.5, 0.5)),
+            line_pts((0.9, 0.05), (0.5, 0.5)),
+            line_pts((0.5, 0.5), (0.5, 0.95)),
+        ],
+        'f': [
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            circle_arc(0.5, 0.5, 0.35, -pi/2, 3*pi/2),
+        ],
+        'h': [
+            line_pts((0.1, 0.05), (0.9, 0.95)),
+            line_pts((0.9, 0.05), (0.1, 0.95)),
+        ],
+        'c': [
+            (line_pts((0.1, 0.05), (0.1, 0.70), 6) +
+             curve_through((0.1, 0.70), (0.5, 0.90), (0.85, 0.70))[1:] +
+             line_pts((0.85, 0.70), (0.85, 0.05), 6)[1:]),
+            line_pts((0.75, 0.85), (0.75, 0.98)),
+        ],
+        'ch': [
+            line_pts((0.75, 0.05), (0.75, 0.95)),
+            curve_through((0.15, 0.05), (0.15, 0.35), (0.75, 0.5)),
+        ],
+        'dzh': [
+            (line_pts((0.1, 0.05), (0.1, 0.70), 6) +
+             curve_through((0.1, 0.70), (0.5, 0.90), (0.85, 0.70))[1:] +
+             line_pts((0.85, 0.70), (0.85, 0.05), 6)[1:]),
+            line_pts((0.47, 0.85), (0.47, 0.98)),
+        ],
+        'sh': [
+            line_pts((0.1, 0.05), (0.1, 0.95)),
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            line_pts((0.9, 0.05), (0.9, 0.95)),
+            line_pts((0.1, 0.95), (0.9, 0.95)),
+        ],
+    }
+
+
+def cyrillic_lowercase_letter_strokes():
+    # Body zone: y 0.20-0.85. Ascenders extend to y 0.05; descenders reach
+    # y ~0.95. Mirrors CyrillicStrokeDefinitions.swift's lowercase section.
+    return {
+        'a': [
+            line_pts((0.5, 0.2), (0.9, 0.85)),
+            line_pts((0.5, 0.2), (0.1, 0.85)),
+            line_pts((0.25, 0.58), (0.75, 0.58)),
+        ],
+        'b': [
+            line_pts((0.2, 0.05), (0.2, 0.85)),
+            line_pts((0.2, 0.05), (0.55, 0.05)),
+            elliptic_arc(0.2, 0.6, 0.55, 0.25, -pi/2, pi/2),
+        ],
+        'v': [
+            line_pts((0.15, 0.2), (0.15, 0.85)),
+            (elliptic_arc(0.15, 0.36, 0.5, 0.16, -pi/2, pi/2) +
+             elliptic_arc(0.15, 0.69, 0.55, 0.16, -pi/2, pi/2)[1:]),
+        ],
+        'g': [
+            line_pts((0.15, 0.2), (0.75, 0.2)),
+            line_pts((0.15, 0.2), (0.15, 0.85)),
+        ],
+        'd': [
+            line_pts((0.15, 0.2), (0.85, 0.2)),
+            (line_pts((0.15, 0.2), (0.15, 0.75)) + line_pts((0.15, 0.75), (0.05, 0.85))[1:]),
+            (line_pts((0.85, 0.2), (0.85, 0.75)) + line_pts((0.85, 0.75), (0.95, 0.85))[1:]),
+            line_pts((0.15, 0.75), (0.85, 0.75)),
+        ],
+        'dj': [
+            line_pts((0.1, 0.18), (0.4, 0.18)),
+            line_pts((0.25, 0.05), (0.25, 0.85), 8),
+            (elliptic_arc(0.25, 0.68, 0.4, 0.17, -pi/2, 0) +
+             line_pts((0.65, 0.68), (0.65, 0.72), 2)[1:] +
+             curve_through((0.65, 0.72), (0.55, 0.88), (0.4, 0.8))[1:]),
+        ],
+        'e': [
+            line_pts((0.12, 0.5), (0.88, 0.5)),
+            circle_arc(0.5, 0.5, 0.38, 0, -5*pi/3),
+        ],
+        'zh': [
+            line_pts((0.5, 0.2), (0.5, 0.85)),
+            line_pts((0.1, 0.2), (0.5, 0.52)),
+            line_pts((0.5, 0.52), (0.1, 0.85)),
+            line_pts((0.9, 0.2), (0.5, 0.52)),
+            line_pts((0.5, 0.52), (0.9, 0.85)),
+        ],
+        'z': [
+            (elliptic_arc(0.4, 0.36, 0.38, 0.16, -pi/2, pi/2) +
+             elliptic_arc(0.4, 0.69, 0.42, 0.16, -pi/2, pi/2)[1:]),
+        ],
+        'i': [
+            line_pts((0.15, 0.2), (0.15, 0.85)),
+            line_pts((0.15, 0.85), (0.85, 0.2)),
+            line_pts((0.85, 0.2), (0.85, 0.85)),
+        ],
+        'j': [
+            (line_pts((0.5, 0.2), (0.5, 0.8), 5) + curve_through((0.5, 0.8), (0.33, 0.95), (0.17, 0.88))[1:]),
+        ],
+        'k': [
+            line_pts((0.15, 0.2), (0.15, 0.85)),
+            line_pts((0.85, 0.2), (0.15, 0.53)),
+            line_pts((0.15, 0.53), (0.85, 0.85)),
+        ],
+        'l': [
+            line_pts((0.15, 0.85), (0.5, 0.2)),
+            line_pts((0.5, 0.2), (0.85, 0.85)),
+        ],
+        'lj': [
+            line_pts((0.2, 0.2), (0.55, 0.2)),
+            (line_pts((0.2, 0.2), (0.2, 0.7), 5) + curve_through((0.2, 0.7), (0.12, 0.87), (0.05, 0.8))[1:]),
+            line_pts((0.55, 0.2), (0.55, 0.85)),
+            elliptic_arc(0.55, 0.68, 0.35, 0.18, -pi/2, pi/2),
+        ],
+        'm': [
+            line_pts((0.1, 0.2), (0.1, 0.85)),
+            line_pts((0.1, 0.2), (0.5, 0.68)),
+            line_pts((0.5, 0.68), (0.9, 0.2)),
+            line_pts((0.9, 0.2), (0.9, 0.85)),
+        ],
+        'n': [
+            line_pts((0.15, 0.2), (0.15, 0.85)),
+            line_pts((0.85, 0.2), (0.85, 0.85)),
+            line_pts((0.15, 0.52), (0.85, 0.52)),
+        ],
+        'nj': [
+            line_pts((0.15, 0.2), (0.15, 0.85)),
+            line_pts((0.5, 0.2), (0.5, 0.85)),
+            line_pts((0.15, 0.5), (0.5, 0.5)),
+            elliptic_arc(0.5, 0.68, 0.4, 0.18, -pi/2, pi/2),
+        ],
+        'o': [
+            circle_arc(0.5, 0.5, 0.38, -pi/2, 3*pi/2),
+        ],
+        'p': [
+            line_pts((0.12, 0.2), (0.88, 0.2)),
+            line_pts((0.12, 0.2), (0.12, 0.85)),
+            line_pts((0.88, 0.2), (0.88, 0.85)),
+        ],
+        'r': [
+            line_pts((0.2, 0.2), (0.2, 0.95)),
+            elliptic_arc(0.2, 0.38, 0.55, 0.2, -pi/2, pi/2),
+        ],
+        's': [
+            circle_arc(0.5, 0.5, 0.38, -pi/3, -5*pi/3),
+        ],
+        't': [
+            line_pts((0.15, 0.2), (0.85, 0.2)),
+            line_pts((0.5, 0.2), (0.5, 0.85)),
+        ],
+        'tj': [
+            line_pts((0.1, 0.18), (0.4, 0.18)),
+            line_pts((0.25, 0.05), (0.25, 0.85), 8),
+            (elliptic_arc(0.25, 0.68, 0.4, 0.17, -pi/2, 0) + line_pts((0.65, 0.68), (0.65, 0.85))[1:]),
+        ],
+        'u': [
+            line_pts((0.15, 0.2), (0.5, 0.55)),
+            (line_pts((0.85, 0.2), (0.5, 0.55), 4) +
+             line_pts((0.5, 0.55), (0.5, 0.8), 3)[1:] +
+             curve_through((0.5, 0.8), (0.35, 0.95), (0.2, 0.88))[1:]),
+        ],
+        'f': [
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            circle_arc(0.5, 0.5, 0.32, -pi/2, 3*pi/2),
+        ],
+        'h': [
+            line_pts((0.15, 0.2), (0.85, 0.85)),
+            line_pts((0.85, 0.2), (0.15, 0.85)),
+        ],
+        'c': [
+            (line_pts((0.15, 0.2), (0.15, 0.70), 5) +
+             curve_through((0.15, 0.70), (0.5, 0.85), (0.85, 0.70))[1:] +
+             line_pts((0.85, 0.70), (0.85, 0.2), 5)[1:]),
+            line_pts((0.7, 0.8), (0.7, 0.95)),
+        ],
+        'ch': [
+            line_pts((0.75, 0.2), (0.75, 0.85)),
+            curve_through((0.2, 0.2), (0.2, 0.45), (0.75, 0.55)),
+        ],
+        'dzh': [
+            (line_pts((0.15, 0.2), (0.15, 0.70), 5) +
+             curve_through((0.15, 0.70), (0.5, 0.85), (0.85, 0.70))[1:] +
+             line_pts((0.85, 0.70), (0.85, 0.2), 5)[1:]),
+            line_pts((0.47, 0.8), (0.47, 0.95)),
+        ],
+        'sh': [
+            line_pts((0.12, 0.2), (0.12, 0.85)),
+            line_pts((0.5, 0.2), (0.5, 0.85)),
+            line_pts((0.88, 0.2), (0.88, 0.85)),
+            line_pts((0.12, 0.85), (0.88, 0.85)),
+        ],
+    }
+
+
+# Serbian alphabetical order, paired with the ASCII asset-name fragments
+# used by CyrillicAlphabet.swift — must stay in sync with that file.
+CYRILLIC_ASCII_NAMES = [
+    'a', 'b', 'v', 'g', 'd', 'dj', 'e', 'zh', 'z', 'i', 'j', 'k',
+    'l', 'lj', 'm', 'n', 'nj', 'o', 'p', 'r', 's', 't', 'tj', 'u',
+    'f', 'h', 'c', 'ch', 'dzh', 'sh',
+]
+
+
 # ── Rasteriser ────────────────────────────────────────────────────────────────
 
 def dist_sq_to_segment(px, py, ax, ay, bx, by):
@@ -390,6 +711,8 @@ def main():
 
     uppercase_strokes = all_letter_strokes()
     lowercase_strokes = lowercase_letter_strokes()
+    cyrillic_upper_strokes = cyrillic_uppercase_letter_strokes()
+    cyrillic_lower_strokes = cyrillic_lowercase_letter_strokes()
 
     # Uppercase: template_A … template_Z
     for char in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
@@ -405,6 +728,23 @@ def main():
         pixels = render_letter(lowercase_strokes[char], SIZE, MARGIN, STROKE_RADIUS)
         png = encode_png(pixels, SIZE)
         name = f'template_lc_{char}'
+        _write_imageset(xcassets, name, png)
+
+    # Serbian Cyrillic uppercase: template_cyr_a … template_cyr_sh
+    # Filenames use ASCII transliterations (CYRILLIC_ASCII_NAMES), matching
+    # CyrillicAlphabet.swift — raw Cyrillic in a filename is a footgun for
+    # git/Xcode asset-catalog tooling.
+    for name_fragment in CYRILLIC_ASCII_NAMES:
+        pixels = render_letter(cyrillic_upper_strokes[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_cyr_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # Serbian Cyrillic lowercase: template_cyr_lc_a … template_cyr_lc_sh
+    for name_fragment in CYRILLIC_ASCII_NAMES:
+        pixels = render_letter(cyrillic_lower_strokes[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_cyr_lc_{name_fragment}'
         _write_imageset(xcassets, name, png)
 
     print(f'\nAsset catalog written to:\n  {xcassets}')

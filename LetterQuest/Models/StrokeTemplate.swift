@@ -58,14 +58,25 @@ extension StrokeTemplate {
     // MARK: Internal definition type
 
     /// A pair of points + direction, used while building each letter's strokes.
-    /// Kept private so `StrokeTemplate.init(...)` remains the only public way
-    /// to construct a template with a fresh `id` and `strokeIndex`.
-    private struct StrokeDef {
+    /// Not `public`, so `StrokeTemplate.init(...)` remains the only way to
+    /// construct a template with a fresh `id` and `strokeIndex` from outside
+    /// this module — but `internal` (not `private`) so `CyrillicStrokeDefinitions`,
+    /// in its own file, can build the same shape.
+    struct StrokeDef {
         let points: [CGPoint]
         let direction: StrokeDirection
     }
 
+    /// Tries the Latin definitions, then Cyrillic, then falls back to a
+    /// generic vertical stroke so the scoring pipeline always has something
+    /// to compare against.
     private static func definitions(for character: Character) -> [StrokeDef] {
+        if let latin = latinDefinitions(for: character) { return latin }
+        if let cyrillic = CyrillicStrokeDefinitions.definitions(for: character) { return cyrillic }
+        return [StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)), direction: .topToBottom)]
+    }
+
+    private static func latinDefinitions(for character: Character) -> [StrokeDef]? {
         switch character {
         case "A": return aDefinition
         case "B": return bDefinition
@@ -123,8 +134,7 @@ extension StrokeTemplate {
         case "z": return zLowerDefinition
 
         default:
-            return [StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)),
-                              direction: .topToBottom)]
+            return nil
         }
     }
 
@@ -630,8 +640,11 @@ extension StrokeTemplate {
 }
 
 // MARK: - Path-building primitives
+//
+// `internal` (not `private`) so `CyrillicStrokeDefinitions`, in its own
+// file, can reuse the exact same primitives Latin letters are built from.
 
-private extension StrokeTemplate {
+extension StrokeTemplate {
 
     /// Shorthand for constructing a `CGPoint` in the normalised letter space.
     static func p(_ x: Double, _ y: Double) -> CGPoint {
