@@ -262,4 +262,11 @@ struct LetterRepositoryMultiAlphabetTests {
         let letters = try repository.fetchAll().toBlocking().single()
         #expect(letters.allSatisfy { $0.alphabetId == "fake-a" })
     }
+
+    @Test("fetchNext never crosses into a different alphabet's same-case letter")
+    func fetchNextDoesNotCrossAlphabets() throws {
+        let repository = LetterRepository(alphabetRepository: MockAlphabetRepository(alphabets: [fakeAlphabetA, fakeAlphabetB]))
+        let next = try repository.fetchNext(after: fakeAlphabetA.letters[0].id).toBlocking().single()
+        #expect(next == nil, "fake-a has only one uppercase letter; fetchNext must not hand back fake-b's uppercase letter")
+    }
 }

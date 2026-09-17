@@ -17,6 +17,7 @@ final class WordsListViewModel: WordsListViewModelProtocol {
 
     // MARK: - Private Rx
 
+    private let alphabetId: String
     private let wordRepository: WordRepositoryProtocol
     private let wordProgressRepository: WordProgressRepositoryProtocol
     private let router: AppRouter
@@ -26,14 +27,17 @@ final class WordsListViewModel: WordsListViewModelProtocol {
     // MARK: - Init
 
     /// - Parameters:
+    ///   - alphabetId: The `Alphabet.id` whose curated words this screen shows.
     ///   - wordRepository: Source of the curated word list.
     ///   - wordProgressRepository: Persistent store for word-level completion.
     ///   - router: Navigation coordinator shared across the app.
     init(
+        alphabetId: String,
         wordRepository: WordRepositoryProtocol,
         wordProgressRepository: WordProgressRepositoryProtocol,
         router: AppRouter
     ) {
+        self.alphabetId             = alphabetId
         self.wordRepository         = wordRepository
         self.wordProgressRepository = wordProgressRepository
         self.router                 = router
@@ -66,9 +70,10 @@ final class WordsListViewModel: WordsListViewModelProtocol {
             }
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] words, progress in
-                self?.isLoading   = false
-                self?.words       = words
-                self?.progressMap = Dictionary(uniqueKeysWithValues: progress.map { ($0.wordId, $0) })
+                guard let self else { return }
+                self.isLoading   = false
+                self.words       = words.filter { $0.alphabetId == self.alphabetId }
+                self.progressMap = Dictionary(uniqueKeysWithValues: progress.map { ($0.wordId, $0) })
             })
             .disposed(by: disposeBag)
     }

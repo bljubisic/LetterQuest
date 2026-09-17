@@ -90,7 +90,7 @@ private struct Fixture {
 }
 
 private func makeFixture(passed: Bool = true) -> Fixture {
-    let word     = Word(id: UUID(), text: "cat")
+    let word     = Word(id: UUID(), text: "cat", alphabetId: Alphabet.latinId)
     let assessor = MockAssessor(result: makeResult(passed: passed))
     let wordProgressRepository = MockWordProgressRepository()
     let vm = WordPracticeViewModel(
@@ -124,7 +124,7 @@ struct WordPracticeViewModelTests {
 
     @Test("makeLetterViewModel returns nil before the word has resolved to a Letter id")
     func makeLetterViewModelReturnsNilForUnknownWord() {
-        let word = Word(id: UUID(), text: "cat")
+        let word = Word(id: UUID(), text: "cat", alphabetId: Alphabet.latinId)
         // Empty letter catalogue: "c" can never resolve to a Letter id.
         let vm = WordPracticeViewModel(
             wordId:                 word.id,

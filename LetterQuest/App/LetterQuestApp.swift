@@ -10,7 +10,7 @@ import SwiftUI
 /// (UserDefaults) ───────────────────────► OnboardingViewModel ─► OnboardingView
 ///
 /// AppRouter  ──────────────────────────┐
-/// LetterRepository ────────────────────┤─► HomeViewModel     ─► HomeView
+/// AlphabetRepository ───────────────────┤─► HomeViewModel     ─► HomeView
 /// ProgressRepository ─────────────────┘
 ///
 /// AppRouter  ──────────────────────────┐
@@ -37,6 +37,15 @@ import SwiftUI
 /// SettingsRepository ─────────────────────┤─► SettingsViewModel ─► SettingsView
 /// ProgressRepository ─────────────────────┤
 /// WordProgressRepository ─────────────────┘
+///
+/// AlphabetRepository ─────────────────────┐
+/// PurchaseService ─────────────────────────┤─► AlphabetStoreViewModel ─► AlphabetStoreView
+/// AppRouter  ──────────────────────────────┤
+/// entitlementProvider ─────────────────────┘
+///
+/// AppRouter  ──────────────────────────┐
+/// AlphabetRepository ───────────────────┤─► AlphabetLettersViewModel ─► AlphabetLettersView
+/// ProgressRepository ─────────────────┘
 /// ```
 @main
 struct LetterQuestApp: App {
@@ -59,28 +68,41 @@ struct LetterQuestApp: App {
     private let wordProgressRepository: WordProgressRepositoryProtocol = WordProgressRepository()
     private let settingsRepository:     SettingsRepositoryProtocol
     private let purchaseService:        PurchaseServiceProtocol
-    private let entitlementProvider:    StoreKitAlphabetEntitlementProvider
+    private let entitlementProvider:    AlphabetEntitlementProviding
     private let alphabetRepository:     AlphabetRepositoryProtocol
     private let letterRepository:       LetterRepositoryProtocol
 
-    // `assessor` reads the current difficulty from `settingsRepository` at
-    // assessment time, and `letterRepository` needs `alphabetRepository`
-    // needs `entitlementProvider` needs `purchaseService` — none of these
-    // chains can be independent inline property defaults, hence the
-    // explicit init. Every other property above keeps its own inline
-    // default; only these need to be assigned here.
+    // `assessor` reads the current difficulty from `settingsRepository` and
+    // needs `letterRepository`'s real entitlement-aware letter set for its
+    // recognition gate (not a disconnected default) — and `letterRepository`
+    // needs `alphabetRepository` needs `entitlementProvider` needs
+    // `purchaseService`. None of these chains can be independent inline
+    // property defaults, hence the explicit init. Every other property above
+    // keeps its own inline default; only these need to be assigned here.
     init() {
         let settingsRepository = SettingsRepository()
         self.settingsRepository = settingsRepository
-        self.assessor = HandwritingAssessor(settingsRepository: settingsRepository)
 
         let purchaseService = StoreKitPurchaseService()
         self.purchaseService = purchaseService
-        let entitlementProvider = StoreKitAlphabetEntitlementProvider(purchaseService: purchaseService)
+        // E2E/screenshot runs must be deterministically Latin-only regardless
+        // of whatever real StoreKit test purchases happen to already be
+        // present in the simulator's local purchase history (e.g. left over
+        // from manually testing the Alphabet Store) — otherwise a UI test
+        // written against the single-alphabet Home layout starts seeing the
+        // multi-alphabet picker instead, with no way for the test itself to
+        // control or reset that state.
+        let entitlementProvider: AlphabetEntitlementProviding =
+            (E2ETestSupport.isEnabled || ScreenshotDemo.isEnabled)
+            ? StubAlphabetEntitlementProvider()
+            : StoreKitAlphabetEntitlementProvider(purchaseService: purchaseService)
         self.entitlementProvider = entitlementProvider
         let alphabetRepository = AlphabetRepository(entitlementProvider: entitlementProvider)
         self.alphabetRepository = alphabetRepository
-        self.letterRepository = LetterRepository(alphabetRepository: alphabetRepository)
+        let letterRepository = LetterRepository(alphabetRepository: alphabetRepository)
+        self.letterRepository = letterRepository
+
+        self.assessor = HandwritingAssessor(settingsRepository: settingsRepository, letterRepository: letterRepository)
     }
 
     var body: some Scene {
@@ -179,12 +201,14 @@ struct LetterQuestApp: App {
         case .celebration(_, _):
             CelebrationView(onContinue: router.popToRoot)
 
-        case .words:
+        case .words(let alphabetId):
             WordsListView(viewModel: WordsListViewModel(
+                alphabetId:             alphabetId,
                 wordRepository:         wordRepository,
                 wordProgressRepository: wordProgressRepository,
                 router:                 router
             ))
+            .id(alphabetId)
 
         case .word(let wordId):
             WordPracticeView(viewModel: WordPracticeViewModel(
@@ -208,6 +232,23 @@ struct LetterQuestApp: App {
                 progressRepository:     progressRepository,
                 wordProgressRepository: wordProgressRepository
             ))
+
+        case .alphabetStore:
+            AlphabetStoreView(viewModel: AlphabetStoreViewModel(
+                alphabetRepository:  alphabetRepository,
+                purchaseService:     purchaseService,
+                entitlementProvider: entitlementProvider,
+                router:              router
+            ))
+
+        case .alphabetLetters(let alphabetId):
+            AlphabetLettersView(viewModel: AlphabetLettersViewModel(
+                alphabetId:         alphabetId,
+                alphabetRepository: alphabetRepository,
+                progressRepository: progressRepository,
+                router:             router
+            ))
+            .id(alphabetId)
         }
     }
 
@@ -240,7 +281,7 @@ struct LetterQuestApp: App {
 
     private func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(
-            letterRepository:   letterRepository,
+            alphabetRepository: alphabetRepository,
             progressRepository: progressRepository,
             router:             router
         )

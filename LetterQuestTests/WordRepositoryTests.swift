@@ -30,16 +30,25 @@ struct WordRepositoryTests {
         }
     }
 
-    @Test("every character in every word exists in the lowercase alphabet")
-    func everyCharacterExistsInLowercaseAlphabet() throws {
-        let lowercaseChars = Set(Letter.lowercaseAlphabet.map(\.character))
+    @Test("every character in every word exists in its own alphabet's lowercase letters")
+    func everyCharacterExistsInItsOwnAlphabetsLowercaseLetters() throws {
+        let alphabets = [Alphabet.latin, Alphabet.cyrillicSr]
         let words = try repository.fetchAll().toBlocking().single()
         for word in words {
+            let alphabet = try #require(alphabets.first { $0.id == word.alphabetId },
+                                        "\(word.text) has unknown alphabetId '\(word.alphabetId)'")
+            let lowercaseChars = Set(alphabet.letters.filter { $0.letterCase == .lower }.map(\.character))
             for character in word.characters {
                 #expect(lowercaseChars.contains(character),
-                        "\(word.text) contains '\(character)' with no matching Letter")
+                        "\(word.text) contains '\(character)' with no matching Letter in \(alphabet.id)")
             }
         }
+    }
+
+    @Test("the Cyrillic curated list has 26 words, all tagged with the Cyrillic alphabet id")
+    func cyrillicCuratedListIsComplete() {
+        #expect(Word.curatedCyrillicSr.count == 26)
+        #expect(Word.curatedCyrillicSr.allSatisfy { $0.alphabetId == Alphabet.cyrillicSrId })
     }
 
     @Test("fetch(by:) returns the matching word")

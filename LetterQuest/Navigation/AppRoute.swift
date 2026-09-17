@@ -27,9 +27,10 @@ enum AppRoute: Hashable {
     ///   - letterId: The letter that was just completed.
     case celebration(score: Int, letterId: UUID)
 
-    /// The word-practice list/grid screen. Reachable once the child has
-    /// completed both the uppercase and lowercase alphabets.
-    case words
+    /// The word-practice list/grid screen for `alphabetId`'s curated words.
+    /// Reachable once the child has completed both that alphabet's uppercase
+    /// and lowercase letters.
+    case words(alphabetId: String)
 
     /// The word-practice screen for the word identified by `wordId`, tracing
     /// its letters in sequence via the existing single-letter practice flow.
@@ -37,4 +38,13 @@ enum AppRoute: Hashable {
 
     /// The Settings screen: sound/haptics toggles, difficulty, reset progress.
     case settings
+
+    /// The alphabet store: browse, purchase, and restore alphabet packs.
+    case alphabetStore
+
+    /// The letter-grid screen for a single alphabet, pushed from the
+    /// alphabet-picker step on Home when more than one alphabet is installed.
+    ///
+    /// - Parameter alphabetId: The `Alphabet.id` whose letters are shown.
+    case alphabetLetters(alphabetId: String)
 }

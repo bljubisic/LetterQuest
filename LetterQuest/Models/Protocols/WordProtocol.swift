@@ -9,4 +9,7 @@ protocol WordProtocol {
 
     /// The lowercase word text (e.g. `"cat"`).
     var text: String { get }
+
+    /// The `Alphabet.id` whose letters make up this word (e.g. `"latin"`).
+    var alphabetId: String { get }
 }

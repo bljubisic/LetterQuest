@@ -350,11 +350,13 @@ enum CyrillicStrokeDefinitions {
     // upright-print Serbian Cyrillic lowercase mirrors uppercase far more
     // often than Latin does.
 
-    /// а — scaled-down А (triangle + crossbar).
+    /// а — visually identical to Latin a (round bowl + right stem), unlike
+    /// most other lowercase letters in this file: Cyrillic standardized on
+    /// the Latin-style round form for а rather than a scaled-down А.
     private static let aLowerDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.5, 0.2), to: p(0.9, 0.85)), direction: .diagonal(angle: 45)),
-        StrokeDef(points: line(from: p(0.5, 0.2), to: p(0.1, 0.85)), direction: .diagonal(angle: -45)),
-        StrokeDef(points: line(from: p(0.25, 0.58), to: p(0.75, 0.58)), direction: .leftToRight)
+        StrokeDef(points: circleArc(center: p(0.42, 0.52), radius: 0.30, from: -.pi / 2, to: 3 * .pi / 2),
+                  direction: .curved),
+        StrokeDef(points: line(from: p(0.72, 0.22), to: p(0.72, 0.85)), direction: .topToBottom)
     ]
 
     /// б — ascender spine, small top bar, bottom bowl (like a taller Б).

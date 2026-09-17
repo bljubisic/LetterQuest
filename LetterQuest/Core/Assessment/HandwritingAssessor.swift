@@ -42,6 +42,7 @@ final class HandwritingAssessor: HandwritingAssessing {
     private let proportionChecker: ProportionChecker
     private let smoothnessAnalyzer: SmoothnessAnalyzer
     private let settingsRepository: SettingsRepositoryProtocol
+    private let letterRepository: LetterRepositoryProtocol
 
     /// Marks the assessment pipeline for Instruments. The log handle's
     /// category must be the reserved `.pointsOfInterest` value — that's what
@@ -59,13 +60,19 @@ final class HandwritingAssessor: HandwritingAssessing {
     ///   - proportionChecker: Checks baseline, x-height, and width geometry.
     ///   - smoothnessAnalyzer: Measures angular jitter and speed variance.
     ///   - settingsRepository: Source of the current pass-threshold difficulty.
+    ///   - letterRepository: Source of the recognition gate's candidate letters —
+    ///     must be the same instance (or one wired to the same `AlphabetRepositoryProtocol`)
+    ///     used elsewhere in the app, so the gate's candidates reflect real
+    ///     entitlements rather than a disconnected default.
     init(
         dtwMatcher: DTWMatcher         = DTWMatcher(),
         shapeAnalyzer: ShapeAnalyzer   = ShapeAnalyzer(),
         proportionChecker: ProportionChecker  = ProportionChecker(),
         smoothnessAnalyzer: SmoothnessAnalyzer = SmoothnessAnalyzer(),
-        settingsRepository: SettingsRepositoryProtocol = SettingsRepository()
+        settingsRepository: SettingsRepositoryProtocol = SettingsRepository(),
+        letterRepository: LetterRepositoryProtocol = LetterRepository()
     ) {
+        self.letterRepository  = letterRepository
         self.dtwMatcher         = dtwMatcher
         self.shapeAnalyzer      = shapeAnalyzer
         self.proportionChecker  = proportionChecker
@@ -98,15 +105,29 @@ final class HandwritingAssessor: HandwritingAssessing {
                     .dispose()
                 let passThreshold = settings.difficulty.passThreshold
 
-                // Recognition gate: find the best-matching character in the same group.
+                // `letterRepository.fetchAll()` is backed by in-memory `Alphabet`
+                // catalogues and always completes synchronously — same
+                // sync-subscribe trick as `settingsRepository.load()` above.
+                var allLetters: [Letter] = []
+                self.letterRepository.fetchAll()
+                    .subscribe(onSuccess: { allLetters = $0 }, onFailure: { _ in })
+                    .dispose()
+
+                // Recognition gate: find the best-matching character among every
+                // other letter of the *same alphabet and case* as the target.
                 // If the drawing looks more like a different character, reject early.
                 //
+                // Scoped to `letter.alphabetId` — comparing against every
+                // installed alphabet's letters would, e.g., score a correctly
+                // drawn Cyrillic "О" against Latin "O" (a different Unicode
+                // scalar despite being visually identical) and wrongly reject it.
+                //
                 // This scores the drawing against every candidate letter in the
-                // same case (~26x the DTW+shape cost of a normal submission) —
-                // instrumented on its own so Instruments can show how much of a
+                // same alphabet+case (~as many times as that alphabet's case size)
+                // — instrumented on its own so Instruments can show how much of a
                 // submission's total time this gate accounts for (see issue #17).
                 let (recognized, confidence) = self.signposter.withIntervalSignpost("RecognitionGate", id: signpostID) {
-                    self.recognize(strokes: strokes, among: letter.letterCase, canvasSize: canvasSize)
+                    self.recognize(strokes: strokes, amongLetters: allLetters, target: letter, canvasSize: canvasSize)
                 }
                 // Only reject when the drawn stroke count matches the target's expected count.
                 // If counts differ, DTW already penalises the score; the gate would fire spuriously
@@ -171,20 +192,26 @@ final class HandwritingAssessor: HandwritingAssessing {
 
     // MARK: - Recognition
 
-    /// Returns the best-matching character from `group` and its recognition score.
-    /// Score ≤ 65 means the drawing is too ambiguous to classify confidently.
-    private func recognize(strokes: [PKStroke], among group: LetterCase, canvasSize: CGSize) -> (character: Character, confidence: Int) {
-        let candidates: [Letter]
-        switch group {
-        case .upper: candidates = Letter.alphabet
-        case .lower: candidates = Letter.lowercaseAlphabet
+    /// Returns the best-matching character among `amongLetters` restricted to
+    /// `target`'s own alphabet and case, plus its recognition score. Score ≤ 65
+    /// means the drawing is too ambiguous to classify confidently.
+    ///
+    /// Scoping to `target.alphabetId` (not just `target.letterCase`) matters
+    /// once more than one alphabet is installed — otherwise a correctly drawn
+    /// letter from one alphabet could be "recognized" as a different alphabet's
+    /// visually similar letter (e.g. Cyrillic "О" vs. Latin "O", distinct
+    /// Unicode scalars) and wrongly rejected.
+    private func recognize(strokes: [PKStroke], amongLetters: [Letter], target: Letter, canvasSize: CGSize) -> (character: Character, confidence: Int) {
+        let candidates = amongLetters.filter {
+            $0.alphabetId == target.alphabetId && $0.letterCase == target.letterCase
         }
+        guard !candidates.isEmpty else { return (target.character, 0) }
 
         // Renders the drawn strokes' bitmaps once and reuses them across all
         // candidates, instead of once per candidate (see `ShapeAnalyzer.scores`).
         let shapeScores = shapeAnalyzer.scores(strokes: strokes, against: candidates, canvasSize: canvasSize)
 
-        var bestChar  = candidates.first!.character
+        var bestChar  = candidates[0].character
         var bestScore = -1
 
         for (candidate, shape) in zip(candidates, shapeScores) {

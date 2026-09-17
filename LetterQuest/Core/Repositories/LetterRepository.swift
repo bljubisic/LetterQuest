@@ -7,9 +7,11 @@ import RxSwift
 ///
 /// No network or disk I/O takes place; the `Single`s complete synchronously.
 ///
-/// `fetchNext(after:)` advances only within the same `LetterCase` — passing 'Z' returns
-/// `nil`, and passing 'z' also returns `nil`. Lowercase letters are unlocked as a group
-/// by `PracticeViewModel` after all uppercase letters are completed.
+/// `fetchNext(after:)` advances only within the same `LetterCase` *and* the same
+/// `alphabetId` — passing 'Z' returns `nil` rather than crossing into another
+/// installed alphabet, and passing 'z' also returns `nil`. Lowercase letters
+/// are unlocked as a group, per alphabet, by `PracticeViewModel` after all of
+/// that alphabet's uppercase letters are completed.
 final class LetterRepository: LetterRepositoryProtocol {
 
     private let alphabetRepository: AlphabetRepositoryProtocol
@@ -29,10 +31,12 @@ final class LetterRepository: LetterRepositoryProtocol {
     func fetchNext(after id: UUID) -> Single<Letter?> {
         fetchAll().map { allLetters in
             guard let current = allLetters.first(where: { $0.id == id }) else { return nil }
-            let sameCase = allLetters.filter { $0.letterCase == current.letterCase }
-            guard let index = sameCase.firstIndex(where: { $0.id == id }),
-                  index + 1 < sameCase.count else { return nil }
-            return sameCase[index + 1]
+            let sameGroup = allLetters.filter {
+                $0.letterCase == current.letterCase && $0.alphabetId == current.alphabetId
+            }
+            guard let index = sameGroup.firstIndex(where: { $0.id == id }),
+                  index + 1 < sameGroup.count else { return nil }
+            return sameGroup[index + 1]
         }
     }
 }
