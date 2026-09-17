@@ -189,3 +189,80 @@ final class HandwritingAssessorDifficultyTests: XCTestCase {
         }
     }
 }
+
+// MARK: - Recognition gate scoping (multi-alphabet)
+
+private struct MockAlphabetRepositoryForAssessor: AlphabetRepositoryProtocol {
+    let alphabets: [Alphabet]
+    func fetchAvailable() -> Single<[Alphabet]> { .just(alphabets) }
+    func fetchInstalled() -> Single<[Alphabet]> { .just(alphabets) }
+}
+
+/// Regression coverage for the bug where the recognition gate always compared
+/// against the Latin alphabet regardless of which alphabet was being
+/// practiced — so a correctly drawn Cyrillic letter that happens to look like
+/// a Latin letter (e.g. "О" vs "O", distinct Unicode scalars) was recognized
+/// as "the wrong letter" and force-failed at score 15.
+final class HandwritingAssessorRecognitionScopeTests: XCTestCase {
+
+    private func makeMultiAlphabetAssessor() -> HandwritingAssessor {
+        let letterRepository = LetterRepository(
+            alphabetRepository: MockAlphabetRepositoryForAssessor(alphabets: [.latin, .cyrillicSr])
+        )
+        return HandwritingAssessor(letterRepository: letterRepository)
+    }
+
+    /// `assess(...)` dispatches its work to a background queue and completes
+    /// there. `.toBlocking().single()` reliably hangs when called against it
+    /// from these tests (confirmed independently in two separate Xcode runs);
+    /// `XCTestExpectation` keeps the run loop pumping while it waits instead
+    /// of blocking the thread outright, which is what actually resolves.
+    private func runAssess(
+        assessor: HandwritingAssessor,
+        strokes: [PKStroke],
+        letter: Letter,
+        guidelines: ProportionChecker.Guidelines
+    ) throws -> AssessmentResult {
+        let exp = expectation(description: "assess")
+        var result: AssessmentResult?
+        _ = assessor.assess(strokes: strokes, for: letter, guidelines: guidelines)
+            .subscribe(onSuccess: { result = $0; exp.fulfill() })
+        wait(for: [exp], timeout: 10)
+        return try XCTUnwrap(result, "assess(...) did not complete within 10s")
+    }
+
+    func test_perfectCyrillicLetterVisuallyIdenticalToLatin_isNotRejected() throws {
+        let letter = try XCTUnwrap(Alphabet.cyrillicSr.letters.first { $0.character == "О" && $0.letterCase == .upper })
+        let canvasSize = CGSize(width: 400, height: 400)
+        let strokes = makeStrokesInZone(matching: letter.strokeTemplates, for: letter.character, in: canvasSize)
+        let guides = ProportionChecker.Guidelines.forCanvas(size: canvasSize)
+        let result = try runAssess(
+            assessor: makeMultiAlphabetAssessor(), strokes: strokes, letter: letter, guidelines: guides
+        )
+
+        XCTAssertFalse(
+            result.feedback.contains { $0.message.contains("looks like") },
+            "recognition gate should not fire for a correctly drawn letter: \(result.feedback)"
+        )
+        XCTAssertGreaterThan(result.overallScore, 15, "should not be force-failed by the recognition gate")
+    }
+
+    func test_recognitionGate_stillCatchesAWrongLetterWithinTheSameAlphabet() throws {
+        // Practicing "О" but drawing "С"'s strokes instead (both single,
+        // `.curved` strokes) — the gate should still fire, proving the fix
+        // scopes candidates rather than disabling recognition outright.
+        let target = try XCTUnwrap(Alphabet.cyrillicSr.letters.first { $0.character == "О" && $0.letterCase == .upper })
+        let wrong  = try XCTUnwrap(Alphabet.cyrillicSr.letters.first { $0.character == "С" && $0.letterCase == .upper })
+        XCTAssertEqual(wrong.strokeTemplates.count, target.strokeTemplates.count,
+                       "fixture requires equal stroke counts so the gate isn't skipped by the count check")
+
+        let canvasSize = CGSize(width: 400, height: 400)
+        let strokes = makeStrokesInZone(matching: wrong.strokeTemplates, for: wrong.character, in: canvasSize)
+        let guides = ProportionChecker.Guidelines.forCanvas(size: canvasSize)
+        let result = try runAssess(
+            assessor: makeMultiAlphabetAssessor(), strokes: strokes, letter: target, guidelines: guides
+        )
+
+        XCTAssertEqual(result.overallScore, 15, "recognition gate should still reject a different letter's strokes")
+    }
+}

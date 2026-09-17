@@ -289,8 +289,10 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         }
     }
 
-    /// When the child passes the final uppercase letter and all 26 uppercase letters
-    /// are now completed, unlocks all 26 lowercase letters at once.
+    /// When the child passes the final uppercase letter of `letter`'s alphabet and
+    /// all of that alphabet's uppercase letters are now completed, unlocks all of
+    /// that alphabet's lowercase letters at once — independent of any other
+    /// installed alphabet's progress.
     ///
     /// Returns a no-op `Completable` when the condition is not met.
     private func unlockLowercaseIfEligible(after letter: Letter) -> Completable {
@@ -303,14 +305,14 @@ final class PracticeViewModel: PracticeViewModelProtocol {
         .asSingle()
         .flatMapCompletable { [weak self] (allLetters: [Letter], allProgress: [ChildProgress]) -> Completable in
             guard let self else { return .empty() }
-            let uppercaseLetters = allLetters.filter { $0.letterCase == .upper }
+            let uppercaseLetters = allLetters.filter { $0.letterCase == .upper && $0.alphabetId == letter.alphabetId }
             let completedIds = Set(allProgress.filter { $0.isCompleted }.map { $0.letterId })
             guard uppercaseLetters.allSatisfy({ completedIds.contains($0.id) }) else {
                 return .empty()
             }
             let progressMap = Dictionary(uniqueKeysWithValues: allProgress.map { ($0.letterId, $0) })
             let saves = allLetters
-                .filter { $0.letterCase == .lower }
+                .filter { $0.letterCase == .lower && $0.alphabetId == letter.alphabetId }
                 .map { lowercase -> Completable in
                     let existing = progressMap[lowercase.id]
                         ?? ChildProgress(

@@ -72,7 +72,9 @@ final class WordPracticeViewModel: WordPracticeViewModelProtocol {
         .observe(on: MainScheduler.instance)
         .subscribe(onNext: { [weak self] word, allLetters in
             self?.word = word
-            self?.lowercaseLetters = allLetters.filter { $0.letterCase == .lower }
+            self?.lowercaseLetters = allLetters.filter {
+                $0.letterCase == .lower && $0.alphabetId == word?.alphabetId
+            }
         })
         .disposed(by: disposeBag)
     }

@@ -125,7 +125,7 @@ enum ScreenshotDemo {
             router.push(.progress)
 
         case .words:
-            router.push(.words)
+            router.push(.words(alphabetId: Alphabet.latinId))
         }
     }
 

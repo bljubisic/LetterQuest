@@ -9,6 +9,7 @@ import RxBlocking
 private struct MockEntitlementProvider: AlphabetEntitlementProviding {
     let entitledIds: Set<String>
     func isEntitled(to productId: String) -> Bool { entitledIds.contains(productId) }
+    func refresh() -> Completable { .empty() }
 }
 
 private let fakePaidAlphabet = Alphabet(

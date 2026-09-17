@@ -12,33 +12,48 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.letters) { letter in
-                    LetterCard(
-                        letter:   letter,
-                        progress: viewModel.progressMap[letter.id],
-                        onTap:    { viewModel.selectLetter(letter) }
-                    )
+            if viewModel.isMultiAlphabet {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(viewModel.installedAlphabets) { alphabet in
+                        AlphabetCard(
+                            alphabet: alphabet,
+                            onTap:    { viewModel.selectAlphabet(alphabet.id) }
+                        )
+                    }
                 }
+                .padding()
+            } else {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(viewModel.letters) { letter in
+                        LetterCard(
+                            letter:     letter,
+                            progress:   viewModel.progressMap[letter.id],
+                            isUnlocked: viewModel.isUnlocked(letter),
+                            onTap:      { viewModel.selectLetter(letter) }
+                        )
+                    }
+                }
+                .padding()
             }
-            .padding()
         }
         .navigationTitle("Letter Quest ✏️")
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                Picker(
-                    "Letters",
-                    selection: Binding(
-                        get: { viewModel.selectedCase },
-                        set: { viewModel.selectCase($0) }
-                    )
-                ) {
-                    Text("ABC").tag(LetterCase.upper)
-                    Text("abc").tag(LetterCase.lower)
+            if !viewModel.isMultiAlphabet {
+                ToolbarItem(placement: .principal) {
+                    Picker(
+                        "Letters",
+                        selection: Binding(
+                            get: { viewModel.selectedCase },
+                            set: { viewModel.selectCase($0) }
+                        )
+                    ) {
+                        Text("ABC").tag(LetterCase.upper)
+                        Text("abc").tag(LetterCase.lower)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 160)
+                    .accessibilityHint("Switches between uppercase and lowercase letters.")
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 160)
-                .accessibilityHint("Switches between uppercase and lowercase letters.")
             }
             if viewModel.isWordModeUnlocked {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -64,6 +79,16 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
+                    viewModel.navigateToStore()
+                } label: {
+                    Image(systemName: "cart.fill")
+                }
+                .accessibilityLabel("Alphabet Store")
+                .accessibilityHint("Browse and purchase alphabet packs.")
+                .accessibilityIdentifier("home.storeButton")
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
                     viewModel.navigateToSettings()
                 } label: {
                     Image(systemName: "gearshape.fill")
@@ -82,67 +107,35 @@ struct HomeView<VM: HomeViewModelProtocol>: View {
     }
 }
 
-// MARK: - Letter Card
+// MARK: - Alphabet Card
 
-/// A single tappable tile showing the letter character and its practice progress.
-private struct LetterCard: View {
+/// A single tappable tile representing an installed alphabet, shown when
+/// more than one is installed. Tapping pushes that alphabet's letter grid.
+private struct AlphabetCard: View {
 
-    let letter: Letter
-    let progress: ChildProgress?
+    let alphabet: Alphabet
     let onTap: () -> Void
-
-    @ScaledMetric(relativeTo: .largeTitle) private var glyphSize: CGFloat = 64
 
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 10) {
-                // Large character glyph
-                Text(String(letter.character))
-                    .font(.system(size: glyphSize, weight: .bold, design: .rounded))
-                    .foregroundStyle(isUnlocked ? Color.accentColor : .gray)
+                Text(alphabet.displayName)
+                    .font(.title2.bold())
+                    .foregroundStyle(Color.accentColor)
 
-                // Progress indicator or status label
-                if let progress {
-                    VStack(spacing: 4) {
-                        ProgressView(value: Double(progress.bestScore), total: 100)
-                            .tint(progress.isCompleted ? .green : .accentColor)
-                            .padding(.horizontal, 8)
-
-                        Text(progress.isCompleted ? "⭐ Done!" : "\(progress.bestScore)%")
-                            .font(.caption.bold())
-                            .foregroundStyle(progress.isCompleted ? .green : .secondary)
-                    }
-                } else {
-                    Text(isUnlocked ? "Tap to start" : "🔒 Locked")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Text(alphabet.nativeName)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(isUnlocked ? Color.white : Color.gray.opacity(0.08))
+            .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 20))
-            .shadow(color: .black.opacity(isUnlocked ? 0.08 : 0), radius: 6, y: 3)
+            .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
         }
-        .disabled(!isUnlocked)
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Letter \(String(letter.character))")
-        .accessibilityValue(accessibilityStatus)
-        .accessibilityIdentifier("home.letterCard.\(letter.character)")
-    }
-
-    /// Only uppercase "A" starts unlocked; lowercase letters require all uppercase to be completed.
-    private var isUnlocked: Bool {
-        progress?.isUnlocked ?? (letter.character == "A")
-    }
-
-    private var accessibilityStatus: String {
-        guard let progress else {
-            return isUnlocked ? "Not started" : "Locked"
-        }
-        return progress.isCompleted
-            ? "Completed, best score \(progress.bestScore) percent"
-            : "In progress, best score \(progress.bestScore) percent"
+        .accessibilityLabel(alphabet.displayName)
+        .accessibilityIdentifier("home.alphabetCard.\(alphabet.id)")
     }
 }

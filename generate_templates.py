@@ -464,9 +464,10 @@ def cyrillic_lowercase_letter_strokes():
     # y ~0.95. Mirrors CyrillicStrokeDefinitions.swift's lowercase section.
     return {
         'a': [
-            line_pts((0.5, 0.2), (0.9, 0.85)),
-            line_pts((0.5, 0.2), (0.1, 0.85)),
-            line_pts((0.25, 0.58), (0.75, 0.58)),
+            # Visually identical to Latin a — Cyrillic standardized on the
+            # Latin-style round form for а rather than a scaled-down А.
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.22), (0.72, 0.85)),
         ],
         'b': [
             line_pts((0.2, 0.05), (0.2, 0.85)),
