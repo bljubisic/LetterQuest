@@ -28,3 +28,12 @@ With every category at "None"/"No", App Store Connect should compute **4+**
 automatically. If any answer needs to change later (e.g. a future feature
 adds web access), revisit this table and update it alongside the code change
 that caused it.
+
+## In-app purchases note
+
+Adding the Serbian Cyrillic alphabet pack as a non-consumable in-app
+purchase does not change any answer in the table above — a purchasable
+alphabet pack doesn't fall under any of these content categories. App Store
+Connect will still show an "In-App Purchases" badge on the listing once a
+product is configured; that's a separate store-listing label from the age
+rating itself and doesn't affect the expected **4+** result.
