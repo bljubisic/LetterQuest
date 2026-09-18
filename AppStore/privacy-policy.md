@@ -25,6 +25,18 @@ Nothing leaves your device. Specifically:
 - **No third-party data sharing.** Because nothing is collected, nothing is
   ever shared with third parties, advertisers, or data brokers.
 
+## Payments
+
+LetterQuest offers optional alphabet packs (for example, Serbian Cyrillic) as
+one-time in-app purchases, on top of the free English alphabet. All payment
+processing is handled entirely by Apple through StoreKit — LetterQuest and
+its developer never see, collect, or store your payment card details,
+billing address, or any other payment information. Purchases are tied to
+your Apple ID and can be restored on any device via the "Restore Purchases"
+option in the Alphabet Store. See
+[Apple's privacy policy](https://www.apple.com/legal/privacy/) for how Apple
+itself handles App Store payment data.
+
 ## Children's privacy
 
 LetterQuest is designed for use by children and fully complies with the

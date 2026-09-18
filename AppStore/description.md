@@ -1,6 +1,6 @@
 # App Store Description
 
-2,268 characters (limit: 4,000). The block below is plain text, exactly as it
+~2,530 characters (limit: 4,000). The block below is plain text, exactly as it
 should be pasted into App Store Connect's Description field — no markdown.
 
 ```
@@ -22,9 +22,10 @@ A COMPLETE LEARNING PATH
 • Word practice mode with simple three-letter words (cat, dog, sun, and more) once the alphabet is complete
 • A Progress screen with achievement badges, best scores, and attempt history for every letter
 • Adjustable difficulty — Easy, Standard, or Challenge — so scoring can match your child's confidence as they grow
+• Optional alphabet packs — starting with Serbian Cyrillic — available as one-time purchases alongside the free English alphabet
 
 BUILT FOR FOCUS, NOT DISTRACTION
-There are no ads, no in-app purchases, no accounts, and no data collection of any kind. Every bit of progress stays private on your device. Sound effects and haptic feedback add delight and can be turned off individually in Settings if you prefer a quieter session.
+There are no ads, no accounts, and no data collection of any kind. Every bit of progress stays private on your device. The English alphabet is free forever; additional alphabet packs are simple one-time purchases with no subscriptions. Sound effects and haptic feedback add delight and can be turned off individually in Settings if you prefer a quieter session.
 
 ACCESSIBLE BY DESIGN
 LetterQuest supports VoiceOver and Dynamic Type throughout, so children and parents using assistive technology or larger text sizes can use the app comfortably.
