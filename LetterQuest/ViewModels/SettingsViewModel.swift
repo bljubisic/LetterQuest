@@ -27,6 +27,11 @@ final class SettingsViewModel: SettingsViewModelProtocol {
     private let wordProgressRepository: WordProgressRepositoryProtocol
     private let disposeBag = DisposeBag()
 
+    /// The full loaded settings, kept around so `setDifficulty` can update
+    /// just that field via a lens without wiping out other fields (like
+    /// `activeAlphabetId`) that this screen doesn't otherwise touch.
+    private var currentSettings = AppSettings.default
+
     // MARK: - Init
 
     /// - Parameters:
@@ -54,6 +59,7 @@ final class SettingsViewModel: SettingsViewModelProtocol {
         settingsRepository.load()
             .observe(on: MainScheduler.instance)
             .subscribe(onSuccess: { [weak self] settings in
+                self?.currentSettings = settings
                 self?.difficulty = settings.difficulty
             })
             .disposed(by: disposeBag)
@@ -73,7 +79,8 @@ final class SettingsViewModel: SettingsViewModelProtocol {
 
     func setDifficulty(_ difficulty: PassDifficulty) {
         self.difficulty = difficulty
-        settingsRepository.save(AppSettings(difficulty: difficulty))
+        currentSettings = AppSettings.lensDifficulty.set(currentSettings, difficulty)
+        settingsRepository.save(currentSettings)
             .subscribe()
             .disposed(by: disposeBag)
     }

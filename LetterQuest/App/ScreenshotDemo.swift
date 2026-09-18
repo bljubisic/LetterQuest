@@ -125,7 +125,9 @@ enum ScreenshotDemo {
             router.push(.progress)
 
         case .words:
-            router.push(.words(alphabetId: Alphabet.latinId))
+            // Words is now a Home bottom tab rather than a pushed screen —
+            // `HomeView.onAppear` selects it once seeding completes.
+            break
         }
     }
 

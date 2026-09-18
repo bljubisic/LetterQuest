@@ -22,7 +22,7 @@ struct AppSettingsLensTests {
 
     @Test("lensDifficulty.set replaces difficulty")
     func lensDifficultySetsField() {
-        let settings = AppSettings(difficulty: .easy)
+        let settings = AppSettings(difficulty: .easy, activeAlphabetId: nil)
         let updated  = AppSettings.lensDifficulty.set(settings, .challenge)
         #expect(updated.difficulty == .challenge)
     }
@@ -51,15 +51,15 @@ struct SettingsRepositoryTests {
     @Test("save then load round-trips the settings correctly")
     func saveAndLoadRoundTrips() {
         let repo = repository
-        saveSync(repo, AppSettings(difficulty: .challenge))
+        saveSync(repo, AppSettings(difficulty: .challenge, activeAlphabetId: nil))
         #expect(loadSync(repo).difficulty == .challenge)
     }
 
     @Test("saving again replaces the previous settings")
     func savingReplacesPreviousSettings() {
         let repo = repository
-        saveSync(repo, AppSettings(difficulty: .easy))
-        saveSync(repo, AppSettings(difficulty: .challenge))
+        saveSync(repo, AppSettings(difficulty: .easy, activeAlphabetId: nil))
+        saveSync(repo, AppSettings(difficulty: .challenge, activeAlphabetId: nil))
         #expect(loadSync(repo).difficulty == .challenge)
     }
 }

@@ -1,9 +1,6 @@
 import SwiftUI
 
 /// A single tappable tile showing the letter character and its practice progress.
-///
-/// Shared between `HomeView` (single-alphabet letter grid) and
-/// `AlphabetLettersView` (letter grid pushed from the alphabet picker).
 struct LetterCard: View {
 
     let letter: Letter
