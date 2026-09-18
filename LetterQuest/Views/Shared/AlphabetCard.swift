@@ -16,19 +16,23 @@ struct AlphabetCard: View {
                 Text(alphabet.displayName)
                     .font(.title2.bold())
                     .foregroundStyle(Color.accentColor)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
 
                 Text(alphabet.nativeName)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
 
-                if isActive {
-                    Label("Active", systemImage: "checkmark.circle.fill")
-                        .labelStyle(.iconOnly)
-                        .foregroundStyle(.green)
-                        .font(.title3)
-                }
+                Label("Active", systemImage: "checkmark.circle.fill")
+                    .labelStyle(.iconOnly)
+                    .foregroundStyle(.green)
+                    .font(.title3)
+                    .opacity(isActive ? 1 : 0)
             }
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 110)
             .padding()
             .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 20))
