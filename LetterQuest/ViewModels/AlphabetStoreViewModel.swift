@@ -6,7 +6,7 @@ import RxRelay
 /// StoreKit pricing, and ownership state, then exposing them as
 /// `@Published` properties for SwiftUI to observe.
 ///
-/// Mirrors `WordsListViewModel`'s `loadTrigger` → `flatMapLatest` pipeline,
+/// Mirrors `HomeViewModel`'s `loadTrigger` → `flatMapLatest` pipeline,
 /// and `SettingsViewModel`'s pattern of surfacing a one-shot result via a
 /// `@Published` property the view turns into an alert.
 final class AlphabetStoreViewModel: AlphabetStoreViewModelProtocol {

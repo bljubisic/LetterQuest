@@ -104,7 +104,7 @@ struct SettingsViewModelTests {
 
     @Test("difficulty loads asynchronously from the settings repository")
     func difficultyLoadsFromRepository() {
-        let fixture = makeFixture(stored: AppSettings(difficulty: .challenge))
+        let fixture = makeFixture(stored: AppSettings(difficulty: .challenge, activeAlphabetId: nil))
         DispatchQueue.main.sync {}
         #expect(fixture.vm.difficulty == .challenge)
     }

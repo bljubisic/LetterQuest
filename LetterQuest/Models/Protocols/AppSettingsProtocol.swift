@@ -10,4 +10,9 @@ import Foundation
 protocol AppSettingsProtocol {
     /// The pass/fail strictness applied by `HandwritingAssessor`.
     var difficulty: PassDifficulty { get }
+
+    /// The `Alphabet.id` Home currently shows, or `nil` if the child has
+    /// never explicitly switched — callers fall back to the first installed
+    /// alphabet in that case.
+    var activeAlphabetId: String? { get }
 }

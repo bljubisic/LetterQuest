@@ -18,6 +18,9 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
             summarySection
             badgesSection
             lettersSection
+            if viewModel.isWordSectionVisible {
+                wordsSection
+            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Progress")
@@ -94,6 +97,17 @@ struct ProgressScreen<VM: ProgressViewModelProtocol>: View {
                 LetterProgressRow(
                     letter:   letter,
                     progress: viewModel.progressMap[letter.id]
+                )
+            }
+        }
+    }
+
+    private var wordsSection: some View {
+        Section("Words") {
+            ForEach(viewModel.words) { word in
+                WordProgressRow(
+                    word:     word,
+                    progress: viewModel.wordProgressMap[word.id]
                 )
             }
         }
@@ -239,6 +253,41 @@ private struct LetterProgressRow: View {
     }
 }
 
+// MARK: - Per-word row
+
+private struct WordProgressRow: View {
+
+    let word:     Word
+    let progress: WordProgress?
+
+    @ScaledMetric(relativeTo: .title) private var glyphSize: CGFloat = 32
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Text(word.text)
+                .font(.system(size: glyphSize, weight: .bold, design: .rounded))
+                .foregroundStyle(isCompleted ? .green : .secondary)
+                .frame(width: 80, alignment: .leading)
+
+            Text(isCompleted ? "Completed ⭐" : "Not started")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(isCompleted ? .green : .secondary)
+
+            Spacer()
+
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : "lock.fill")
+                .foregroundStyle(isCompleted ? Color.green : Color.secondary.opacity(0.4))
+                .font(.title3)
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Word \(word.text), \(isCompleted ? "Completed" : "Not started")")
+        .accessibilityIdentifier("progress.wordRow.\(word.text)")
+    }
+
+    private var isCompleted: Bool { progress?.isCompleted ?? false }
+}
+
 // MARK: - Preview
 
 #Preview("Letters") {
@@ -272,6 +321,11 @@ private final class PreviewProgressViewModel: ProgressViewModelProtocol {
     let badges = [
         AchievementBadge(id: "first_letter", title: "First Letter!",      systemImage: "star.fill",               isEarned: true),
         AchievementBadge(id: "halfway",       title: "Halfway There!",     systemImage: "star.leadinghalf.filled", isEarned: false),
-        AchievementBadge(id: "champion",      title: "Alphabet Champion!", systemImage: "trophy.fill",             isEarned: false)
+        AchievementBadge(id: "champion",      title: "Alphabet Champion!", systemImage: "trophy.fill",             isEarned: false),
+        AchievementBadge(id: "wordsmith",     title: "Wordsmith!",         systemImage: "text.book.closed.fill",   isEarned: false)
     ]
+    let words: [Word] = []
+    let wordProgressMap: [UUID: WordProgress] = [:]
+    let completedWordsCount = 0
+    let isWordSectionVisible = false
 }

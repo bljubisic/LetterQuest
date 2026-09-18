@@ -16,8 +16,23 @@ protocol ProgressViewModelProtocol: ObservableObject {
     /// How many letters in the selected case the child has passed at least once.
     var completedCount: Int { get }
 
-    /// Number of items in the selected case (26 for letters).
+    /// Number of letters in the selected case for the active alphabet.
     var totalCount: Int { get }
+
+    /// The active alphabet's curated words.
+    var words: [Word] { get }
+
+    /// Maps each word's `id` to its progress record.
+    /// Words that have never been completed are absent from this dictionary.
+    var wordProgressMap: [UUID: WordProgress] { get }
+
+    /// How many of the active alphabet's curated words the child has completed.
+    var completedWordsCount: Int { get }
+
+    /// `true` once the active alphabet's word mode is unlocked — mirrors
+    /// `HomeViewModel.isWordModeUnlocked`, so the words section only appears
+    /// once it's actually reachable from Home.
+    var isWordSectionVisible: Bool { get }
 
     /// Achievement badges for the currently selected case.
     /// Includes unearned badges (`isEarned == false`).

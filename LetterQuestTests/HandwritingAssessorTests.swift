@@ -21,7 +21,7 @@ private func runAssess(
 
 private final class MockSettingsRepository: SettingsRepositoryProtocol {
     let settings: AppSettings
-    init(difficulty: PassDifficulty) { settings = AppSettings(difficulty: difficulty) }
+    init(difficulty: PassDifficulty) { settings = AppSettings(difficulty: difficulty, activeAlphabetId: nil) }
     func load() -> Single<AppSettings> { .just(settings) }
     func save(_ settings: AppSettings) -> Completable { .empty() }
 }

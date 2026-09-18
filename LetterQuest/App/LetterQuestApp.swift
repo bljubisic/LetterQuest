@@ -10,8 +10,11 @@ import SwiftUI
 /// (UserDefaults) ───────────────────────► OnboardingViewModel ─► OnboardingView
 ///
 /// AppRouter  ──────────────────────────┐
-/// AlphabetRepository ───────────────────┤─► HomeViewModel     ─► HomeView
-/// ProgressRepository ─────────────────┘
+/// AlphabetRepository ───────────────────┤
+/// ProgressRepository ───────────────────┤
+/// SettingsRepository ───────────────────┤─► HomeViewModel     ─► HomeView
+/// WordRepository ───────────────────────┤    (letters + words, bottom-tabbed)
+/// WordProgressRepository ─────────────┘
 ///
 /// AppRouter  ──────────────────────────┐
 /// LetterRepository ────────────────────┘─► LearnViewModel    ─► LearnView
@@ -21,9 +24,11 @@ import SwiftUI
 /// ProgressRepository ──────────────────┤
 /// HandwritingAssessor ─────────────────┘
 ///
-/// AppRouter  ──────────────────────────┐
-/// WordRepository ───────────────────────┤─► WordsListViewModel ─► WordsListView
-/// WordProgressRepository ───────────────┘
+/// AlphabetRepository ───────────────────┐
+/// ProgressRepository ───────────────────┤
+/// SettingsRepository ───────────────────┤─► ProgressViewModel ─► ProgressScreen
+/// WordRepository ───────────────────────┤    (letters + words)
+/// WordProgressRepository ─────────────┘
 ///
 /// AppRouter  ──────────────────────────┐
 /// WordRepository ───────────────────────┤
@@ -44,8 +49,8 @@ import SwiftUI
 /// entitlementProvider ─────────────────────┘
 ///
 /// AppRouter  ──────────────────────────┐
-/// AlphabetRepository ───────────────────┤─► AlphabetLettersViewModel ─► AlphabetLettersView
-/// ProgressRepository ─────────────────┘
+/// AlphabetRepository ───────────────────┤─► SwitchAlphabetViewModel ─► SwitchAlphabetView
+/// SettingsRepository ──────────────────┘
 /// ```
 @main
 struct LetterQuestApp: App {
@@ -194,21 +199,15 @@ struct LetterQuestApp: App {
 
         case .progress:
             ProgressScreen(viewModel: ProgressViewModel(
-                letterRepository:   letterRepository,
-                progressRepository: progressRepository
+                alphabetRepository:     alphabetRepository,
+                progressRepository:     progressRepository,
+                settingsRepository:     settingsRepository,
+                wordRepository:         wordRepository,
+                wordProgressRepository: wordProgressRepository
             ))
 
         case .celebration(_, _):
             CelebrationView(onContinue: router.popToRoot)
-
-        case .words(let alphabetId):
-            WordsListView(viewModel: WordsListViewModel(
-                alphabetId:             alphabetId,
-                wordRepository:         wordRepository,
-                wordProgressRepository: wordProgressRepository,
-                router:                 router
-            ))
-            .id(alphabetId)
 
         case .word(let wordId):
             WordPracticeView(viewModel: WordPracticeViewModel(
@@ -241,14 +240,12 @@ struct LetterQuestApp: App {
                 router:              router
             ))
 
-        case .alphabetLetters(let alphabetId):
-            AlphabetLettersView(viewModel: AlphabetLettersViewModel(
-                alphabetId:         alphabetId,
+        case .switchAlphabet:
+            SwitchAlphabetView(viewModel: SwitchAlphabetViewModel(
                 alphabetRepository: alphabetRepository,
-                progressRepository: progressRepository,
+                settingsRepository: settingsRepository,
                 router:             router
             ))
-            .id(alphabetId)
         }
     }
 
@@ -281,9 +278,12 @@ struct LetterQuestApp: App {
 
     private func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(
-            alphabetRepository: alphabetRepository,
-            progressRepository: progressRepository,
-            router:             router
+            alphabetRepository:     alphabetRepository,
+            progressRepository:     progressRepository,
+            settingsRepository:     settingsRepository,
+            wordRepository:         wordRepository,
+            wordProgressRepository: wordProgressRepository,
+            router:                 router
         )
     }
 }
