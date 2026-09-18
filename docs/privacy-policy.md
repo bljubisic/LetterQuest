@@ -1,3 +1,7 @@
+---
+title: Privacy Policy — LetterQuest
+---
+
 # Privacy Policy — LetterQuest
 
 **Last updated: September 18, 2026**
@@ -60,10 +64,3 @@ before the change ships, along with the "Last updated" date above.
 ## Contact
 
 Questions about this policy can be sent to **bljubisic@pm.me**.
-
----
-*This file is the editable source. The live, published copy App Store
-Connect should link to lives at `docs/privacy-policy.md`, served via GitHub
-Pages at `https://bljubisic.github.io/LetterQuest/privacy-policy.html` once
-Pages is enabled (Settings → Pages → Source: Deploy from a branch → this
-branch, folder `/docs`). Keep both copies in sync when this policy changes.*
