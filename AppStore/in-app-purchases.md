@@ -29,7 +29,7 @@ TestFlight/production builds, so both must stay in sync.
 | Reference Name (internal only) | Serbian Cyrillic Alphabet |
 | Price tier | Tier 1 ($0.99 USD, localized equivalents elsewhere) |
 | Display Name (en_US) | Serbian Cyrillic Alphabet |
-| Description (en_US) | Unlocks the Serbian Cyrillic alphabet pack for letter practice |
+| Description (en_US) | Unlock the Serbian Cyrillic alphabet pack for practice (54 chars, App Store Connect's IAP description limit is 55) |
 | Family Sharing | Enabled |
 
 ## Steps

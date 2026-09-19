@@ -8,7 +8,24 @@ import SwiftUI
 /// lightweight mock during Xcode previews or tests.
 struct AlphabetStoreView<VM: AlphabetStoreViewModelProtocol>: View {
 
+    /// A commerce action pending a parental gate. Wrapping both "Buy" and
+    /// "Restore Purchases" behind the same gate, per App Store Review
+    /// Guideline 1.3 (Kids Category) — see issue #50.
+    private enum GateAction: Identifiable {
+        case buy(AlphabetStoreRow)
+        case restore
+
+        var id: String {
+            switch self {
+            case .buy(let row): return "buy.\(row.id)"
+            case .restore:      return "restore"
+            }
+        }
+    }
+
     @ObservedObject var viewModel: VM
+
+    @State private var pendingGateAction: GateAction?
 
     var body: some View {
         List {
@@ -17,14 +34,14 @@ struct AlphabetStoreView<VM: AlphabetStoreViewModelProtocol>: View {
                     AlphabetStoreRowView(
                         row: row,
                         isPurchasing: viewModel.purchasingAlphabetId == row.alphabet.id,
-                        onBuy: { viewModel.purchase(row) }
+                        onBuy: { pendingGateAction = .buy(row) }
                     )
                 }
             }
 
             Section {
                 Button("Restore Purchases") {
-                    viewModel.restorePurchases()
+                    pendingGateAction = .restore
                 }
                 .disabled(viewModel.isLoading)
                 .accessibilityHint("Re-checks the App Store for alphabet packs you already bought.")
@@ -38,6 +55,18 @@ struct AlphabetStoreView<VM: AlphabetStoreViewModelProtocol>: View {
             }
         }
         .onAppear { viewModel.load() }
+        .sheet(item: $pendingGateAction) { action in
+            ParentalGateView(
+                onSuccess: {
+                    switch action {
+                    case .buy(let row): viewModel.purchase(row)
+                    case .restore:      viewModel.restorePurchases()
+                    }
+                    pendingGateAction = nil
+                },
+                onCancel: { pendingGateAction = nil }
+            )
+        }
         .alert(
             viewModel.alertIsSuccess ? "Success" : "Purchase",
             isPresented: Binding(
@@ -87,6 +116,7 @@ private struct AlphabetStoreRowView: View {
                 Button(row.priceText ?? "Buy", action: onBuy)
                     .buttonStyle(.borderedProminent)
                     .accessibilityHint("Buy this alphabet pack.")
+                    .accessibilityIdentifier("store.buyButton.\(row.alphabet.id)")
             }
         }
         .padding(.vertical, 4)
