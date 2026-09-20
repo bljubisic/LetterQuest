@@ -124,7 +124,7 @@ final class AlphabetStoreViewModel: AlphabetStoreViewModelProtocol {
     /// members' own display names, so a future pack still renders sensibly
     /// even before someone gives it a proper name here.
     private static let packDisplayNames: [String: String] = [
-        "com.persukibo.letterquest.alphabet.extended_latin": "Extended Latin Pack"
+        Alphabet.extendedLatinProductId: "Extended Latin Pack"
     ]
 
     /// Combines the catalogue, ownership state, and localized pricing for

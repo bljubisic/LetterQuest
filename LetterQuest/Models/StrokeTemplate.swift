@@ -67,11 +67,12 @@ extension StrokeTemplate {
         let direction: StrokeDirection
     }
 
-    /// Tries the Latin definitions, then Cyrillic, then falls back to a
-    /// generic vertical stroke so the scoring pipeline always has something
-    /// to compare against.
+    /// Tries the Latin definitions, then German, then Cyrillic, then falls
+    /// back to a generic vertical stroke so the scoring pipeline always has
+    /// something to compare against.
     private static func definitions(for character: Character) -> [StrokeDef] {
         if let latin = latinDefinitions(for: character) { return latin }
+        if let german = GermanStrokeDefinitions.definitions(for: character) { return german }
         if let cyrillic = CyrillicStrokeDefinitions.definitions(for: character) { return cyrillic }
         return [StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)), direction: .topToBottom)]
     }

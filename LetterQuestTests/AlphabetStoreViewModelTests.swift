@@ -229,10 +229,10 @@ struct AlphabetStoreViewModelBundledPackTests {
         let extendedLatin = Alphabet(
             id: "german", displayName: "German", nativeName: "Deutsch",
             scriptCode: "Latn", localeIdentifier: "de", isFree: false, letters: [],
-            productId: "com.persukibo.letterquest.alphabet.extended_latin"
+            productId: Alphabet.extendedLatinProductId
         )
         let mock = MockPurchaseService()
-        mock.products = [PurchasableAlphabet(id: "com.persukibo.letterquest.alphabet.extended_latin", displayName: "Extended Latin Pack", priceText: "$2.99")]
+        mock.products = [PurchasableAlphabet(id: Alphabet.extendedLatinProductId, displayName: "Extended Latin Pack", priceText: "$2.99")]
         let (vm, _) = makeVM(catalogue: [.latin, extendedLatin], mock: mock)
         DispatchQueue.main.sync {}
 
