@@ -15,3 +15,15 @@ struct Alphabet: AlphabetProtocol, Equatable, Identifiable {
     /// `nil` for free/built-in alphabets, which never need a purchase.
     let productId: String?
 }
+
+// MARK: - Shared pack product ids
+
+extension Alphabet {
+
+    /// The Extended Latin Pack (issue #52): a single purchase unlocking
+    /// several Latin-script alphabets at once. Every member alphabet sets
+    /// its own `productId` to this same value — `AlphabetRepository`'s
+    /// entitlement check and `AlphabetStoreViewModel`'s row-grouping key
+    /// off `productId` alone, so sharing this id is the entire mechanism.
+    static let extendedLatinProductId = "com.persukibo.letterquest.alphabet.extended_latin"
+}

@@ -28,6 +28,21 @@
       "productID" : "com.persukibo.letterquest.alphabet.cyrillic_sr",
       "referenceName" : "Serbian Cyrillic Alphabet",
       "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "2.99",
+      "familyShareable" : true,
+      "internalID" : "F19C3D7E",
+      "localizations" : [
+        {
+          "description" : "Unlock German, Spanish, Swedish, and Croatian",
+          "displayName" : "Extended Latin Pack",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.persukibo.letterquest.alphabet.extended_latin",
+      "referenceName" : "Extended Latin Pack",
+      "type" : "NonConsumable"
     }
   ],
   "settings" : {

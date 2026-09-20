@@ -58,6 +58,37 @@ TestFlight/production builds, so both must stay in sync.
    then live and purchasable for anyone running a build whose bundle ID and
    version were included in that submission.
 
+## Bundled packs (more than one alphabet per product)
+
+Some packs unlock several alphabets at once from a single purchase — the
+**Extended Latin Pack** (German, Spanish, Swedish, Croatian) is the first.
+This needs no special handling in App Store Connect: it's still exactly one
+Non-Consumable product, created with the steps above. The bundling happens
+entirely on the app side — every member alphabet's `Alphabet.productId` is
+set to the **same** product id, and `AlphabetStoreViewModel` groups rows by
+`productId`, so:
+
+- The Alphabet Store shows **one** row for the whole bundle (its display
+  name comes from `AlphabetStoreViewModel.packDisplayNames`, keyed by
+  product id — add an entry there for any new bundle, or it falls back to
+  joining the member alphabets' own names).
+- A single purchase or restore satisfies the entitlement check for every
+  member alphabet at once (`AlphabetRepository.fetchInstalled()` already
+  treats an alphabet as owned once its `productId` is entitled — this is
+  unchanged by bundling).
+- The parental gate (#50) covers this the same way it covers any other
+  purchase — no bundle-specific wiring needed there.
+
+| Field | Value |
+|---|---|
+| Type | Non-Consumable |
+| Product ID | `com.persukibo.letterquest.alphabet.extended_latin` |
+| Reference Name (internal only) | Extended Latin Pack |
+| Price tier | Tier 3 ($2.99 USD, localized equivalents elsewhere) — higher than a single-alphabet pack since it unlocks four |
+| Display Name (en_US) | Extended Latin Pack |
+| Description (en_US) | Unlock German, Spanish, Swedish, and Croatian (45 chars) |
+| Family Sharing | Enabled |
+
 ## Adding a future alphabet pack
 
 Repeat the steps above with the new alphabet's own values, following the
