@@ -42,4 +42,21 @@ enum AppRoute: Hashable {
     /// Store for alphabets they don't own yet. Reachable via a toolbar
     /// button on Home, shown only once more than one alphabet is installed.
     case switchAlphabet
+
+    /// Whether reaching this route must first pass a parental-gate
+    /// challenge, per App Store Review Guideline 1.3 (Kids Category).
+    /// Checked centrally by `AppRouter.push(_:)` so every entry point —
+    /// Home's cart button, Switch Alphabet's "Get more alphabets" card, and
+    /// any future one — is gated the same way with no per-call-site to
+    /// forget. See issue #50.
+    var requiresParentalGate: Bool {
+        switch self {
+        case .alphabetStore: return true
+        default:              return false
+        }
+    }
+}
+
+extension AppRoute: Identifiable {
+    var id: Self { self }
 }

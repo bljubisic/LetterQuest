@@ -17,6 +17,13 @@ final class AppRouter: ObservableObject {
     /// The current navigation stack. Bound directly to `NavigationStack(path:)`.
     @Published var path = NavigationPath()
 
+    /// Set by `push(_:)` when the requested route needs a parental gate
+    /// first. The app root shows `ParentalGateView` as a `.sheet(item:)`
+    /// bound to this; a correct answer calls `confirmPendingGate()`, which
+    /// actually performs the push. Living here (not in per-view `@State`)
+    /// is what makes the gate un-bypassable — see `AppRoute.requiresParentalGate`.
+    @Published var pendingGateRoute: AppRoute?
+
     private let routeRelay = PublishRelay<AppRoute>()
     private let disposeBag = DisposeBag()
 
@@ -32,11 +39,30 @@ final class AppRouter: ObservableObject {
 
     // MARK: - Navigation actions
 
-    /// Pushes a new route onto the navigation stack.
+    /// Pushes a new route onto the navigation stack — unless it requires a
+    /// parental gate, in which case the push is deferred until
+    /// `confirmPendingGate()` is called after a correct answer.
     ///
     /// - Parameter route: The destination to navigate to.
     func push(_ route: AppRoute) {
+        guard route.requiresParentalGate else {
+            routeRelay.accept(route)
+            return
+        }
+        pendingGateRoute = route
+    }
+
+    /// Performs the push that was deferred behind `pendingGateRoute`. Called
+    /// by the parental gate sheet's `onSuccess`.
+    func confirmPendingGate() {
+        guard let route = pendingGateRoute else { return }
+        pendingGateRoute = nil
         routeRelay.accept(route)
+    }
+
+    /// Discards the deferred push. Called by the parental gate sheet's `onCancel`.
+    func cancelPendingGate() {
+        pendingGateRoute = nil
     }
 
     /// Pops the top route from the stack, returning to the previous screen.
