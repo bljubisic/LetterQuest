@@ -1,0 +1,66 @@
+---
+title: Privacy Policy — LetterQuest
+---
+
+# Privacy Policy — LetterQuest
+
+**Last updated: September 18, 2026**
+
+LetterQuest ("the app") is designed for children, and its privacy approach is
+simple: **we do not collect, store, transmit, or share any personal data,
+period.**
+
+## What the app does with your data
+
+Nothing leaves your device. Specifically:
+
+- **No account or sign-in.** LetterQuest has no login, no user profiles, and
+  no way to identify who is using it.
+- **No network access.** The app makes no network requests of any kind — it
+  works entirely offline and has no server to send data to.
+- **No analytics or advertising.** LetterQuest contains no analytics SDK, no
+  advertising SDK, and no third-party tracking of any kind.
+- **Local storage only.** Practice progress (which letters and words have
+  been completed, best scores, achievement badges) and app preferences
+  (sound, haptics, difficulty) are stored using Apple's standard
+  `UserDefaults` mechanism, entirely on your device. This data never leaves
+  the device and is deleted automatically if you delete the app, or manually
+  via the in-app "Reset All Progress" option in Settings.
+- **No third-party data sharing.** Because nothing is collected, nothing is
+  ever shared with third parties, advertisers, or data brokers.
+
+## Payments
+
+LetterQuest offers optional alphabet packs (for example, Serbian Cyrillic) as
+one-time in-app purchases, on top of the free English alphabet. All payment
+processing is handled entirely by Apple through StoreKit — LetterQuest and
+its developer never see, collect, or store your payment card details,
+billing address, or any other payment information. Purchases are tied to
+your Apple ID and can be restored on any device via the "Restore Purchases"
+option in the Alphabet Store. See
+[Apple's privacy policy](https://www.apple.com/legal/privacy/) for how Apple
+itself handles App Store payment data.
+
+## Children's privacy
+
+LetterQuest is designed for use by children and fully complies with the
+spirit of the Children's Online Privacy Protection Act (COPPA) and Apple's
+Kids Category requirements by design — not through consent management, but
+because the app has no mechanism to collect personal information from anyone,
+child or adult.
+
+## Camera, microphone, and other permissions
+
+LetterQuest does not request access to the camera, microphone, photo
+library, contacts, location, or any other system permission. Drawing input
+is handled entirely through Apple's PencilKit framework, which processes
+strokes locally on-device.
+
+## Changes to this policy
+
+If LetterQuest's data practices ever change, this policy will be updated
+before the change ships, along with the "Last updated" date above.
+
+## Contact
+
+Questions about this policy can be sent to **bljubisic@pm.me**.

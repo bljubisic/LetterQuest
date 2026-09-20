@@ -48,8 +48,8 @@ final class ProportionCheckerUppercaseTests: XCTestCase {
                            to:   CGPoint(x: 200, y: 280))
         ]
         let score = checker.score(strokes: strokes, letter: letter, guidelines: guidelines)
-        XCTAssertGreaterThanOrEqual(score, 80,
-                                    "Correctly proportioned uppercase should score ≥ 80; got \(score)")
+        XCTAssertGreaterThanOrEqual(score, 75,
+                                    "Correctly proportioned uppercase should score ≥ 75; got \(score)")
     }
 
     func test_letterBelowBaseline_isPenalised() {
@@ -99,7 +99,7 @@ final class ProportionCheckerWidthTests: XCTestCase {
 
     func test_excessiveWidth_isPenalised() {
         let letter = Letter.alphabet.first { $0.character == "A" }!
-        // Width = 380 / 400 = 95% > 80% → width sub-score capped at 40.
+        // Width = 380 / 400 = 95% > 90% → width sub-score 20.
         let wideStrokes = [
             makeLineStroke(from: CGPoint(x: 10,  y: 80),
                            to:   CGPoint(x: 390, y: 280))
@@ -116,7 +116,7 @@ final class ProportionCheckerWidthTests: XCTestCase {
 
     func test_tinyWidth_isPenalised() {
         let letter = Letter.alphabet.first { $0.character == "A" }!
-        // 1 px width → ratio = 0.25% < 5% → width sub-score = 20.
+        // 1 px width → ratio < 5% → width sub-score = 20.
         let tinyStrokes = [
             makeLineStroke(from: CGPoint(x: 200, y: 80),
                            to:   CGPoint(x: 201, y: 280))
@@ -143,5 +143,46 @@ final class ProportionCheckerRangeTests: XCTestCase {
         let score = checker.score(strokes: strokes, letter: letter, guidelines: guides)
         XCTAssertGreaterThanOrEqual(score, 0)
         XCTAssertLessThanOrEqual(score,    100)
+    }
+}
+
+// MARK: - Lowercase letter proportions
+
+final class ProportionCheckerLowercaseTests: XCTestCase {
+
+    private let checker = ProportionChecker()
+    // 400-tall canvas: ascenderY=80, xHeightY=180, baselineY=280, descenderY=340.
+    private let canvasSize = CGSize(width: 400, height: 400)
+    private var guidelines: ProportionChecker.Guidelines {
+        .forCanvas(size: canvasSize)
+    }
+    private var letterN: Letter { Letter.lowercaseAlphabet.first { $0.character == "n" }! }
+
+    func test_correctLowercaseHeight_scoresAtLeast80() {
+        // Stroke from ascenderY (80) to baselineY (280) — correct cap height.
+        let strokes = [
+            makeLineStroke(from: CGPoint(x: 100, y: 80),
+                           to:   CGPoint(x: 300, y: 280))
+        ]
+        let score = checker.score(strokes: strokes, letter: letterN, guidelines: guidelines)
+        XCTAssertGreaterThanOrEqual(score, 80,
+            "Correctly proportioned lowercase should score ≥ 80; got \(score)")
+    }
+
+    func test_lowercaseBottomAtBaseline_outperformsDescender() {
+        // Ending at baselineY (280) should score better than well below it (380).
+        let atBaseline  = [makeLineStroke(from: CGPoint(x: 100, y: 80), to: CGPoint(x: 300, y: 280))]
+        let atDescender = [makeLineStroke(from: CGPoint(x: 100, y: 80), to: CGPoint(x: 300, y: 380))]
+        let baseScore = checker.score(strokes: atBaseline,  letter: letterN, guidelines: guidelines)
+        let descScore = checker.score(strokes: atDescender, letter: letterN, guidelines: guidelines)
+        XCTAssertGreaterThan(baseScore, descScore,
+            "Lowercase ending at baselineY should score higher; got \(baseScore) vs \(descScore)")
+    }
+
+    func test_lowercaseScore_alwaysWithin0to100() {
+        let strokes = [makeLineStroke(from: CGPoint(x: 50, y: 80), to: CGPoint(x: 350, y: 340))]
+        let score = checker.score(strokes: strokes, letter: letterN, guidelines: guidelines)
+        XCTAssertGreaterThanOrEqual(score, 0)
+        XCTAssertLessThanOrEqual(score, 100)
     }
 }

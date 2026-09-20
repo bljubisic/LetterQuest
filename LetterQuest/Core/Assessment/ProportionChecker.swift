@@ -63,8 +63,8 @@ final class ProportionChecker {
         let bounds = computeBoundingBox(strokes)
         guard !bounds.isEmpty else { return 0 }
 
-        let baselineScore = scoreBaseline(bounds, guidelines: guidelines)
-        let heightScore   = scoreHeight(bounds, character: letter.character, guidelines: guidelines)
+        let baselineScore = scoreBaseline(bounds, letter: letter, guidelines: guidelines)
+        let heightScore   = scoreHeight(bounds, letter: letter, guidelines: guidelines)
         let widthScore    = scoreWidth(bounds, guidelines: guidelines)
 
         return Int(baselineScore * 0.4 + heightScore * 0.4 + widthScore * 0.2)
@@ -72,44 +72,42 @@ final class ProportionChecker {
 
     // MARK: - Sub-scores
 
-    /// Penalises deviation of the letter's bottom edge from the baseline guide line.
+    /// Penalises deviation of the letter's bottom edge from the expected bottom guide line.
     ///
-    /// A tolerance of 20 % of the x-height band is allowed before penalising.
-    private func scoreBaseline(_ bounds: CGRect, guidelines: Guidelines) -> Double {
+    /// Uppercase and lowercase use different target lines because lowercase templates
+    /// now span the full body zone (y 0.20–0.85), landing near the descender guide.
+    private func scoreBaseline(_ bounds: CGRect, letter: Letter, guidelines: Guidelines) -> Double {
+        let targetY   = guidelines.baselineY
         let band      = guidelines.baselineY - guidelines.xHeightY
         let tolerance = max(band * 0.20, 1)
-        let deviation = abs(bounds.maxY - guidelines.baselineY)
-        return max(0, 100 - (deviation / tolerance) * 30)
+        let deviation = abs(bounds.maxY - targetY)
+        // Multiplier 50: one tolerance-band off → score 50; two bands off → score 0.
+        return max(0, 100 - (deviation / tolerance) * 50)
     }
 
-    /// Checks that the letter height matches the expected class:
-    /// - **Uppercase** (A–Z): baseline → ascender line (cap height)
-    /// - **Ascenders** (b d f h k l t): baseline → ascender line
-    /// - **Descenders** (g j p q y): ascender line → descender line
-    /// - **Regular lowercase** (all others): baseline → x-height line
-    private func scoreHeight(_ bounds: CGRect, character: Character, guidelines: Guidelines) -> Double {
-        let expectedHeight: CGFloat
-        switch character {
-        case "b", "d", "f", "h", "k", "l", "t":
-            expectedHeight = guidelines.baselineY - guidelines.ascenderY
-        case "g", "j", "p", "q", "y":
-            expectedHeight = guidelines.descenderY - guidelines.ascenderY
-        default:
-            expectedHeight = character.isUppercase
-                ? guidelines.baselineY - guidelines.ascenderY
-                : guidelines.baselineY - guidelines.xHeightY
-        }
+    private func scoreHeight(_ bounds: CGRect, letter: Letter, guidelines: Guidelines) -> Double {
+        let expectedHeight: CGFloat = guidelines.baselineY - guidelines.ascenderY
 
         guard expectedHeight > 0 else { return 100 }
-        return max(0, 100 - abs(bounds.height / expectedHeight - 1.0) * 80)
+        // Multiplier 100: letter at 50 % expected height scores 50; near-correct scores well.
+        return max(0, 100 - abs(bounds.height / expectedHeight - 1.0) * 100)
     }
 
-    /// Penalises letters that are too small or too wide relative to the canvas.
+    /// Penalises letters that are too narrow or too wide relative to the canvas.
+    ///
+    /// Continuous scoring: ideal zone is 20–75 % of canvas width.
+    /// - Below 5 %: score 20 (inherently narrow letters like "I" still get a floor).
+    /// - 5–20 %: linear ramp 20 → 100.
+    /// - 20–75 %: score 100.
+    /// - 75–90 %: linear decay 100 → 40.
+    /// - Above 90 %: score 20 (sprawling across the full canvas).
     private func scoreWidth(_ bounds: CGRect, guidelines: Guidelines) -> Double {
         let ratio = bounds.width / guidelines.canvasBounds.width
         if ratio < 0.05 { return 20 }
-        if ratio > 0.80 { return 40 }
-        return 100
+        if ratio < 0.20 { return 20 + (ratio - 0.05) / 0.15 * 80 }
+        if ratio <= 0.75 { return 100 }
+        if ratio <= 0.90 { return 100 - (ratio - 0.75) / 0.15 * 60 }
+        return 20
     }
 
     // MARK: - Helpers

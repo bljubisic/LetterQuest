@@ -15,10 +15,31 @@ enum AppRoute: Hashable {
     /// The child's overall progress/achievements screen.
     case progress
 
+    /// The animated "Watch me draw" demonstration screen shown before practice.
+    ///
+    /// - Parameter letterId: The letter whose strokes will be demonstrated.
+    case learn(letterId: UUID)
+
     /// A full-screen celebration shown after passing a letter.
     ///
     /// - Parameters:
     ///   - score: The final composite score that triggered the celebration.
     ///   - letterId: The letter that was just completed.
     case celebration(score: Int, letterId: UUID)
+
+    /// The word-practice screen for the word identified by `wordId`, tracing
+    /// its letters in sequence via the existing single-letter practice flow.
+    case word(wordId: UUID)
+
+    /// The Settings screen: sound/haptics toggles, difficulty, reset progress.
+    case settings
+
+    /// The alphabet store: browse, purchase, and restore alphabet packs.
+    case alphabetStore
+
+    /// The "Switch Alphabet" screen: lets the child pick which installed
+    /// alphabet becomes active on Home, and surfaces a link to the Alphabet
+    /// Store for alphabets they don't own yet. Reachable via a toolbar
+    /// button on Home, shown only once more than one alphabet is installed.
+    case switchAlphabet
 }

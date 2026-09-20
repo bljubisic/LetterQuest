@@ -1,6 +1,7 @@
 import Foundation
 import PencilKit
 import RxSwift
+import os
 
 /// Contract for the handwriting scoring pipeline.
 ///
@@ -40,22 +41,43 @@ final class HandwritingAssessor: HandwritingAssessing {
     private let shapeAnalyzer: ShapeAnalyzer
     private let proportionChecker: ProportionChecker
     private let smoothnessAnalyzer: SmoothnessAnalyzer
+    private let settingsRepository: SettingsRepositoryProtocol
+    private let letterRepository: LetterRepositoryProtocol
+
+    /// Marks the assessment pipeline for Instruments. The log handle's
+    /// category must be the reserved `.pointsOfInterest` value — that's what
+    /// Instruments' "Points of Interest" instrument filters on (subsystem can
+    /// be anything); a custom category like "Assessment" is invisible to that
+    /// specific instrument even though it'd show fine in the more general
+    /// "os_signpost" instrument. See issue #17.
+    private let signposter = OSSignposter(
+        logHandle: OSLog(subsystem: "com.letterquest.app", category: .pointsOfInterest)
+    )
 
     /// - Parameters:
     ///   - dtwMatcher: Compares stroke paths via Dynamic Time Warping.
     ///   - shapeAnalyzer: Compares the rendered bitmap against the reference via IoU.
     ///   - proportionChecker: Checks baseline, x-height, and width geometry.
     ///   - smoothnessAnalyzer: Measures angular jitter and speed variance.
+    ///   - settingsRepository: Source of the current pass-threshold difficulty.
+    ///   - letterRepository: Source of the recognition gate's candidate letters —
+    ///     must be the same instance (or one wired to the same `AlphabetRepositoryProtocol`)
+    ///     used elsewhere in the app, so the gate's candidates reflect real
+    ///     entitlements rather than a disconnected default.
     init(
         dtwMatcher: DTWMatcher         = DTWMatcher(),
         shapeAnalyzer: ShapeAnalyzer   = ShapeAnalyzer(),
         proportionChecker: ProportionChecker  = ProportionChecker(),
-        smoothnessAnalyzer: SmoothnessAnalyzer = SmoothnessAnalyzer()
+        smoothnessAnalyzer: SmoothnessAnalyzer = SmoothnessAnalyzer(),
+        settingsRepository: SettingsRepositoryProtocol = SettingsRepository(),
+        letterRepository: LetterRepositoryProtocol = LetterRepository()
     ) {
+        self.letterRepository  = letterRepository
         self.dtwMatcher         = dtwMatcher
         self.shapeAnalyzer      = shapeAnalyzer
         self.proportionChecker  = proportionChecker
         self.smoothnessAnalyzer = smoothnessAnalyzer
+        self.settingsRepository = settingsRepository
     }
 
     func assess(
@@ -67,10 +89,77 @@ final class HandwritingAssessor: HandwritingAssessing {
             guard let self else { return Disposables.create() }
 
             DispatchQueue.global(qos: .userInitiated).async {
-                let strokeScore     = self.dtwMatcher.score(strokes: strokes, against: letter.strokeTemplates)
-                let shapeScore      = self.shapeAnalyzer.score(strokes: strokes, for: letter)
-                let proportionScore = self.proportionChecker.score(strokes: strokes, letter: letter, guidelines: guidelines)
-                let smoothnessScore = self.smoothnessAnalyzer.score(strokes: strokes)
+                let signpostID = self.signposter.makeSignpostID()
+                let assessInterval = self.signposter.beginInterval("Assess", id: signpostID)
+                defer { self.signposter.endInterval("Assess", assessInterval) }
+
+                let canvasSize = guidelines.canvasBounds.size
+
+                // `settingsRepository.load()` is `UserDefaults`-backed and always
+                // completes synchronously (no real async gap), so a plain
+                // subscribe-then-dispose captures the value immediately without
+                // pulling in RxBlocking (test-only; not linked into this target).
+                var settings = AppSettings.default
+                self.settingsRepository.load()
+                    .subscribe(onSuccess: { settings = $0 }, onFailure: { _ in })
+                    .dispose()
+                let passThreshold = settings.difficulty.passThreshold
+
+                // `letterRepository.fetchAll()` is backed by in-memory `Alphabet`
+                // catalogues and always completes synchronously — same
+                // sync-subscribe trick as `settingsRepository.load()` above.
+                var allLetters: [Letter] = []
+                self.letterRepository.fetchAll()
+                    .subscribe(onSuccess: { allLetters = $0 }, onFailure: { _ in })
+                    .dispose()
+
+                // Recognition gate: find the best-matching character among every
+                // other letter of the *same alphabet and case* as the target.
+                // If the drawing looks more like a different character, reject early.
+                //
+                // Scoped to `letter.alphabetId` — comparing against every
+                // installed alphabet's letters would, e.g., score a correctly
+                // drawn Cyrillic "О" against Latin "O" (a different Unicode
+                // scalar despite being visually identical) and wrongly reject it.
+                //
+                // This scores the drawing against every candidate letter in the
+                // same alphabet+case (~as many times as that alphabet's case size)
+                // — instrumented on its own so Instruments can show how much of a
+                // submission's total time this gate accounts for (see issue #17).
+                let (recognized, confidence) = self.signposter.withIntervalSignpost("RecognitionGate", id: signpostID) {
+                    self.recognize(strokes: strokes, amongLetters: allLetters, target: letter, canvasSize: canvasSize)
+                }
+                // Only reject when the drawn stroke count matches the target's expected count.
+                // If counts differ, DTW already penalises the score; the gate would fire spuriously
+                // (e.g. G drawn with 2 strokes matches Q's 2-template count, inflating Q's score).
+                let strokeCountMatchesTarget = strokes.count == letter.strokeTemplates.count
+                if strokeCountMatchesTarget && confidence > 65 && recognized != letter.character {
+                    let result = AssessmentResult(
+                        overallScore:     15,
+                        strokeOrderScore: 0,
+                        shapeScore:       0,
+                        proportionScore:  0,
+                        smoothnessScore:  0,
+                        feedback:         [FeedbackItem(type: .shape,
+                                                        message: "That looks like '\(recognized)'. Try drawing '\(letter.character)'!")],
+                        passed:           false
+                    )
+                    observer(.success(result))
+                    return
+                }
+
+                let strokeScore = self.signposter.withIntervalSignpost("DTWScore", id: signpostID) {
+                    self.dtwMatcher.score(strokes: strokes, against: letter.strokeTemplates)
+                }
+                let shapeScore = self.signposter.withIntervalSignpost("ShapeScore", id: signpostID) {
+                    self.shapeAnalyzer.score(strokes: strokes, for: letter, canvasSize: canvasSize)
+                }
+                let proportionScore = self.signposter.withIntervalSignpost("ProportionScore", id: signpostID) {
+                    self.proportionChecker.score(strokes: strokes, letter: letter, guidelines: guidelines)
+                }
+                let smoothnessScore = self.signposter.withIntervalSignpost("SmoothnessScore", id: signpostID) {
+                    self.smoothnessAnalyzer.score(strokes: strokes)
+                }
 
                 let overall = Int(
                     Double(strokeScore)     * 0.35 +
@@ -91,7 +180,7 @@ final class HandwritingAssessor: HandwritingAssessing {
                         proportionScore: proportionScore,
                         smoothnessScore: smoothnessScore
                     ),
-                    passed: overall >= 75
+                    passed: overall >= passThreshold
                 )
 
                 observer(.success(result))
@@ -99,6 +188,42 @@ final class HandwritingAssessor: HandwritingAssessing {
 
             return Disposables.create()
         }
+    }
+
+    // MARK: - Recognition
+
+    /// Returns the best-matching character among `amongLetters` restricted to
+    /// `target`'s own alphabet and case, plus its recognition score. Score ≤ 65
+    /// means the drawing is too ambiguous to classify confidently.
+    ///
+    /// Scoping to `target.alphabetId` (not just `target.letterCase`) matters
+    /// once more than one alphabet is installed — otherwise a correctly drawn
+    /// letter from one alphabet could be "recognized" as a different alphabet's
+    /// visually similar letter (e.g. Cyrillic "О" vs. Latin "O", distinct
+    /// Unicode scalars) and wrongly rejected.
+    private func recognize(strokes: [PKStroke], amongLetters: [Letter], target: Letter, canvasSize: CGSize) -> (character: Character, confidence: Int) {
+        let candidates = amongLetters.filter {
+            $0.alphabetId == target.alphabetId && $0.letterCase == target.letterCase
+        }
+        guard !candidates.isEmpty else { return (target.character, 0) }
+
+        // Renders the drawn strokes' bitmaps once and reuses them across all
+        // candidates, instead of once per candidate (see `ShapeAnalyzer.scores`).
+        let shapeScores = shapeAnalyzer.scores(strokes: strokes, against: candidates, canvasSize: canvasSize)
+
+        var bestChar  = candidates[0].character
+        var bestScore = -1
+
+        for (candidate, shape) in zip(candidates, shapeScores) {
+            let dtw   = dtwMatcher.score(strokes: strokes, against: candidate.strokeTemplates)
+            let score = (dtw + shape) / 2
+            if score > bestScore {
+                bestScore = score
+                bestChar  = candidate.character
+            }
+        }
+
+        return (bestChar, bestScore)
     }
 
     // MARK: - Feedback builder

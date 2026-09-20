@@ -23,6 +23,9 @@ struct ScorePill: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
         .background(scoreColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(label) score")
+        .accessibilityValue("\(score) out of 100")
     }
 
     /// Green ≥ 75, orange ≥ 50, red below 50.

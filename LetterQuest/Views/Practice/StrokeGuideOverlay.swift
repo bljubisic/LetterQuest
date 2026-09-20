@@ -50,9 +50,9 @@ struct StrokeGuideOverlay: View {
         let top: CGFloat
         let bottom: CGFloat
         switch character {
-        case "b", "d", "f", "h", "k", "l", "t":
+        case "b", "d", "f", "h", "k", "l", "t", "б":
             top = ascenderY;  bottom = baselineY
-        case "g", "j", "p", "q", "y":
+        case "g", "j", "p", "q", "y", "ђ", "ј", "р", "у", "ф", "ц", "ћ", "џ":
             top = ascenderY;  bottom = descenderY
         default:
             if character.isUppercase {

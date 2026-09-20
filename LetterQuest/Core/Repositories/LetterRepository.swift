@@ -1,28 +1,42 @@
 import Foundation
 import RxSwift
 
-/// In-memory implementation of `LetterRepositoryProtocol`.
+/// Sources letters from every currently *installed* `Alphabet` (the built-in
+/// Latin alphabet is always installed; purchased ones are added once their
+/// entitlement is verified — see `AlphabetRepositoryProtocol`).
 ///
-/// The letter catalogue is the static `Letter.alphabet` array, seeded at compile
-/// time. No network or disk I/O takes place; the `Single` completes synchronously.
+/// No network or disk I/O takes place; the `Single`s complete synchronously.
 ///
-/// To add a new letter or modify an existing one, update `Letter.alphabet` and
-/// `StrokeTemplate.templates(for:)` in `Models/`.
+/// `fetchNext(after:)` advances only within the same `LetterCase` *and* the same
+/// `alphabetId` — passing 'Z' returns `nil` rather than crossing into another
+/// installed alphabet, and passing 'z' also returns `nil`. Lowercase letters
+/// are unlocked as a group, per alphabet, by `PracticeViewModel` after all of
+/// that alphabet's uppercase letters are completed.
 final class LetterRepository: LetterRepositoryProtocol {
 
+    private let alphabetRepository: AlphabetRepositoryProtocol
+
+    init(alphabetRepository: AlphabetRepositoryProtocol = AlphabetRepository()) {
+        self.alphabetRepository = alphabetRepository
+    }
+
     func fetchAll() -> Single<[Letter]> {
-        .just(Letter.alphabet)
+        alphabetRepository.fetchInstalled().map { $0.flatMap(\.letters) }
     }
 
     func fetch(by id: UUID) -> Single<Letter?> {
-        .just(Letter.alphabet.first { $0.id == id })
+        fetchAll().map { $0.first { $0.id == id } }
     }
 
     func fetchNext(after id: UUID) -> Single<Letter?> {
-        guard let index = Letter.alphabet.firstIndex(where: { $0.id == id }),
-              index + 1 < Letter.alphabet.count else {
-            return .just(nil)
+        fetchAll().map { allLetters in
+            guard let current = allLetters.first(where: { $0.id == id }) else { return nil }
+            let sameGroup = allLetters.filter {
+                $0.letterCase == current.letterCase && $0.alphabetId == current.alphabetId
+            }
+            guard let index = sameGroup.firstIndex(where: { $0.id == id }),
+                  index + 1 < sameGroup.count else { return nil }
+            return sameGroup[index + 1]
         }
-        return .just(Letter.alphabet[index + 1])
     }
 }

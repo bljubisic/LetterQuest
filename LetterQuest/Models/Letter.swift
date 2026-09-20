@@ -15,6 +15,8 @@ struct Letter: LetterProtocol, Equatable, Identifiable {
     let strokeTemplates: [StrokeTemplate]
     let difficulty: LetterDifficulty
     let templateImageName: String?
+    let letterCase: LetterCase
+    let alphabetId: String
 
     /// Decodes the reference bitmap from the asset catalogue on demand.
     /// Returns `nil` when no asset has been added yet.
@@ -29,17 +31,15 @@ struct Letter: LetterProtocol, Equatable, Identifiable {
 // MARK: - Alphabet seed data
 
 extension Letter {
-    /// The full Latin uppercase alphabet, seeded with stroke templates and
-    /// difficulty tiers. Letters A–E are easy, F–O medium, P–Z hard.
-    static let alphabet: [Letter] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".enumerated().map { index, char in
-        Letter(
-            id: UUID(),
-            character: char,
-            strokeTemplates: StrokeTemplate.templates(for: char),
-            difficulty: index < 5 ? .easy : index < 15 ? .medium : .hard,
-            templateImageName: "template_\(char)"
-        )
-    }
+    /// The built-in Latin uppercase alphabet. Kept for convenience and to
+    /// avoid touching every existing call site — equivalent to
+    /// `Alphabet.latin.letters.filter { $0.letterCase == .upper }`. See
+    /// `Alphabets/LatinAlphabet.swift` for how it's actually built.
+    static let alphabet: [Letter] = Alphabet.latin.letters.filter { $0.letterCase == .upper }
+
+    /// The built-in Latin lowercase alphabet. Unlocked as a group when the
+    /// child passes all 26 uppercase letters. See `Alphabets/LatinAlphabet.swift`.
+    static let lowercaseAlphabet: [Letter] = Alphabet.latin.letters.filter { $0.letterCase == .lower }
 }
 
 // MARK: - Lenses
@@ -55,7 +55,9 @@ extension Letter {
                 character: whole.character,
                 strokeTemplates: value,
                 difficulty: whole.difficulty,
-                templateImageName: whole.templateImageName
+                templateImageName: whole.templateImageName,
+                letterCase: whole.letterCase,
+                alphabetId: whole.alphabetId
             )
         }
     )
@@ -69,7 +71,9 @@ extension Letter {
                 character: whole.character,
                 strokeTemplates: whole.strokeTemplates,
                 difficulty: whole.difficulty,
-                templateImageName: value
+                templateImageName: value,
+                letterCase: whole.letterCase,
+                alphabetId: whole.alphabetId
             )
         }
     )
@@ -83,7 +87,25 @@ extension Letter {
                 character: whole.character,
                 strokeTemplates: whole.strokeTemplates,
                 difficulty: value,
-                templateImageName: whole.templateImageName
+                templateImageName: whole.templateImageName,
+                letterCase: whole.letterCase,
+                alphabetId: whole.alphabetId
+            )
+        }
+    )
+
+    /// Focuses on `letterCase`. Use to move a letter between the uppercase and lowercase sets.
+    static let lensLetterCase = Lens<Letter, LetterCase>(
+        get: { $0.letterCase },
+        set: { whole, value in
+            Letter(
+                id: whole.id,
+                character: whole.character,
+                strokeTemplates: whole.strokeTemplates,
+                difficulty: whole.difficulty,
+                templateImageName: whole.templateImageName,
+                letterCase: value,
+                alphabetId: whole.alphabetId
             )
         }
     )

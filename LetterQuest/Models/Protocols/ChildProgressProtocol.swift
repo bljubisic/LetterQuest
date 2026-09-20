@@ -8,6 +8,10 @@ protocol ChildProgressProtocol {
     /// The letter this progress record belongs to.
     var letterId: UUID { get }
 
+    /// The `Alphabet.id` that `letterId` belongs to, e.g. `"latin"`. Keeps
+    /// progress correctly scoped once multiple alphabets are installed.
+    var alphabetId: String { get }
+
     /// All assessment attempts in chronological order.
     var attempts: [ChildProgress.Attempt] { get }
 

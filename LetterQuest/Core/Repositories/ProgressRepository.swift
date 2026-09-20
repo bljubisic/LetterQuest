@@ -12,7 +12,12 @@ final class ProgressRepository: ProgressRepositoryProtocol {
     private let userDefaults: UserDefaults
     private let encoder    = JSONEncoder()
     private let decoder    = JSONDecoder()
-    private let storageKey = "letter_quest_progress_v1"
+    // Bumped from v1: `ChildProgress` gained `alphabetId`, and `Letter.id`
+    // switched from a random per-launch `UUID()` to a deterministic one (see
+    // `DeterministicID`) — old-format v1 records could never have matched
+    // current ids anyway, so this just lets stale data be ignored outright
+    // rather than requiring a migration for progress that was never usable.
+    private let storageKey = "letter_quest_progress_v2"
 
     /// - Parameter userDefaults: The `UserDefaults` suite to use.
     ///   Defaults to `.standard`; pass a custom suite for app groups or tests.
@@ -51,6 +56,15 @@ final class ProgressRepository: ProgressRepositoryProtocol {
             } catch {
                 observer(.error(error))
             }
+            return Disposables.create()
+        }
+    }
+
+    func resetAll() -> Completable {
+        Completable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            self.userDefaults.removeObject(forKey: self.storageKey)
+            observer(.completed)
             return Disposables.create()
         }
     }

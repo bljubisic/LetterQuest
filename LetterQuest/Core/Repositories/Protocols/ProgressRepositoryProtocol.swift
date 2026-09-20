@@ -20,4 +20,10 @@ protocol ProgressRepositoryProtocol {
     /// - Parameter progress: The updated `ChildProgress` to save.
     /// - Returns: A `Completable` that signals success or an error.
     func save(_ progress: ChildProgress) -> Completable
+
+    /// Erases every stored `ChildProgress` record. Used by the Settings
+    /// screen's "Reset All Progress" action.
+    ///
+    /// - Returns: A `Completable` that signals success or an error.
+    func resetAll() -> Completable
 }

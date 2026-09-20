@@ -53,8 +53,19 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     private let assessor: HandwritingAssessing
     private let letterRepository: LetterRepositoryProtocol
     private let progressRepository: ProgressRepositoryProtocol
+    private let soundService:   SoundServiceProtocol
+    private let hapticsService: HapticsServiceProtocol
     private let router: AppRouter
     private let disposeBag = DisposeBag()
+
+    /// When non-`nil`, `continueToNext()` calls this instead of navigating via
+    /// `router`. Set by `WordPracticeViewModel` so this same view model can be
+    /// reused for each letter of a word without triggering the normal
+    /// alphabet-wide advance/unlock navigation.
+    private let onWordAdvance: (() -> Void)?
+
+    /// Screenshot/E2E-test only — see the `injectedResult` init parameter.
+    private let injectedResult: AssessmentResult?
 
     // MARK: - Init
 
@@ -63,21 +74,64 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     ///   - letterRepository: Fetches the full `Letter` model.
     ///   - progressRepository: Persists and retrieves practice history.
     ///   - assessor: Runs the four-signal scoring pipeline.
+    ///   - soundService: Plays audio feedback cues after each assessment.
+    ///   - hapticsService: Plays tactile feedback patterns after each assessment.
     ///   - router: Navigation coordinator shared across the app.
+    ///   - onWordAdvance: When provided, `continueToNext()` calls this closure
+    ///     instead of navigating via `router`. Used when this view model is
+    ///     embedded in a word-practice session by `WordPracticeViewModel`.
+    ///   - previewResult: Screenshot-demo only — when provided, displays this
+    ///     result's `ScorePanel` shortly after the letter loads, without
+    ///     running the real assessment pipeline or any of its side effects
+    ///     (no progress save, no sound/haptics, no unlock). Used by
+    ///     `ScreenshotDemo`'s `.score` and `.celebration` routes to produce a
+    ///     populated screen deterministically and without user interaction.
+    ///   - previewShowsCelebration: Pairs with `previewResult` — when both are
+    ///     set, `showCelebration` is also set cosmetically, so
+    ///     `ScreenshotDemo`'s `.celebration` route can show the overlay
+    ///     layered over a real-looking practice scene.
+    ///   - injectedResult: E2E-test only — when provided, this result is
+    ///     substituted for the real `assessor.assess(...)` call the *next*
+    ///     time the child taps "Check!" (i.e. still gated on a genuine
+    ///     `submit(strokes:)` call, so Clear/redraw/button-enablement all
+    ///     still exercise real UI logic). Once substituted, it runs through
+    ///     `handle(result:)` exactly like a real assessment: progress is
+    ///     saved, the next letter unlocks on a pass, and the celebration
+    ///     overlay appears. Used by `E2ETestSupport` to verify unlock
+    ///     behavior without needing a pixel-perfect PencilKit stroke.
     init(
         letterId: UUID,
         letterRepository: LetterRepositoryProtocol,
         progressRepository: ProgressRepositoryProtocol,
         assessor: HandwritingAssessing,
-        router: AppRouter
+        soundService: SoundServiceProtocol,
+        hapticsService: HapticsServiceProtocol,
+        router: AppRouter,
+        onWordAdvance: (() -> Void)? = nil,
+        previewResult: AssessmentResult? = nil,
+        previewShowsCelebration: Bool = false,
+        injectedResult: AssessmentResult? = nil
     ) {
         self.assessor           = assessor
         self.letterRepository   = letterRepository
         self.progressRepository = progressRepository
+        self.soundService       = soundService
+        self.hapticsService     = hapticsService
         self.router             = router
+        self.onWordAdvance      = onWordAdvance
+        self.injectedResult     = injectedResult
 
         fetchLetter(letterId: letterId, from: letterRepository)
         bindSubmissionPipeline()
+
+        if let previewResult {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                self?.assessmentResult = previewResult
+                if previewShowsCelebration {
+                    self?.showCelebration = true
+                }
+            }
+        }
     }
 
     // MARK: - PracticeViewModelProtocol inputs
@@ -100,7 +154,15 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     /// atomic — no flash through the home screen and the previous
     /// `PracticeView` (with its canvas state) is fully torn down before the
     /// next one mounts.
+    ///
+    /// When `onWordAdvance` was provided at init, that closure is called
+    /// instead and the router is left untouched — `WordPracticeViewModel`
+    /// owns navigation for the word session.
     func continueToNext() {
+        if let onWordAdvance {
+            onWordAdvance()
+            return
+        }
         guard let nextLetterId else {
             router.popToRoot()
             return
@@ -141,6 +203,9 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             })
             .flatMapLatest { [weak self] pair -> Observable<AssessmentResult> in
                 guard let self else { return .empty() }
+                if let injectedResult = self.injectedResult {
+                    return .just(injectedResult)
+                }
                 return self.assessor
                     .assess(strokes: pair.strokes, for: pair.letter, guidelines: self.guidelines)
                     .asObservable()
@@ -156,9 +221,12 @@ final class PracticeViewModel: PracticeViewModelProtocol {
     /// Persists the result via lenses, unlocks the next letter when the
     /// child passes, and triggers the celebration once both saves complete.
     private func handle(result: AssessmentResult) {
-        isAssessing  = false
+        isAssessing      = false
         assessmentResult = result
         attemptCount    += 1
+
+        triggerSound(for: result)
+        triggerHaptics(for: result)
 
         guard let letter else { return }
 
@@ -168,6 +236,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
                 let existing = all.first { $0.letterId == letter.id }
                     ?? ChildProgress(
                         letterId:    letter.id,
+                        alphabetId:  letter.alphabetId,
                         attempts:    [],
                         bestScore:   0,
                         isUnlocked:  true,
@@ -184,13 +253,80 @@ final class PracticeViewModel: PracticeViewModelProtocol {
             ? unlockNextLetter(after: letter.id)
             : .empty()
 
+        let unlockLowercase: Completable = result.passed
+            ? unlockLowercaseIfEligible(after: letter)
+            : .empty()
+
         saveCurrent
             .andThen(unlockNext)
+            .andThen(unlockLowercase)
             .observe(on: MainScheduler.instance)
             .subscribe(onCompleted: { [weak self] in
                 if result.passed { self?.showCelebration = true }
             })
             .disposed(by: disposeBag)
+    }
+
+    private func triggerSound(for result: AssessmentResult) {
+        guard soundService.isSoundEnabled else { return }
+        if result.passed {
+            soundService.playSuccess()
+        } else if result.overallScore >= 50 {
+            soundService.playEncouragement()
+        } else {
+            soundService.playSoftError()
+        }
+    }
+
+    private func triggerHaptics(for result: AssessmentResult) {
+        guard hapticsService.isEnabled else { return }
+        if result.passed {
+            hapticsService.playSuccess()
+        } else if result.overallScore >= 50 {
+            hapticsService.playEncouragement()
+        } else {
+            hapticsService.playSoftError()
+        }
+    }
+
+    /// When the child passes the final uppercase letter of `letter`'s alphabet and
+    /// all of that alphabet's uppercase letters are now completed, unlocks all of
+    /// that alphabet's lowercase letters at once — independent of any other
+    /// installed alphabet's progress.
+    ///
+    /// Returns a no-op `Completable` when the condition is not met.
+    private func unlockLowercaseIfEligible(after letter: Letter) -> Completable {
+        guard letter.letterCase == .upper else { return .empty() }
+        return Observable.zip(
+            letterRepository.fetchAll().asObservable(),
+            progressRepository.loadAll().asObservable()
+        )
+        .take(1)
+        .asSingle()
+        .flatMapCompletable { [weak self] (allLetters: [Letter], allProgress: [ChildProgress]) -> Completable in
+            guard let self else { return .empty() }
+            let uppercaseLetters = allLetters.filter { $0.letterCase == .upper && $0.alphabetId == letter.alphabetId }
+            let completedIds = Set(allProgress.filter { $0.isCompleted }.map { $0.letterId })
+            guard uppercaseLetters.allSatisfy({ completedIds.contains($0.id) }) else {
+                return .empty()
+            }
+            let progressMap = Dictionary(uniqueKeysWithValues: allProgress.map { ($0.letterId, $0) })
+            let saves = allLetters
+                .filter { $0.letterCase == .lower && $0.alphabetId == letter.alphabetId }
+                .map { lowercase -> Completable in
+                    let existing = progressMap[lowercase.id]
+                        ?? ChildProgress(
+                            letterId:    lowercase.id,
+                            alphabetId:  lowercase.alphabetId,
+                            attempts:    [],
+                            bestScore:   0,
+                            isUnlocked:  false,
+                            isCompleted: false
+                        )
+                    return self.progressRepository.save(ChildProgress.lensIsUnlocked.set(existing, true))
+                }
+            return Completable.concat(saves)
+        }
     }
 
     /// Looks up the letter that follows `currentId`, ensures its persisted
@@ -208,6 +344,7 @@ final class PracticeViewModel: PracticeViewModelProtocol {
                         let existing = all.first { $0.letterId == next.id }
                             ?? ChildProgress(
                                 letterId:    next.id,
+                                alphabetId:  next.alphabetId,
                                 attempts:    [],
                                 bestScore:   0,
                                 isUnlocked:  false,

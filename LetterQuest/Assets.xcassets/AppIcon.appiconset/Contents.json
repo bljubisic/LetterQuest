@@ -1,6 +1,31 @@
 {
   "images" : [
     {
+      "filename" : "letterquest-boat-light.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "letterquest-boat-dark.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "letterquest-boat-tinted.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
