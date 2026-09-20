@@ -1090,9 +1090,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = ENT89NLKC9;
 				INFOPLIST_FILE = LetterQuest/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Simple Letter Quest";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1199,9 +1200,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = ENT89NLKC9;
 				INFOPLIST_FILE = LetterQuest/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Simple Letter Quest";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

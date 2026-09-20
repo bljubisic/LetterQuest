@@ -127,6 +127,17 @@ struct LetterQuestApp: App {
                     )) {
                         OnboardingView(viewModel: onboardingViewModel)
                     }
+                    // Gates every `AppRoute.requiresParentalGate` route
+                    // (currently just the Alphabet Store) before it's ever
+                    // pushed, regardless of which screen requested it — see
+                    // `AppRouter.push(_:)`. Root-level so it can't be missed
+                    // by a future entry point the way per-view gating was.
+                    .sheet(item: $router.pendingGateRoute) { _ in
+                        ParentalGateView(
+                            onSuccess: router.confirmPendingGate,
+                            onCancel: router.cancelPendingGate
+                        )
+                    }
                 } else {
                     Color(uiColor: .systemBackground).ignoresSafeArea()
                 }

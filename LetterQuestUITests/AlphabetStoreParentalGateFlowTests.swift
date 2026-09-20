@@ -6,24 +6,16 @@ import XCTest
 /// correct-answer behavior), not a full StoreKit transaction — the project
 /// has no purchase-flow UI coverage driving the system purchase sheet yet
 /// (see `project.yml`'s own note on this).
+///
+/// The Apple rejection cited this guideline twice: the first fix gated only
+/// the in-store Buy/Restore buttons, but the Store screen itself — reachable
+/// straight from Home's cart button with no gate — already shows pricing.
+/// The gate now sits on `AppRouter.push(_:)` itself (`AppRoute.requiresParentalGate`),
+/// so it fires before the Store ever appears, from any entry point.
 final class AlphabetStoreParentalGateFlowTests: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-    }
-
-    private func launchAtStore() -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchEnvironment = LaunchArgumentBuilder()
-            .resettingState()
-            .skippingOnboarding()
-            .build()
-        app.launch()
-
-        let storeButton = app.buttons["home.storeButton"]
-        XCTAssertTrue(storeButton.waitForExistence(timeout: 5))
-        storeButton.tap()
-        return app
     }
 
     /// Parses "7 × 8 = ?" into its product, so tests don't hardcode a
@@ -35,6 +27,74 @@ final class AlphabetStoreParentalGateFlowTests: XCTestCase {
             return ""
         }
         return String(numbers[0] * numbers[1])
+    }
+
+    /// Solves whichever parental gate is currently on screen.
+    private func solveGate(in app: XCUIApplication) {
+        let promptLabel = app.staticTexts["parentalGate.prompt"]
+        XCTAssertTrue(promptLabel.waitForExistence(timeout: 5))
+        let answer = correctAnswer(for: promptLabel.label)
+
+        let answerField = app.textFields["parentalGate.answerField"]
+        answerField.tap()
+        answerField.typeText(answer)
+        app.buttons["parentalGate.continueButton"].tap()
+    }
+
+    /// Launches at Home, taps the cart button, and solves the entry gate
+    /// that now sits in front of the Store screen — leaving the caller
+    /// inside the Store, ready to exercise the in-store Buy/Restore gates.
+    private func launchAtStore() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment = LaunchArgumentBuilder()
+            .resettingState()
+            .skippingOnboarding()
+            .build()
+        app.launch()
+
+        let storeButton = app.buttons["home.storeButton"]
+        XCTAssertTrue(storeButton.waitForExistence(timeout: 5))
+        storeButton.tap()
+
+        solveGate(in: app)
+
+        XCTAssertTrue(app.buttons["store.restoreButton"].waitForExistence(timeout: 5))
+        return app
+    }
+
+    func test_tappingStoreButton_showsParentalGateBeforeStoreAppears() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment = LaunchArgumentBuilder()
+            .resettingState()
+            .skippingOnboarding()
+            .build()
+        app.launch()
+
+        let storeButton = app.buttons["home.storeButton"]
+        XCTAssertTrue(storeButton.waitForExistence(timeout: 5))
+        storeButton.tap()
+
+        XCTAssertTrue(app.staticTexts["parentalGate.prompt"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["store.restoreButton"].exists, "Store must not be visible until the gate is solved")
+    }
+
+    func test_cancelingEntryGate_staysOnHome() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment = LaunchArgumentBuilder()
+            .resettingState()
+            .skippingOnboarding()
+            .build()
+        app.launch()
+
+        app.buttons["home.storeButton"].tap()
+
+        let cancelButton = app.buttons["parentalGate.cancelButton"]
+        XCTAssertTrue(cancelButton.waitForExistence(timeout: 5))
+        cancelButton.tap()
+
+        XCTAssertFalse(app.staticTexts["parentalGate.prompt"].exists)
+        XCTAssertFalse(app.buttons["store.restoreButton"].exists)
+        XCTAssertTrue(app.buttons["home.storeButton"].waitForExistence(timeout: 5))
     }
 
     func test_tappingBuy_showsParentalGate() throws {
