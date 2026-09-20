@@ -12,8 +12,8 @@ protocol AlphabetStoreViewModelProtocol: ObservableObject {
     /// `true` while the catalogue/pricing/restore fetch is in flight.
     var isLoading: Bool { get }
 
-    /// The `Alphabet.id` currently being purchased, if any — drives a
-    /// per-row spinner/disabled state so only the tapped row reacts.
+    /// The `AlphabetStoreRow.id` currently being purchased, if any — drives
+    /// a per-row spinner/disabled state so only the tapped row reacts.
     var purchasingAlphabetId: String? { get }
 
     /// A fixed, user-facing message to show in an alert, or `nil` when no
