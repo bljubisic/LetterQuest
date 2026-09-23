@@ -339,12 +339,12 @@ extension StrokeTemplate {
                   direction: .curved)
     ]
 
-    /// T — top bar then vertical down from the bar's centre.
+    /// T — vertical down the centre, then the crossbar last.
     private static let tDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.1, 0.05), to: p(0.9, 0.05)),
-                  direction: .leftToRight),
         StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)),
-                  direction: .topToBottom)
+                  direction: .topToBottom),
+        StrokeDef(points: line(from: p(0.1, 0.05), to: p(0.9, 0.05)),
+                  direction: .leftToRight)
     ]
 
     /// U — single U-shaped stroke: down the left side, around the bottom, back up.
