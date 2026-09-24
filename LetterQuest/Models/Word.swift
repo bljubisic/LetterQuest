@@ -37,10 +37,6 @@ extension Word {
         "зид", "пут", "мед", "лед", "сок", "око"
     ].map { Word(id: DeterministicID.uuid(name: "word.\($0)"), text: $0, alphabetId: Alphabet.cyrillicSrId) }
 
-    /// Every curated word across every alphabet. `WordRepository` serves this
-    /// combined list; per-alphabet filtering happens in the ViewModel layer,
-    /// mirroring how `LetterRepository.fetchAll()` combines every installed
-    /// alphabet's letters.
     /// A curated list of simple German nouns (3–4 letters), seeded with stable ids
     /// at compile time. German capitalises every noun, so each word keeps its
     /// capital first letter — traced with `Alphabet.german`'s uppercase letter,
@@ -58,5 +54,22 @@ extension Word {
         Word(id: DeterministicID.uuid(name: "word.\(Alphabet.germanId).\($0)"), text: $0, alphabetId: Alphabet.germanId)
     }
 
-    static let curated: [Word] = curatedLatin + curatedCyrillicSr + curatedGerman
+    /// A curated list of simple, concrete Spanish words (3–4 letters), seeded with
+    /// stable ids at compile time. Spanish nouns are lowercase, so every letter is
+    /// traced with `Alphabet.spanish`'s lowercase letters. Between them the words
+    /// use ñ, á, é, í, ó and ú; ü is left out as short words with it are rare.
+    /// Ids are namespaced by alphabet (`word.spanish.<text>`), as with German.
+    static let curatedSpanish: [Word] = [
+        "sol", "pan", "mar", "luz", "pez", "oso", "uva", "ojo",
+        "casa", "gato", "pato", "sapo", "lobo", "vaca", "mano", "luna", "nube", "rana", "dedo",
+        "niño", "piña", "león", "búho", "sofá", "maíz", "bebé"
+    ].map {
+        Word(id: DeterministicID.uuid(name: "word.\(Alphabet.spanishId).\($0)"), text: $0, alphabetId: Alphabet.spanishId)
+    }
+
+    /// Every curated word across every alphabet. `WordRepository` serves this
+    /// combined list; per-alphabet filtering happens in the ViewModel layer,
+    /// mirroring how `LetterRepository.fetchAll()` combines every installed
+    /// alphabet's letters.
+    static let curated: [Word] = curatedLatin + curatedCyrillicSr + curatedGerman + curatedSpanish
 }
