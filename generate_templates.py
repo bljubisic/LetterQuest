@@ -779,6 +779,35 @@ def spanish_lower_strokes():
 SPANISH_ASCII_NAMES = ['enye', 'aacute', 'eacute', 'iacute', 'oacute', 'uacute']
 
 
+def swedish_upper_strokes():
+    """Ports SwedishStrokeDefinitions.swift's new uppercase glyph (Å)."""
+    return {
+        'aring': [
+            line_pts((0.5, 0.25), (0.95, 0.95)),
+            line_pts((0.5, 0.25), (0.05, 0.95)),
+            line_pts((0.2, 0.68), (0.8, 0.68)),
+            circle_arc(0.5, 0.05, 0.07, -pi/2, 3*pi/2),
+        ],
+    }
+
+
+def swedish_lower_strokes():
+    """Ports SwedishStrokeDefinitions.swift's new lowercase glyph (å)."""
+    return {
+        'aring': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.22), (0.72, 0.85)),
+            circle_arc(0.5, 0.02, 0.065, -pi/2, 3*pi/2),
+        ],
+    }
+
+
+# Asset-name fragment for Swedish's own special character Å/å — must stay
+# in sync with SwedishAlphabet.swift's `specialAssetNames`. Ä/Ö/ä/ö reuse
+# the German images generated above.
+SWEDISH_ASCII_NAMES = ['aring']
+
+
 # ── Rasteriser ────────────────────────────────────────────────────────────────
 
 def dist_sq_to_segment(px, py, ax, ay, bx, by):
@@ -939,6 +968,24 @@ def main():
         pixels = render_letter(spanish_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
         png = encode_png(pixels, SIZE)
         name = f'template_es_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # Swedish's own special character (the other 26 reuse the Latin
+    # templates above, and Ä/Ö/ä/ö reuse German's template_de_* images):
+    # template_sv_aring and template_sv_lc_aring.
+    swedish_upper = swedish_upper_strokes()
+    swedish_lower = swedish_lower_strokes()
+
+    for name_fragment in SWEDISH_ASCII_NAMES:
+        pixels = render_letter(swedish_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_sv_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in SWEDISH_ASCII_NAMES:
+        pixels = render_letter(swedish_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_sv_lc_{name_fragment}'
         _write_imageset(xcassets, name, png)
 
     print(f'\nAsset catalog written to:\n  {xcassets}')

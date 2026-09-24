@@ -32,6 +32,13 @@ struct AlphabetRepositoryTests {
         #expect(available.contains { $0.id == "latin" })
     }
 
+    @Test("fetchAvailable includes Swedish in the default catalogue")
+    func fetchAvailableIncludesSwedish() throws {
+        let repository = AlphabetRepository()
+        let available = try repository.fetchAvailable().toBlocking().single()
+        #expect(available.contains { $0.id == "swedish" })
+    }
+
     @Test("fetchInstalled includes free alphabets by default")
     func fetchInstalledIncludesFreeAlphabets() throws {
         let repository = AlphabetRepository()
