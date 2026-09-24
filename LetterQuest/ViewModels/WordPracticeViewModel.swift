@@ -19,9 +19,11 @@ final class WordPracticeViewModel: WordPracticeViewModelProtocol {
 
     // MARK: - Private state
 
-    /// The full lowercase alphabet, used to resolve each of the word's
-    /// characters to the matching `Letter`'s stable id.
-    private var lowercaseLetters: [Letter] = []
+    /// Every letter of the word's alphabet, in both cases, used to resolve each
+    /// of the word's characters to the matching `Letter`'s stable id. Both
+    /// cases because a German noun starts with its uppercase letter (the "H"
+    /// of "Hund").
+    private var alphabetLetters: [Letter] = []
 
     private let wordId: UUID
     private let letterRepository: LetterRepositoryProtocol
@@ -72,9 +74,7 @@ final class WordPracticeViewModel: WordPracticeViewModelProtocol {
         .observe(on: MainScheduler.instance)
         .subscribe(onNext: { [weak self] word, allLetters in
             self?.word = word
-            self?.lowercaseLetters = allLetters.filter {
-                $0.letterCase == .lower && $0.alphabetId == word?.alphabetId
-            }
+            self?.alphabetLetters = allLetters.filter { $0.alphabetId == word?.alphabetId }
         })
         .disposed(by: disposeBag)
     }
@@ -84,7 +84,9 @@ final class WordPracticeViewModel: WordPracticeViewModelProtocol {
     func makeLetterViewModel() -> PracticeViewModel? {
         guard let word, currentIndex < word.characters.count else { return nil }
         let character = word.characters[currentIndex]
-        guard let letterId = lowercaseLetters.first(where: { $0.character == character })?.id else {
+        // Characters are unique across cases ("H" ≠ "h"), so the match picks
+        // the uppercase or lowercase letter the word actually contains.
+        guard let letterId = alphabetLetters.first(where: { $0.character == character })?.id else {
             return nil
         }
         return PracticeViewModel(

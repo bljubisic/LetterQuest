@@ -160,6 +160,39 @@ struct WordPracticeViewModelTests {
         #expect(letterVM.letter?.character == "c")
     }
 
+    @Test("a capitalised word (German noun) starts on the uppercase Letter, then continues in lowercase")
+    func capitalisedWordResolvesUppercaseThenLowercase() throws {
+        let word = Word(id: UUID(), text: "Hund", alphabetId: Alphabet.germanId)
+        let vm = WordPracticeViewModel(
+            wordId:                 word.id,
+            wordRepository:         MockWordRepository(words: [word]),
+            letterRepository:       MockLetterRepository(letters: Alphabet.german.letters),
+            progressRepository:     MockProgressRepository(),
+            wordProgressRepository: MockWordProgressRepository(),
+            assessor:               MockAssessor(result: makeResult(passed: true)),
+            soundService:           MockSoundService(),
+            hapticsService:         MockHapticsService(),
+            router:                 AppRouter()
+        )
+        DispatchQueue.main.sync {}
+
+        let first = try #require(vm.makeLetterViewModel())
+        DispatchQueue.main.sync {}
+        #expect(first.letter?.character == "H")
+        #expect(first.letter?.letterCase == .upper)
+        #expect(first.letter?.alphabetId == Alphabet.germanId)
+
+        first.submit(strokes: [])
+        DispatchQueue.main.sync {}
+        first.continueToNext()
+        DispatchQueue.main.sync {}
+
+        let second = try #require(vm.makeLetterViewModel())
+        DispatchQueue.main.sync {}
+        #expect(second.letter?.character == "u")
+        #expect(second.letter?.letterCase == .lower)
+    }
+
     @Test("passing a letter advances currentIndex without completing the word")
     func passingOneLetterAdvancesIndex() throws {
         let fixture = makeFixture(passed: true)
