@@ -11,6 +11,8 @@
 		022462DF2820CAEA24E74C18 /* WordCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7067C40E41FB8F5E253334 /* WordCard.swift */; };
 		02D0271D1F5FA3C1FF628BF3 /* SpanishStrokeDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0232BBD11EA0B09220118ABC /* SpanishStrokeDefinitions.swift */; };
 		039258F0AC987342D711AF3A /* MockPurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459E877188B737DE2B78A844 /* MockPurchaseService.swift */; };
+		03DC8815C23649ED1C046CE3 /* CroatianAlphabet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5660BD624EFB55C8A31217 /* CroatianAlphabet.swift */; };
+		0674FA7D0B25CD52AEE30E94 /* CroatianStrokeDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF06792FECA8B6402DB1BDB /* CroatianStrokeDefinitions.swift */; };
 		0692197CE18CC58AE129DFBC /* PracticeSubmissionFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82BEF95D9CD2A6DB5F48391E /* PracticeSubmissionFlowTests.swift */; };
 		077D830184BB5B8970CBC226 /* WordProgressRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4F7770EB00BEE163148049 /* WordProgressRepositoryProtocol.swift */; };
 		081C230FC1DD979DAD1052E0 /* SpanishAlphabet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51578C680F515D4ED33E6CD1 /* SpanishAlphabet.swift */; };
@@ -105,6 +107,7 @@
 		9A6DAA17C670E5ED337829AF /* Lens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AA7BDFED2DF1B9EEECC31A /* Lens.swift */; };
 		9E26604338D5E624A16187CA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C310E3DEE06E8EEA6A2C88FF /* HomeView.swift */; };
 		9EE7F7E824575E0235F329BC /* LetterCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404746555ACB7A87AACC3086 /* LetterCase.swift */; };
+		A0E481E27612A7A82ACDB2A0 /* CroatianLetterScoringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A391CE4EDE2661C2A700CE81 /* CroatianLetterScoringTests.swift */; };
 		A1062EE2F9E582746EA828BC /* HapticsServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27552B2410B78FE5C0E6AA6 /* HapticsServiceProtocol.swift */; };
 		A2DD0854375BBDF88E99C9D4 /* CyrillicLowercaseStrokeTemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7974C1ECA9BD4572FB600BD7 /* CyrillicLowercaseStrokeTemplateTests.swift */; };
 		A6578C543C2A448F244A8E93 /* OnboardingAndUnlockFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D7757F051CA5BA6169F7AB8 /* OnboardingAndUnlockFlowTests.swift */; };
@@ -145,6 +148,7 @@
 		DD236CA8295B33F66C384154 /* PurchaseOutcomeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39DBE53212B4C32CC4AA94A /* PurchaseOutcomeTests.swift */; };
 		DD70F790827F7A9560AD4CE0 /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBD91C5557BEB19BAB9FF0F /* SettingsViewModelTests.swift */; };
 		DEA4A439E1B101A18CA093EA /* HomeViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472F368E430B8FBD7DBFFB17 /* HomeViewModelProtocol.swift */; };
+		DF4E12EE74057C11A5EAD1F2 /* DiagonalStrokeLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA76573B3ACF12B2C2C60975 /* DiagonalStrokeLabelTests.swift */; };
 		E075B5335418AEADD2525B6F /* ScreenshotDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8916DC4D05CE719C0AD256B /* ScreenshotDemo.swift */; };
 		E13701B74708E7C301467F03 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431C1629B5AE066AC25E0A59 /* HapticsService.swift */; };
 		E19E5C4E2D7A10D4D33935D4 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC115620B9E6920A4C33D24 /* AppSettings.swift */; };
@@ -161,6 +165,7 @@
 		F538299546D668A47B6EE5F0 /* SmoothnessAnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F988D5DC353CEE31CF52154 /* SmoothnessAnalyzerTests.swift */; };
 		F679C86FF352323C5B0FE242 /* AlphabetRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FFBECFC8C93385A948CB068 /* AlphabetRepositoryProtocol.swift */; };
 		F86EB9F94FB8E174637DBE5C /* SwitchAlphabetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 569A3D582382861A37A57DA6 /* SwitchAlphabetView.swift */; };
+		FA80F6612584C10B1EFB11E2 /* CroatianAlphabetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28DA6607F9775A1977734EA7 /* CroatianAlphabetTests.swift */; };
 		FD4A67DBEAE7112D20DB7548 /* AlphabetStoreViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41ED634F9E6A3D3B90014C9 /* AlphabetStoreViewModelTests.swift */; };
 		FEE554C54E13A9AAA8AE1CB8 /* SwitchAlphabetViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67541778F7C21C9FD4BABCF /* SwitchAlphabetViewModelProtocol.swift */; };
 		FF322D1A1F8D773033C30A54 /* SwedishAlphabetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F517B6EDC770EB996BA85F4D /* SwedishAlphabetTests.swift */; };
@@ -205,6 +210,7 @@
 		2253DC0191CAE3948F9DE007 /* WordPracticeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeViewModelTests.swift; sourceTree = "<group>"; };
 		24D9A8BA2BD1A5A0FBBB3845 /* AlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetTests.swift; sourceTree = "<group>"; };
 		28651D65138E71D9AC880FB4 /* ProgressViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressViewModelTests.swift; sourceTree = "<group>"; };
+		28DA6607F9775A1977734EA7 /* CroatianAlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CroatianAlphabetTests.swift; sourceTree = "<group>"; };
 		29A21430E1C7194FF97B61CD /* SpanishAlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpanishAlphabetTests.swift; sourceTree = "<group>"; };
 		29AA0C5BA26A868B818A9A68 /* WordCelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordCelebrationView.swift; sourceTree = "<group>"; };
 		2D7757F051CA5BA6169F7AB8 /* OnboardingAndUnlockFlowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAndUnlockFlowTests.swift; sourceTree = "<group>"; };
@@ -271,6 +277,7 @@
 		90C78CA288CDEB2509B07416 /* AssessmentResultProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentResultProtocol.swift; sourceTree = "<group>"; };
 		9433FE7BF0B0921DA1003DF8 /* ProportionChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProportionChecker.swift; sourceTree = "<group>"; };
 		992F1C3DAA66101352456843 /* Letter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Letter.swift; sourceTree = "<group>"; };
+		9AF06792FECA8B6402DB1BDB /* CroatianStrokeDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CroatianStrokeDefinitions.swift; sourceTree = "<group>"; };
 		9C8504AC816E1FB90A1F4119 /* AppSettingsProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsProtocol.swift; sourceTree = "<group>"; };
 		9CE8CACF6575EC9015ED5E63 /* SettingsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRepository.swift; sourceTree = "<group>"; };
 		9DC64F796C8A96655E9040C8 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
@@ -278,6 +285,7 @@
 		9F8B8D90AABAE9EE61A7F0FD /* LearnViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnViewModelTests.swift; sourceTree = "<group>"; };
 		9FBD91C5557BEB19BAB9FF0F /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		A1A593EAADE086878B90059F /* AssessmentResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssessmentResult.swift; sourceTree = "<group>"; };
+		A391CE4EDE2661C2A700CE81 /* CroatianLetterScoringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CroatianLetterScoringTests.swift; sourceTree = "<group>"; };
 		A7741C5AB7CDB6D88C379AC2 /* SettingsViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelProtocol.swift; sourceTree = "<group>"; };
 		AA1490535B1A62C544E6923E /* HomeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelTests.swift; sourceTree = "<group>"; };
 		AA3B931BAFE61EA1C5E47980 /* AppSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsTests.swift; sourceTree = "<group>"; };
@@ -289,6 +297,7 @@
 		B4432C07722F20593A6A132C /* AlphabetStoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetStoreViewModel.swift; sourceTree = "<group>"; };
 		B44760D62CCEA5B074DD5F27 /* ShapeAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeAnalyzer.swift; sourceTree = "<group>"; };
 		B4F9FA7EEE93838BAB4AE6C1 /* ProgressRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRepositoryProtocol.swift; sourceTree = "<group>"; };
+		BA5660BD624EFB55C8A31217 /* CroatianAlphabet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CroatianAlphabet.swift; sourceTree = "<group>"; };
 		BB5006C5EDD04D1A214142CF /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		C061DEA2E481A741E6F6419C /* AlphabetProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetProtocol.swift; sourceTree = "<group>"; };
 		C20747D022F3BE5F5A1DD47F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -338,6 +347,7 @@
 		F83C9544FC3E28466658DAEC /* LensTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LensTests.swift; sourceTree = "<group>"; };
 		F8916DC4D05CE719C0AD256B /* ScreenshotDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDemo.swift; sourceTree = "<group>"; };
 		F91DF14A379952AD3DE17EDE /* AlphabetCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetCard.swift; sourceTree = "<group>"; };
+		FA76573B3ACF12B2C2C60975 /* DiagonalStrokeLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagonalStrokeLabelTests.swift; sourceTree = "<group>"; };
 		FD85E6BBE453626F8553AF43 /* GermanAlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GermanAlphabetTests.swift; sourceTree = "<group>"; };
 		FD875D30080786692FE926CE /* SwedishAlphabet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwedishAlphabet.swift; sourceTree = "<group>"; };
 		FF8CDE21A6E001219DC55514 /* CyrillicStrokeTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyrillicStrokeTemplateTests.swift; sourceTree = "<group>"; };
@@ -517,10 +527,13 @@
 				24D9A8BA2BD1A5A0FBBB3845 /* AlphabetTests.swift */,
 				AA3B931BAFE61EA1C5E47980 /* AppSettingsTests.swift */,
 				752BF22F42303DB5B0B3E3EC /* ChildProgressTests.swift */,
+				28DA6607F9775A1977734EA7 /* CroatianAlphabetTests.swift */,
+				A391CE4EDE2661C2A700CE81 /* CroatianLetterScoringTests.swift */,
 				F5CA07995D3B03841FDEE9DC /* CyrillicAlphabetTests.swift */,
 				7974C1ECA9BD4572FB600BD7 /* CyrillicLowercaseStrokeTemplateTests.swift */,
 				FF8CDE21A6E001219DC55514 /* CyrillicStrokeTemplateTests.swift */,
 				D95C647C7710FB654A26C211 /* DeterministicIDTests.swift */,
+				FA76573B3ACF12B2C2C60975 /* DiagonalStrokeLabelTests.swift */,
 				14844D93D177D69B434A05B8 /* DTWMatcherTests.swift */,
 				FD85E6BBE453626F8553AF43 /* GermanAlphabetTests.swift */,
 				327CAFE405041E641922A92B /* HandwritingAssessorTests.swift */,
@@ -667,6 +680,7 @@
 		D75E3B1CE48579D34D805AE8 /* Alphabets */ = {
 			isa = PBXGroup;
 			children = (
+				BA5660BD624EFB55C8A31217 /* CroatianAlphabet.swift */,
 				0F7A56AB851FD87B3A733CDF /* CyrillicAlphabet.swift */,
 				E1966B16B8B87856B9D1BA03 /* GermanAlphabet.swift */,
 				31986B14DD3895D257A5E85F /* LatinAlphabet.swift */,
@@ -735,6 +749,7 @@
 		E86936DB13FD3DF3E44931D4 /* StrokeTemplates */ = {
 			isa = PBXGroup;
 			children = (
+				9AF06792FECA8B6402DB1BDB /* CroatianStrokeDefinitions.swift */,
 				848EF43EAB9588201E9C09D4 /* CyrillicStrokeDefinitions.swift */,
 				3E5E16B6F0F9E6C013E79E23 /* GermanStrokeDefinitions.swift */,
 				0232BBD11EA0B09220118ABC /* SpanishStrokeDefinitions.swift */,
@@ -944,11 +959,14 @@
 				BCC7AB87E5018F9AF652A5F2 /* AlphabetTests.swift in Sources */,
 				95163F826979156F44672896 /* AppSettingsTests.swift in Sources */,
 				D75B85120991EE10E96CDB62 /* ChildProgressTests.swift in Sources */,
+				FA80F6612584C10B1EFB11E2 /* CroatianAlphabetTests.swift in Sources */,
+				A0E481E27612A7A82ACDB2A0 /* CroatianLetterScoringTests.swift in Sources */,
 				79AB296ED01E05D4AEB790C4 /* CyrillicAlphabetTests.swift in Sources */,
 				A2DD0854375BBDF88E99C9D4 /* CyrillicLowercaseStrokeTemplateTests.swift in Sources */,
 				308C269BA4F168A1C8C6BF38 /* CyrillicStrokeTemplateTests.swift in Sources */,
 				95355797DCF9EA8A155451AC /* DTWMatcherTests.swift in Sources */,
 				E69C3282D2E5D5A5370D0ABB /* DeterministicIDTests.swift in Sources */,
+				DF4E12EE74057C11A5EAD1F2 /* DiagonalStrokeLabelTests.swift in Sources */,
 				C41E529531ACEED0B5EACD4F /* GermanAlphabetTests.swift in Sources */,
 				D66AE5ACA26B25C89D5F616E /* HandwritingAssessorTests.swift in Sources */,
 				C4498613B4EBD8310305C333 /* HapticsServiceTests.swift in Sources */,
@@ -1019,6 +1037,8 @@
 				680D2B9EB7258B6AD0DC9FD7 /* CelebrationView.swift in Sources */,
 				7277E698B6C392368B5423B5 /* ChildProgress.swift in Sources */,
 				136D979DF75E2740C8ECC353 /* ChildProgressProtocol.swift in Sources */,
+				03DC8815C23649ED1C046CE3 /* CroatianAlphabet.swift in Sources */,
+				0674FA7D0B25CD52AEE30E94 /* CroatianStrokeDefinitions.swift in Sources */,
 				7EEA76E2E85624FEB30CED70 /* CyrillicAlphabet.swift in Sources */,
 				66DD67188DC201099C4B3879 /* CyrillicStrokeDefinitions.swift in Sources */,
 				B06EBF4172C52F5CE7FC8716 /* DTWMatcher.swift in Sources */,

@@ -808,6 +808,105 @@ def swedish_lower_strokes():
 SWEDISH_ASCII_NAMES = ['aring']
 
 
+
+def _caron(cx, top, half_width=0.12):
+    """A caron (háček): one V stroke spanning y top…top+0.12."""
+    return (line_pts((cx - half_width, top), (cx, top + 0.12), 4) +
+            line_pts((cx, top + 0.12), (cx + half_width, top), 4)[1:])
+
+
+def _compressed_z(left, right):
+    return [
+        line_pts((left, 0.25), (right, 0.25)),
+        line_pts((right, 0.25), (left, 0.95)),
+        line_pts((left, 0.95), (right, 0.95)),
+    ]
+
+
+def _lowered_z(left, right):
+    return [
+        line_pts((left, 0.24), (right, 0.24)),
+        line_pts((right, 0.24), (left, 0.86)),
+        line_pts((left, 0.86), (right, 0.86)),
+    ]
+
+
+def _lower_j(x):
+    return [
+        (line_pts((x, 0.22), (x, 0.90), 5) +
+         curve_through((x, 0.90), (x - 0.12, 0.97), (x - 0.24, 0.90))[1:]),
+        line_pts((x - 0.06, 0.10), (x + 0.06, 0.14), 3),
+    ]
+
+
+def croatian_upper_strokes():
+    """Ports CroatianStrokeDefinitions.swift's 8 new uppercase glyphs."""
+    compressed_c = circle_arc(0.5, 0.6, 0.35, -pi/3, -5*pi/3)
+    compressed_s = (bezier_pts((0.85, 0.32), (0.05, 0.25), (0.5, 0.60)) +
+                    bezier_pts((0.5, 0.60), (0.95, 0.95), (0.15, 0.88))[1:])
+    return {
+        'ccaron': [compressed_c, _caron(0.5, -0.02)],
+        'cacute': [compressed_c, _acute(0.44, -0.02)],
+        'dstroke': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            elliptic_arc(0.15, 0.5, 0.75, 0.45, -pi/2, pi/2),
+            line_pts((0.02, 0.5), (0.38, 0.5)),
+        ],
+        'scaron': [compressed_s, _caron(0.5, -0.02)],
+        'zcaron': _compressed_z(0.1, 0.9) + [_caron(0.5, -0.02)],
+        'dzcaron': [
+            line_pts((0.05, 0.25), (0.05, 0.95)),
+            elliptic_arc(0.05, 0.6, 0.38, 0.35, -pi/2, pi/2),
+        ] + _compressed_z(0.55, 0.95) + [_caron(0.75, -0.02, 0.09)],
+        'lj': [
+            line_pts((0.08, 0.05), (0.08, 0.95)),
+            line_pts((0.08, 0.95), (0.44, 0.95)),
+            line_pts((0.86, 0.05), (0.86, 0.7)),
+            curve_through((0.86, 0.7), (0.72, 0.97), (0.58, 0.85)),
+        ],
+        'nj': [
+            line_pts((0.05, 0.05), (0.05, 0.95)),
+            line_pts((0.05, 0.05), (0.45, 0.95)),
+            line_pts((0.45, 0.05), (0.45, 0.95)),
+            line_pts((0.88, 0.05), (0.88, 0.7)),
+            curve_through((0.88, 0.7), (0.75, 0.97), (0.62, 0.85)),
+        ],
+    }
+
+
+def croatian_lower_strokes():
+    """Ports CroatianStrokeDefinitions.swift's 8 new lowercase glyphs."""
+    lowered_c = circle_arc(0.5, 0.54, 0.32, -pi/3, -5*pi/3)
+    lowered_s = (curve_through((0.80, 0.24), (0.15, 0.41), (0.50, 0.56)) +
+                 curve_through((0.50, 0.56), (0.85, 0.71), (0.20, 0.86))[1:])
+    return {
+        'ccaron': [lowered_c, _caron(0.5, -0.04)],
+        'cacute': [lowered_c, _acute(0.44, -0.04)],
+        'dstroke': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.05), (0.72, 0.85)),
+            line_pts((0.56, 0.15), (0.90, 0.15)),
+        ],
+        'scaron': [lowered_s, _caron(0.5, -0.04)],
+        'zcaron': _lowered_z(0.10, 0.90) + [_caron(0.5, -0.04)],
+        'dzcaron': [
+            circle_arc(0.24, 0.54, 0.20, -pi/2, 3*pi/2),
+            line_pts((0.44, 0.05), (0.44, 0.85)),
+        ] + _lowered_z(0.56, 0.96) + [_caron(0.76, -0.04, 0.09)],
+        'lj': [line_pts((0.25, 0.05), (0.25, 0.85))] + _lower_j(0.70),
+        'nj': [
+            line_pts((0.06, 0.22), (0.06, 0.85)),
+            (curve_through((0.06, 0.47), (0.27, 0.22), (0.46, 0.47)) +
+             line_pts((0.46, 0.47), (0.46, 0.85), 5)[1:]),
+        ] + _lower_j(0.82),
+    }
+
+
+# Asset-name fragments for Croatian's 8 own letters — must stay in sync with
+# CroatianAlphabet.swift's `specialAssetNames`. The other 22 letters reuse
+# the Latin images generated above.
+CROATIAN_ASCII_NAMES = ['ccaron', 'cacute', 'dstroke', 'scaron', 'zcaron', 'dzcaron', 'lj', 'nj']
+
 # ── Rasteriser ────────────────────────────────────────────────────────────────
 
 def dist_sq_to_segment(px, py, ax, ay, bx, by):
@@ -986,6 +1085,23 @@ def main():
         pixels = render_letter(swedish_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
         png = encode_png(pixels, SIZE)
         name = f'template_sv_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # Croatian / Serbian / Slovenian's 8 own letters (the other 22 reuse the
+    # Latin templates above): template_hr_<name> and template_hr_lc_<name>.
+    croatian_upper = croatian_upper_strokes()
+    croatian_lower = croatian_lower_strokes()
+
+    for name_fragment in CROATIAN_ASCII_NAMES:
+        pixels = render_letter(croatian_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_hr_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in CROATIAN_ASCII_NAMES:
+        pixels = render_letter(croatian_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_hr_lc_{name_fragment}'
         _write_imageset(xcassets, name, png)
 
     print(f'\nAsset catalog written to:\n  {xcassets}')

@@ -214,10 +214,18 @@ final class HandwritingAssessor: HandwritingAssessing {
         var bestChar  = candidates[0].character
         var bestScore = -1
 
+        // On a tie the target wins, so the gate only rejects a drawing that
+        // looks *more* like another letter — not one that looks equally like
+        // it (e.g. Ć vs Č, whose small marks the shape signal can't separate).
         for (candidate, shape) in zip(candidates, shapeScores) {
-            let dtw   = dtwMatcher.score(strokes: strokes, against: candidate.strokeTemplates)
+            // Which letter a drawing looks like doesn't depend on which end
+            // each stroke started from — e.g. Ć's acute is often drawn
+            // top-down, the reverse of its guide, and in drawing order it
+            // then resembles Č's symmetric V more than its own tick.
+            let dtw   = dtwMatcher.score(strokes: strokes, against: candidate.strokeTemplates,
+                                         ignoringTravelDirection: true)
             let score = (dtw + shape) / 2
-            if score > bestScore {
+            if score > bestScore || (score == bestScore && candidate.id == target.id) {
                 bestScore = score
                 bestChar  = candidate.character
             }
