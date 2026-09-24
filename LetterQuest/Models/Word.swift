@@ -80,9 +80,27 @@ extension Word {
         Word(id: DeterministicID.uuid(name: "word.\(Alphabet.swedishId).\($0)"), text: $0, alphabetId: Alphabet.swedishId)
     }
 
+    /// A curated list of simple, concrete Croatian/Serbian words (3–4 letters), seeded
+    /// with stable ids at compile time. Nouns are lowercase, so every letter is traced
+    /// with `Alphabet.croatian`'s lowercase letters; words are shared by Croatian and
+    /// Serbian where possible. Č/ć/đ/š/ž appear only where the word naturally has them.
+    ///
+    /// Words with the digraphs lj/nj/dž are left out: the alphabet stores them as
+    /// single code points (ǉ/ǌ/ǆ), so spelling them `l`+`j` would trace them as two
+    /// letters, and spelling them `ǉ` would render an odd ligature in the word text.
+    /// Ids are namespaced by alphabet (`word.croatian.<text>`), as with German.
+    static let curatedCroatian: [Word] = [
+        "pas", "sir", "nos", "vuk", "zec", "lav", "kit", "zub",
+        "riba", "ruka", "noga", "sova", "koza", "voda", "kapa", "auto",
+        "jež", "miš", "puž", "čaj", "noć", "ćuk", "đak", "kuća", "žaba", "šuma"
+    ].map {
+        Word(id: DeterministicID.uuid(name: "word.\(Alphabet.croatianId).\($0)"), text: $0, alphabetId: Alphabet.croatianId)
+    }
+
     /// Every curated word across every alphabet. `WordRepository` serves this
     /// combined list; per-alphabet filtering happens in the ViewModel layer,
     /// mirroring how `LetterRepository.fetchAll()` combines every installed
     /// alphabet's letters.
     static let curated: [Word] = curatedLatin + curatedCyrillicSr + curatedGerman + curatedSpanish + curatedSwedish
+        + curatedCroatian
 }
