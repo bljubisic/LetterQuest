@@ -54,6 +54,7 @@
 		455CAD4836C99400CF343223 /* PracticeViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 006CA037E903B3D01C819D2F /* PracticeViewModelProtocol.swift */; };
 		46DFA9DFD8C9A550CE79C791 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC64F796C8A96655E9040C8 /* CanvasView.swift */; };
 		484DC7D7ABF6FE3733BA41BB /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7050E20CFD4CD5F4C26F1EA0 /* HomeViewModel.swift */; };
+		4B2C56B149F0BB8E991F7FBC /* SwedishStrokeDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C5B0E4F541FAF6C0FE526D /* SwedishStrokeDefinitions.swift */; };
 		4D8DFF53DB39AD4E0D9686F4 /* WordProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5526126E9DECE2DF78BEE7 /* WordProgress.swift */; };
 		4E4413EE23AB53BE13B7A819 /* StoreKitPurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3B69A7E70ECE010876EFEE /* StoreKitPurchaseService.swift */; };
 		517207409B28B33D9B0E936B /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 92EF0825BE013DD9D3A9E411 /* RxBlocking */; };
@@ -114,6 +115,7 @@
 		B503D649F7C98E7B0522FC5B /* ProgressViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA1C2FC6507233EE4ED1B0 /* ProgressViewModel.swift */; };
 		B5851D2B3EAC1AFA277C53E1 /* StrokeTemplateProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86470B0C6B5DE23562E745F9 /* StrokeTemplateProtocol.swift */; };
 		B5CCBDCFE1FA36988FF51B97 /* GermanAlphabet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1966B16B8B87856B9D1BA03 /* GermanAlphabet.swift */; };
+		B877A160634D02F0A079C424 /* SwedishAlphabet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD875D30080786692FE926CE /* SwedishAlphabet.swift */; };
 		B99CA6F8B5A50C69997E1DF1 /* ProportionCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFB2B9A02B86A4BBC360410 /* ProportionCheckerTests.swift */; };
 		BA4A53AE57AB802AF6FA3857 /* StoreKitAlphabetEntitlementProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3195B0C24D9581799F500902 /* StoreKitAlphabetEntitlementProviderTests.swift */; };
 		BCC7AB87E5018F9AF652A5F2 /* AlphabetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24D9A8BA2BD1A5A0FBBB3845 /* AlphabetTests.swift */; };
@@ -161,6 +163,7 @@
 		F86EB9F94FB8E174637DBE5C /* SwitchAlphabetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 569A3D582382861A37A57DA6 /* SwitchAlphabetView.swift */; };
 		FD4A67DBEAE7112D20DB7548 /* AlphabetStoreViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41ED634F9E6A3D3B90014C9 /* AlphabetStoreViewModelTests.swift */; };
 		FEE554C54E13A9AAA8AE1CB8 /* SwitchAlphabetViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67541778F7C21C9FD4BABCF /* SwitchAlphabetViewModelProtocol.swift */; };
+		FF322D1A1F8D773033C30A54 /* SwedishAlphabetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F517B6EDC770EB996BA85F4D /* SwedishAlphabetTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -194,6 +197,7 @@
 		112736289D485C88F57BBBFC /* LetterRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterRepositoryTests.swift; sourceTree = "<group>"; };
 		1230516EE4038CAACAC25DE5 /* ParentalGateChallenge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGateChallenge.swift; sourceTree = "<group>"; };
 		14844D93D177D69B434A05B8 /* DTWMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DTWMatcherTests.swift; sourceTree = "<group>"; };
+		14C5B0E4F541FAF6C0FE526D /* SwedishStrokeDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwedishStrokeDefinitions.swift; sourceTree = "<group>"; };
 		19CD5FDD0B1CAE3D731509FD /* SoundServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundServiceTests.swift; sourceTree = "<group>"; };
 		1CDF4A71CDFE1769AF64E7BD /* LetterRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterRepository.swift; sourceTree = "<group>"; };
 		1E00B0BED89AF331997BB16B /* WordProgressRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordProgressRepository.swift; sourceTree = "<group>"; };
@@ -324,6 +328,7 @@
 		F085CBBED8EEC14CCDC27117 /* sound_error.caf */ = {isa = PBXFileReference; path = sound_error.caf; sourceTree = "<group>"; };
 		F11F1ADFC6B274B1C32921F0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F39DBE53212B4C32CC4AA94A /* PurchaseOutcomeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseOutcomeTests.swift; sourceTree = "<group>"; };
+		F517B6EDC770EB996BA85F4D /* SwedishAlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwedishAlphabetTests.swift; sourceTree = "<group>"; };
 		F5CA07995D3B03841FDEE9DC /* CyrillicAlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyrillicAlphabetTests.swift; sourceTree = "<group>"; };
 		F60558E2C9E7B0B84AA333A7 /* RxAsyncBridging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RxAsyncBridging.swift; sourceTree = "<group>"; };
 		F64BD1CC9C7F96F03B29CA0C /* HapticsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsServiceTests.swift; sourceTree = "<group>"; };
@@ -334,6 +339,7 @@
 		F8916DC4D05CE719C0AD256B /* ScreenshotDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDemo.swift; sourceTree = "<group>"; };
 		F91DF14A379952AD3DE17EDE /* AlphabetCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetCard.swift; sourceTree = "<group>"; };
 		FD85E6BBE453626F8553AF43 /* GermanAlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GermanAlphabetTests.swift; sourceTree = "<group>"; };
+		FD875D30080786692FE926CE /* SwedishAlphabet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwedishAlphabet.swift; sourceTree = "<group>"; };
 		FF8CDE21A6E001219DC55514 /* CyrillicStrokeTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyrillicStrokeTemplateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -539,6 +545,7 @@
 				29A21430E1C7194FF97B61CD /* SpanishAlphabetTests.swift */,
 				3195B0C24D9581799F500902 /* StoreKitAlphabetEntitlementProviderTests.swift */,
 				7A51E5DBF2E37C929565785F /* StrokeTemplateTests.swift */,
+				F517B6EDC770EB996BA85F4D /* SwedishAlphabetTests.swift */,
 				ACA258EAF1E83568E0F488E7 /* TestHelpers.swift */,
 				2253DC0191CAE3948F9DE007 /* WordPracticeViewModelTests.swift */,
 				E02010C720AF0A2DBC189137 /* WordProgressTests.swift */,
@@ -664,6 +671,7 @@
 				E1966B16B8B87856B9D1BA03 /* GermanAlphabet.swift */,
 				31986B14DD3895D257A5E85F /* LatinAlphabet.swift */,
 				51578C680F515D4ED33E6CD1 /* SpanishAlphabet.swift */,
+				FD875D30080786692FE926CE /* SwedishAlphabet.swift */,
 			);
 			path = Alphabets;
 			sourceTree = "<group>";
@@ -730,6 +738,7 @@
 				848EF43EAB9588201E9C09D4 /* CyrillicStrokeDefinitions.swift */,
 				3E5E16B6F0F9E6C013E79E23 /* GermanStrokeDefinitions.swift */,
 				0232BBD11EA0B09220118ABC /* SpanishStrokeDefinitions.swift */,
+				14C5B0E4F541FAF6C0FE526D /* SwedishStrokeDefinitions.swift */,
 			);
 			path = StrokeTemplates;
 			sourceTree = "<group>";
@@ -963,6 +972,7 @@
 				63CF662E23394622BFA3499A /* SpanishAlphabetTests.swift in Sources */,
 				BA4A53AE57AB802AF6FA3857 /* StoreKitAlphabetEntitlementProviderTests.swift in Sources */,
 				7962FDB7D15A0D0451DB8DA8 /* StrokeTemplateTests.swift in Sources */,
+				FF322D1A1F8D773033C30A54 /* SwedishAlphabetTests.swift in Sources */,
 				6F7E36540016714C7DB7B43C /* TestHelpers.swift in Sources */,
 				E7FF178FF61EEEFDFB5697CA /* WordPracticeViewModelTests.swift in Sources */,
 				F404677370487D7F5964FA66 /* WordProgressTests.swift in Sources */,
@@ -1073,6 +1083,8 @@
 				1DD78C33A7C8D8414719AFE7 /* StrokeGuideOverlay.swift in Sources */,
 				79CBA484961EFEC361FFACEA /* StrokeTemplate.swift in Sources */,
 				B5851D2B3EAC1AFA277C53E1 /* StrokeTemplateProtocol.swift in Sources */,
+				B877A160634D02F0A079C424 /* SwedishAlphabet.swift in Sources */,
+				4B2C56B149F0BB8E991F7FBC /* SwedishStrokeDefinitions.swift in Sources */,
 				F86EB9F94FB8E174637DBE5C /* SwitchAlphabetView.swift in Sources */,
 				7B1C19C97C42824AC8641A47 /* SwitchAlphabetViewModel.swift in Sources */,
 				FEE554C54E13A9AAA8AE1CB8 /* SwitchAlphabetViewModelProtocol.swift in Sources */,
@@ -1114,11 +1126,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = ENT89NLKC9;
 				INFOPLIST_FILE = LetterQuest/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Simple Letter Quest";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1224,11 +1234,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = ENT89NLKC9;
 				INFOPLIST_FILE = LetterQuest/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Simple Letter Quest";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

@@ -31,7 +31,7 @@ private let letterSpec: [Character: Spec] = [
     "Q": (2, [.curved, .diagonal(angle: 45)]),
     "R": (3, [.topToBottom, .curved, .diagonal(angle: 45)]),
     "S": (1, [.curved]),
-    "T": (2, [.leftToRight, .topToBottom]),
+    "T": (2, [.topToBottom, .leftToRight]),
     "U": (1, [.curved]),
     "V": (2, [.diagonal(angle: 45), .diagonal(angle: -45)]),
     "W": (4, [.diagonal(angle: 45), .diagonal(angle: -45), .diagonal(angle: 45), .diagonal(angle: -45)]),
@@ -210,15 +210,17 @@ struct StrokeTemplateShapeTests {
         #expect(xRange > yRange * 2, "A crossbar is not horizontal: xRange=\(xRange) yRange=\(yRange)")
     }
 
-    // T's horizontal stroke must come first (strokeIndex 0) per standard print order.
-    @Test("T's first stroke (index 0) is the horizontal bar")
-    func tHorizontalBarIsFirst() throws {
+    // T's crossbar must come last (strokeIndex 1), after the vertical — the
+    // near-universal "cross it last" convention, matching how A/E/F/H treat
+    // their own crossbars/bars elsewhere in this file.
+    @Test("T's second stroke (index 1) is the horizontal crossbar")
+    func tCrossbarIsLast() throws {
         let templates = StrokeTemplate.templates(for: "T")
         try #require(templates.count == 2)
-        let horizontal = templates[0]
+        let horizontal = templates[1]
         #expect(horizontal.direction == .leftToRight)
         let ys = horizontal.points.map(\.y)
-        #expect(ys.max()! - ys.min()! < 0.1, "T's first stroke is not horizontal")
+        #expect(ys.max()! - ys.min()! < 0.1, "T's second stroke is not horizontal")
     }
 
     // V's two legs must converge at the bottom (the lowest points of each stroke should be close).
