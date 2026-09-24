@@ -148,6 +148,7 @@
 		DD236CA8295B33F66C384154 /* PurchaseOutcomeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39DBE53212B4C32CC4AA94A /* PurchaseOutcomeTests.swift */; };
 		DD70F790827F7A9560AD4CE0 /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBD91C5557BEB19BAB9FF0F /* SettingsViewModelTests.swift */; };
 		DEA4A439E1B101A18CA093EA /* HomeViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472F368E430B8FBD7DBFFB17 /* HomeViewModelProtocol.swift */; };
+		DF4E12EE74057C11A5EAD1F2 /* DiagonalStrokeLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA76573B3ACF12B2C2C60975 /* DiagonalStrokeLabelTests.swift */; };
 		E075B5335418AEADD2525B6F /* ScreenshotDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8916DC4D05CE719C0AD256B /* ScreenshotDemo.swift */; };
 		E13701B74708E7C301467F03 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431C1629B5AE066AC25E0A59 /* HapticsService.swift */; };
 		E19E5C4E2D7A10D4D33935D4 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC115620B9E6920A4C33D24 /* AppSettings.swift */; };
@@ -346,6 +347,7 @@
 		F83C9544FC3E28466658DAEC /* LensTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LensTests.swift; sourceTree = "<group>"; };
 		F8916DC4D05CE719C0AD256B /* ScreenshotDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDemo.swift; sourceTree = "<group>"; };
 		F91DF14A379952AD3DE17EDE /* AlphabetCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetCard.swift; sourceTree = "<group>"; };
+		FA76573B3ACF12B2C2C60975 /* DiagonalStrokeLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagonalStrokeLabelTests.swift; sourceTree = "<group>"; };
 		FD85E6BBE453626F8553AF43 /* GermanAlphabetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GermanAlphabetTests.swift; sourceTree = "<group>"; };
 		FD875D30080786692FE926CE /* SwedishAlphabet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwedishAlphabet.swift; sourceTree = "<group>"; };
 		FF8CDE21A6E001219DC55514 /* CyrillicStrokeTemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyrillicStrokeTemplateTests.swift; sourceTree = "<group>"; };
@@ -531,6 +533,7 @@
 				7974C1ECA9BD4572FB600BD7 /* CyrillicLowercaseStrokeTemplateTests.swift */,
 				FF8CDE21A6E001219DC55514 /* CyrillicStrokeTemplateTests.swift */,
 				D95C647C7710FB654A26C211 /* DeterministicIDTests.swift */,
+				FA76573B3ACF12B2C2C60975 /* DiagonalStrokeLabelTests.swift */,
 				14844D93D177D69B434A05B8 /* DTWMatcherTests.swift */,
 				FD85E6BBE453626F8553AF43 /* GermanAlphabetTests.swift */,
 				327CAFE405041E641922A92B /* HandwritingAssessorTests.swift */,
@@ -963,6 +966,7 @@
 				308C269BA4F168A1C8C6BF38 /* CyrillicStrokeTemplateTests.swift in Sources */,
 				95355797DCF9EA8A155451AC /* DTWMatcherTests.swift in Sources */,
 				E69C3282D2E5D5A5370D0ABB /* DeterministicIDTests.swift in Sources */,
+				DF4E12EE74057C11A5EAD1F2 /* DiagonalStrokeLabelTests.swift in Sources */,
 				C41E529531ACEED0B5EACD4F /* GermanAlphabetTests.swift in Sources */,
 				D66AE5ACA26B25C89D5F616E /* HandwritingAssessorTests.swift in Sources */,
 				C4498613B4EBD8310305C333 /* HapticsServiceTests.swift in Sources */,

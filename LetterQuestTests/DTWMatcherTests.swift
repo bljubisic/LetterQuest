@@ -146,6 +146,30 @@ struct DTWMatcherDirectionTests {
         // Direction: 80 * 0.4 = 32. Even with a terrible path (low), score should be ≥ 32.
         #expect(score >= 30)
     }
+
+    @Test("A diagonal traced with the template's slope gets full direction credit")
+    func matchingDiagonalSlopeScoresFull() {
+        // "/" drawn bottom-left → top-right against a "/" template (negative angle).
+        let slash: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.1).map { CGPoint(x: $0, y: 1 - $0) }
+        let templates = [makeTemplate(slash, direction: .diagonal(angle: -45))]
+        #expect(matcher.score(strokes: [makeStroke(points: slash)], against: templates) > 95)
+    }
+
+    @Test("Ignoring travel direction, a stroke drawn backwards matches as well as forwards")
+    func reversedStrokeMatchesWhenIgnoringTravelDirection() {
+        let templates = [makeTemplate(verticalPoints, direction: .topToBottom)]
+        let backwards = [makeStroke(points: verticalPoints.reversed())]
+        #expect(matcher.score(strokes: backwards, against: templates) < 80)
+        #expect(matcher.score(strokes: backwards, against: templates, ignoringTravelDirection: true) > 95)
+    }
+
+    @Test("A diagonal drawn with the opposite slope scores low")
+    func oppositeDiagonalSlopeScoresLow() {
+        let slash: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.1).map { CGPoint(x: $0, y: 1 - $0) }
+        let backslash: [CGPoint] = stride(from: 0.0, through: 1.0, by: 0.1).map { CGPoint(x: $0, y: $0) }
+        let templates = [makeTemplate(slash, direction: .diagonal(angle: -45))]
+        #expect(matcher.score(strokes: [makeStroke(points: backslash)], against: templates) < 50)
+    }
 }
 
 // MARK: - Path similarity (DTW algorithm)

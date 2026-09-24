@@ -40,6 +40,59 @@ final class CroatianLetterScoringTests: XCTestCase {
         }
     }
 
+    /// Regression: a correctly drawn Ć used to be rejected as "That looks like
+    /// Č" — shape scoring can't tell the two small marks apart, every diagonal
+    /// got the same flat direction score as a curve, and near-ties went to
+    /// whichever candidate came first (Č). Children draw the tick either way
+    /// round and not exactly on the guide, so cover both.
+    func test_acuteDrawnNaturally_isNotMistakenForCaron() throws {
+        let ticks: [(name: String, from: CGPoint, to: CGPoint)] = [
+            ("down-left, like handwriting", StrokeTemplate.p(0.56, -0.02), StrokeTemplate.p(0.44, 0.08)),
+            ("steeper, down-left", StrokeTemplate.p(0.58, -0.04), StrokeTemplate.p(0.48, 0.12)),
+            ("longer, up-right", StrokeTemplate.p(0.40, 0.12), StrokeTemplate.p(0.60, -0.06)),
+        ]
+        for character: Character in ["Ć", "ć"] {
+            let target = letter(character)
+            let zone = testWritingZone(canvasSize: canvasSize, character: character)
+            func onCanvas(_ point: CGPoint) -> CGPoint {
+                CGPoint(x: zone.minX + point.x * zone.width, y: zone.minY + point.y * zone.height)
+            }
+            let body = makeStroke(points: target.strokeTemplates[0].points.map(onCanvas))
+            for tick in ticks {
+                // Lowercase marks sit 0.02 higher than uppercase ones.
+                let shift: CGFloat = character == "ć" ? -0.02 : 0
+                let from = CGPoint(x: tick.from.x, y: tick.from.y + shift)
+                let to = CGPoint(x: tick.to.x, y: tick.to.y + shift)
+                let mark = makeStroke(points: StrokeTemplate.line(from: from, to: to, steps: 8).map(onCanvas))
+                let result = try assessor.assess(strokes: [body, mark], for: target, guidelines: guidelines)
+                    .toBlocking(timeout: 5)
+                    .single()
+                XCTAssertTrue(result.passed,
+                    "'\(character)' with tick \(tick.name) should pass; score=\(result.overallScore), feedback=\(result.feedback.map(\.message))")
+            }
+        }
+    }
+
+    /// Regression: the acute traced exactly backwards along its guide (top-right
+    /// → bottom-left) lost to Č, because path matching follows drawing order
+    /// and Č's V is symmetric. Recognition must not care which end a stroke
+    /// starts from.
+    func test_acuteTracedBackwards_isNotMistakenForCaron() throws {
+        for character: Character in ["Ć", "ć"] {
+            let target = letter(character)
+            let strokes = makeStrokesInZone(matching: target.strokeTemplates, for: character, in: canvasSize)
+            let backwardsMark = makeStrokesInZone(
+                matching: [StrokeTemplate.lensPoints.over(target.strokeTemplates[1]) { $0.reversed() }],
+                for: character, in: canvasSize)
+            let result = try assessor.assess(strokes: [strokes[0]] + backwardsMark, for: target, guidelines: guidelines)
+                .toBlocking(timeout: 5)
+                .single()
+            XCTAssertFalse(result.feedback.contains { $0.message.contains("looks like") },
+                "'\(character)' with its tick traced backwards was misrecognised: \(result.feedback.map(\.message))")
+            XCTAssertTrue(result.passed, "'\(character)' with its tick traced backwards should pass; score=\(result.overallScore)")
+        }
+    }
+
     func test_baseLetterWithoutMark_fails() throws {
         let pairs: [(Character, Character)] = [
             ("Č", "C"), ("Ć", "C"), ("Š", "S"), ("Ž", "Z"), ("Đ", "D"),
