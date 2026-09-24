@@ -67,9 +67,22 @@ extension Word {
         Word(id: DeterministicID.uuid(name: "word.\(Alphabet.spanishId).\($0)"), text: $0, alphabetId: Alphabet.spanishId)
     }
 
+    /// A curated list of simple, concrete Swedish words (3–4 letters), seeded with
+    /// stable ids at compile time. Swedish nouns are lowercase, so every letter is
+    /// traced with `Alphabet.swedish`'s lowercase letters. Å/ä/ö appear only where
+    /// the word naturally has them. Ids are namespaced by alphabet
+    /// (`word.swedish.<text>`), so e.g. Swedish "sol" never shares Spanish "sol"'s progress.
+    static let curatedSwedish: [Word] = [
+        "sol", "hus", "bil", "mus", "bok", "sko", "ost", "apa",
+        "katt", "hund", "fisk", "boll", "kaka", "gris", "anka", "bord",
+        "båt", "tåg", "gås", "måne", "bär", "räv", "säng", "öga", "snö", "löv"
+    ].map {
+        Word(id: DeterministicID.uuid(name: "word.\(Alphabet.swedishId).\($0)"), text: $0, alphabetId: Alphabet.swedishId)
+    }
+
     /// Every curated word across every alphabet. `WordRepository` serves this
     /// combined list; per-alphabet filtering happens in the ViewModel layer,
     /// mirroring how `LetterRepository.fetchAll()` combines every installed
     /// alphabet's letters.
-    static let curated: [Word] = curatedLatin + curatedCyrillicSr + curatedGerman + curatedSpanish
+    static let curated: [Word] = curatedLatin + curatedCyrillicSr + curatedGerman + curatedSpanish + curatedSwedish
 }
