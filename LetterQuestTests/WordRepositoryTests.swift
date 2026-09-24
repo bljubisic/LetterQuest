@@ -43,7 +43,8 @@ struct WordRepositoryTests {
 
     @Test("every character in every word exists in its own alphabet's letters")
     func everyCharacterExistsInItsOwnAlphabetsLetters() throws {
-        let alphabets = [Alphabet.latin, Alphabet.cyrillicSr, Alphabet.german, Alphabet.spanish, Alphabet.swedish]
+        let alphabets = [Alphabet.latin, Alphabet.cyrillicSr, Alphabet.german, Alphabet.spanish, Alphabet.swedish,
+                         Alphabet.croatian]
         let words = try repository.fetchAll().toBlocking().single()
         for word in words {
             let alphabet = try #require(alphabets.first { $0.id == word.alphabetId },
@@ -151,6 +152,50 @@ struct WordRepositoryTests {
     func fetchAllIncludesSwedishWords() throws {
         let words = try repository.fetchAll().toBlocking().single()
         #expect(words.filter { $0.alphabetId == Alphabet.swedishId }.count == Word.curatedSwedish.count)
+    }
+
+    @Test("the Croatian curated list has 26 words, all tagged with the Croatian alphabet id")
+    func croatianCuratedListIsComplete() {
+        #expect(Word.curatedCroatian.count == 26)
+        #expect(Word.curatedCroatian.allSatisfy { $0.alphabetId == Alphabet.croatianId })
+    }
+
+    @Test("every Croatian word is a 3–4 letter lowercase word")
+    func everyCroatianWordIsAShortLowercaseWord() {
+        for word in Word.curatedCroatian {
+            #expect((3...4).contains(word.text.count), "\(word.text) is not 3–4 letters")
+            #expect(word.text == word.text.lowercased(), "\(word.text) is not lowercase")
+        }
+    }
+
+    @Test("the Croatian words between them use each of č, ć, đ, š and ž")
+    func croatianWordsCoverSpecialLetters() {
+        let characters = Set(Word.curatedCroatian.flatMap(\.characters))
+        for special: Character in ["č", "ć", "đ", "š", "ž"] {
+            #expect(characters.contains(special), "no Croatian word uses '\(special)'")
+        }
+    }
+
+    @Test("no Croatian word contains the digraphs lj/nj/dž, spelled out or as ǉ/ǌ/ǆ")
+    func croatianWordsAvoidDigraphs() {
+        for word in Word.curatedCroatian {
+            for digraph in ["lj", "nj", "dž", "ǉ", "ǌ", "ǆ"] {
+                #expect(!word.text.contains(digraph), "\(word.text) contains the digraph '\(digraph)'")
+            }
+        }
+    }
+
+    @Test("Croatian word ids are namespaced by alphabet, so they never collide with another list's")
+    func croatianWordIdsAreNamespaced() {
+        for word in Word.curatedCroatian {
+            #expect(word.id == DeterministicID.uuid(name: "word.\(Alphabet.croatianId).\(word.text)"))
+        }
+    }
+
+    @Test("fetchAll includes the Croatian words")
+    func fetchAllIncludesCroatianWords() throws {
+        let words = try repository.fetchAll().toBlocking().single()
+        #expect(words.filter { $0.alphabetId == Alphabet.croatianId }.count == Word.curatedCroatian.count)
     }
 
     @Test("the Cyrillic curated list has 26 words, all tagged with the Cyrillic alphabet id")
