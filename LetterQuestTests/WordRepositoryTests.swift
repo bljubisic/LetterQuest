@@ -44,7 +44,7 @@ struct WordRepositoryTests {
     @Test("every character in every word exists in its own alphabet's letters")
     func everyCharacterExistsInItsOwnAlphabetsLetters() throws {
         let alphabets = [Alphabet.latin, Alphabet.cyrillicSr, Alphabet.german, Alphabet.spanish, Alphabet.swedish,
-                         Alphabet.croatian]
+                         Alphabet.croatian, Alphabet.french]
         let words = try repository.fetchAll().toBlocking().single()
         for word in words {
             let alphabet = try #require(alphabets.first { $0.id == word.alphabetId },
@@ -196,6 +196,41 @@ struct WordRepositoryTests {
     func fetchAllIncludesCroatianWords() throws {
         let words = try repository.fetchAll().toBlocking().single()
         #expect(words.filter { $0.alphabetId == Alphabet.croatianId }.count == Word.curatedCroatian.count)
+    }
+
+    @Test("the French curated list has 26 words, all tagged with the French alphabet id")
+    func frenchCuratedListIsComplete() {
+        #expect(Word.curatedFrench.count == 26)
+        #expect(Word.curatedFrench.allSatisfy { $0.alphabetId == Alphabet.frenchId })
+    }
+
+    @Test("every French word is a 3–4 letter lowercase word (œ counting as one letter)")
+    func everyFrenchWordIsAShortLowercaseWord() {
+        for word in Word.curatedFrench {
+            #expect((3...4).contains(word.text.count), "\(word.text) is not 3–4 letters")
+            #expect(word.text == word.text.lowercased(), "\(word.text) is not lowercase")
+        }
+    }
+
+    @Test("the French words between them use each of é, è, ê, â, î, ï, ô, û and œ")
+    func frenchWordsCoverTheirAccentedLetters() {
+        let characters = Set(Word.curatedFrench.flatMap(\.characters))
+        for special: Character in ["é", "è", "ê", "â", "î", "ï", "ô", "û", "œ"] {
+            #expect(characters.contains(special), "no French word uses '\(special)'")
+        }
+    }
+
+    @Test("French word ids are namespaced by alphabet, so they never collide with another list's")
+    func frenchWordIdsAreNamespaced() {
+        for word in Word.curatedFrench {
+            #expect(word.id == DeterministicID.uuid(name: "word.\(Alphabet.frenchId).\(word.text)"))
+        }
+    }
+
+    @Test("fetchAll includes the French words")
+    func fetchAllIncludesFrenchWords() throws {
+        let words = try repository.fetchAll().toBlocking().single()
+        #expect(words.filter { $0.alphabetId == Alphabet.frenchId }.count == Word.curatedFrench.count)
     }
 
     @Test("the Cyrillic curated list has 26 words, all tagged with the Cyrillic alphabet id")
