@@ -9,7 +9,7 @@ import CoreGraphics
 /// be steep/shallow enough that `DTWMatcher` recognises it as a diagonal.
 struct DiagonalStrokeLabelTests {
 
-    private static let allAlphabets: [Alphabet] = [.latin, .cyrillicSr, .german, .spanish, .swedish, .croatian]
+    private static let allAlphabets: [Alphabet] = [.latin, .cyrillicSr, .german, .spanish, .swedish, .croatian, .french]
 
     @Test("every diagonal template's angle sign matches the slope of its points",
           arguments: allAlphabets.map(\.id))

@@ -61,7 +61,8 @@ TestFlight/production builds, so both must stay in sync.
 ## Bundled packs (more than one alphabet per product)
 
 Some packs unlock several alphabets at once from a single purchase — the
-**Extended Latin Pack** (German, Spanish, Swedish, Croatian) is the first.
+**Extended Latin Pack** (German, Spanish, Swedish, Croatian, French) is the
+first.
 This needs no special handling in App Store Connect: it's still exactly one
 Non-Consumable product, created with the steps above. The bundling happens
 entirely on the app side — every member alphabet's `Alphabet.productId` is
@@ -84,9 +85,9 @@ set to the **same** product id, and `AlphabetStoreViewModel` groups rows by
 | Type | Non-Consumable |
 | Product ID | `com.persukibo.letterquest.alphabet.extended_latin` |
 | Reference Name (internal only) | Extended Latin Pack |
-| Price tier | Tier 3 ($2.99 USD, localized equivalents elsewhere) — higher than a single-alphabet pack since it unlocks four |
+| Price tier | Tier 3 ($2.99 USD, localized equivalents elsewhere) — higher than a single-alphabet pack since it unlocks five |
 | Display Name (en_US) | Extended Latin Pack |
-| Description (en_US) | Unlock German, Spanish, Swedish, and Croatian (45 chars) |
+| Description (en_US) | Unlock German, Spanish, Swedish, Croatian, and French (53 chars) |
 | Family Sharing | Enabled |
 
 ## Adding a future alphabet pack

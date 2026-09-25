@@ -70,8 +70,9 @@ extension StrokeTemplate {
     /// Tries the Latin definitions, then German (this order matters:
     /// Spanish's Ü/ü is visually identical to German's and intentionally
     /// has no entry of its own in `SpanishStrokeDefinitions`, so it must
-    /// resolve here first — as must Swedish's Ä/Ö/ä/ö), then Spanish, then
-    /// Swedish, then Croatian, then Cyrillic, then falls back to
+    /// resolve here first — as must Swedish's Ä/Ö/ä/ö and French's Ü/ü), then
+    /// Spanish (which likewise supplies French's É/é), then Swedish, then
+    /// Croatian, then French, then Cyrillic, then falls back to
     /// a generic vertical stroke so the scoring pipeline always has
     /// something to compare against.
     private static func definitions(for character: Character) -> [StrokeDef] {
@@ -80,6 +81,7 @@ extension StrokeTemplate {
         if let spanish = SpanishStrokeDefinitions.definitions(for: character) { return spanish }
         if let swedish = SwedishStrokeDefinitions.definitions(for: character) { return swedish }
         if let croatian = CroatianStrokeDefinitions.definitions(for: character) { return croatian }
+        if let french = FrenchStrokeDefinitions.definitions(for: character) { return french }
         if let cyrillic = CyrillicStrokeDefinitions.definitions(for: character) { return cyrillic }
         return [StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)), direction: .topToBottom)]
     }
