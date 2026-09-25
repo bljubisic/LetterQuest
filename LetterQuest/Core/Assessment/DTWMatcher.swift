@@ -21,8 +21,13 @@ final class DTWMatcher {
     /// - Parameters:
     ///   - strokes: The strokes drawn by the child.
     ///   - templates: The ordered reference strokes for the target letter.
+    ///   - ignoringTravelDirection: Scores each stroke both as drawn and
+    ///     reversed, keeping the better result. For recognising *which letter*
+    ///     a drawing looks like, where the end a stroke starts from shouldn't
+    ///     matter; ordinary scoring leaves it `false` so wrong-way strokes are
+    ///     still penalised.
     /// - Returns: An integer score in **0–100**.
-    func score(strokes: [PKStroke], against templates: [StrokeTemplate]) -> Int {
+    func score(strokes: [PKStroke], against templates: [StrokeTemplate], ignoringTravelDirection: Bool = false) -> Int {
         guard !templates.isEmpty else { return 0 }
 
         guard strokes.count == templates.count else {
@@ -30,18 +35,27 @@ final class DTWMatcher {
             return max(0, 100 - mismatch * 25)
         }
 
-        let scores = zip(strokes, templates).map { scoreStroke($0, against: $1) }
+        let scores = zip(strokes, templates).map { stroke, template in
+            let points = strokePoints(stroke)
+            let forwards = scoreStroke(points, against: template)
+            guard ignoringTravelDirection else { return forwards }
+            return max(forwards, scoreStroke(points.reversed(), against: template))
+        }
         return Int(scores.reduce(0.0, +) / Double(scores.count))
     }
 
     // MARK: - Per-stroke scoring
 
-    private func scoreStroke(_ stroke: PKStroke, against template: StrokeTemplate) -> Double {
-        let drawn     = normalizedPoints(from: stroke)
+    private func scoreStroke(_ points: [CGPoint], against template: StrokeTemplate) -> Double {
+        let drawn     = normalizedPoints(from: sampled(points))
         let reference = normalizedPoints(from: template.points)
-        let direction = scoreDirection(stroke, expected: template.direction)
+        let direction = scoreDirection(points, expected: template.direction)
         let path      = dtwSimilarity(series1: drawn, series2: reference)
         return direction * 0.4 + path * 0.6
+    }
+
+    private func strokePoints(_ stroke: PKStroke) -> [CGPoint] {
+        (0..<stroke.path.count).map { stroke.path[$0].location }
     }
 
     // MARK: - Dynamic Time Warping
@@ -76,13 +90,24 @@ final class DTWMatcher {
 
     // MARK: - Direction scoring
 
+    /// The shorter axis of a diagonal's overall movement must be at least this
+    /// fraction of the longer one — roughly 14°–76° from horizontal.
+    static let minimumDiagonalAxisRatio: CGFloat = 0.25
+
     /// Awards 100 points when the overall movement direction matches `expected`,
     /// or 20 points when it is opposite/wrong. Curved strokes always get 80 points
     /// (direction is implicit in the DTW path match).
-    private func scoreDirection(_ stroke: PKStroke, expected: StrokeDirection) -> Double {
-        guard stroke.path.count >= 2 else { return 50 }
-        let first = stroke.path[0].location
-        let last  = stroke.path[stroke.path.count - 1].location
+    ///
+    /// Diagonals are scored by slope, not travel direction: the templates'
+    /// `.diagonal(angle:)` labels only encode "\" (positive angle — x and y
+    /// grow together, y pointing down) vs "/" (negative angle), and children
+    /// draw short diagonals such as accents either way round. Without this,
+    /// every diagonal got the same flat 80 as a curve, so a "/" tick was no
+    /// better a match for Ć's acute than for Č's V-shaped caron. A stroke only
+    /// counts as diagonal if it moves meaningfully along both axes (see
+    /// `minimumDiagonalAxisRatio`) — a V starts and ends level, so it isn't one.
+    private func scoreDirection(_ points: [CGPoint], expected: StrokeDirection) -> Double {
+        guard points.count >= 2, let first = points.first, let last = points.last else { return 50 }
         let dx = last.x - first.x
         let dy = last.y - first.y
 
@@ -91,24 +116,26 @@ final class DTWMatcher {
         case .rightToLeft:  return dx < 0 ? 100 : 20
         case .topToBottom:  return dy > 0 ? 100 : 20
         case .bottomToTop:  return dy < 0 ? 100 : 20
-        case .diagonal, .curved: return 80
+        case .diagonal(let angle):
+            let isDiagonal = min(abs(dx), abs(dy)) >= Self.minimumDiagonalAxisRatio * max(abs(dx), abs(dy))
+            let drawnIsBackslash = dx * dy > 0
+            return isDiagonal && drawnIsBackslash == (angle > 0) ? 100 : 20
+        case .curved: return 80
         }
     }
 
     // MARK: - Normalisation
 
-    /// Samples up to 50 evenly-spaced points from the stroke and normalises them
-    /// to the unit square so that size and position do not affect the DTW score.
-    private func normalizedPoints(from stroke: PKStroke) -> [(x: Double, y: Double)] {
-        let step = max(1, stroke.path.count / 50)
-        let raw  = stride(from: 0, to: stroke.path.count, by: step)
-            .map { stroke.path[$0].location }
-            .map { (x: Double($0.x), y: Double($0.y)) }
-        return normalizeToUnitSquare(raw)
+    /// Samples up to 50 evenly-spaced points from a drawn stroke, so DTW cost
+    /// stays bounded however densely PencilKit recorded it.
+    private func sampled(_ points: [CGPoint]) -> [CGPoint] {
+        let step = max(1, points.count / 50)
+        return stride(from: 0, to: points.count, by: step).map { points[$0] }
     }
 
-    /// Converts the template's `CGPoint` array into the same tuple format used
-    /// by the DTW algorithm.
+    /// Converts a `CGPoint` array into the tuple format used by the DTW
+    /// algorithm, normalised to the unit square so that size and position do
+    /// not affect the score.
     private func normalizedPoints(from points: [CGPoint]) -> [(x: Double, y: Double)] {
         normalizeToUnitSquare(points.map { (x: Double($0.x), y: Double($0.y)) })
     }

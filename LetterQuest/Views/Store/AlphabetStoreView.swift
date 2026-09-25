@@ -56,8 +56,8 @@ struct AlphabetStoreView<VM: AlphabetStoreViewModelProtocol>: View {
 
 // MARK: - Alphabet Store Row
 
-/// A single tappable row showing one alphabet's names, price/ownership
-/// state, and (when locked) a "Buy" button.
+/// A single tappable row showing one alphabet's (or bundled pack's) names,
+/// price/ownership state, and (when locked) a "Buy" button.
 private struct AlphabetStoreRowView: View {
 
     let row: AlphabetStoreRow
@@ -67,11 +67,13 @@ private struct AlphabetStoreRowView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(row.alphabet.displayName)
+                Text(row.displayName)
                     .font(.headline)
-                Text(row.alphabet.nativeName)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                if let nativeName = row.nativeName {
+                    Text(nativeName)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Spacer()
@@ -87,14 +89,14 @@ private struct AlphabetStoreRowView: View {
                 Button(row.priceText ?? "Buy", action: onBuy)
                     .buttonStyle(.borderedProminent)
                     .accessibilityHint("Buy this alphabet pack.")
-                    .accessibilityIdentifier("store.buyButton.\(row.alphabet.id)")
+                    .accessibilityIdentifier("store.buyButton.\(row.id)")
             }
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(row.alphabet.displayName), \(row.alphabet.nativeName)")
+        .accessibilityLabel(row.nativeName.map { "\(row.displayName), \($0)" } ?? row.displayName)
         .accessibilityValue(accessibilityStatus)
-        .accessibilityIdentifier("store.row.\(row.alphabet.id)")
+        .accessibilityIdentifier("store.row.\(row.id)")
     }
 
     private var accessibilityStatus: String {

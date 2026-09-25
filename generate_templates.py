@@ -266,8 +266,8 @@ def all_letter_strokes():
              bezier_pts((0.50, 0.50), (0.95, 1.00), (0.15, 0.90))[1:]),
         ],
         'T': [
-            line_pts((0.10, 0.05), (0.90, 0.05)),
             line_pts((0.50, 0.05), (0.50, 0.95)),
+            line_pts((0.10, 0.05), (0.90, 0.05)),
         ],
         'U': [
             (line_pts((0.10, 0.05), (0.10, 0.70), 6) +
@@ -623,6 +623,422 @@ CYRILLIC_ASCII_NAMES = [
 ]
 
 
+def german_upper_strokes():
+    """Ports GermanStrokeDefinitions.swift's 3 new uppercase glyphs."""
+    def dot(x, y):
+        return line_pts((x, y), (x + 0.07, y), 3)
+
+    return {
+        'ae': [
+            line_pts((0.5, 0.25), (0.95, 0.95)),
+            line_pts((0.5, 0.25), (0.05, 0.95)),
+            line_pts((0.2, 0.68), (0.8, 0.68)),
+            dot(0.35, 0.08),
+            dot(0.58, 0.08),
+        ],
+        'oe': [
+            circle_arc(0.5, 0.6, 0.35, -pi/2, 3*pi/2),
+            dot(0.35, 0.08),
+            dot(0.58, 0.08),
+        ],
+        'ue': [
+            (line_pts((0.1, 0.25), (0.1, 0.745), 6) +
+             curve_through((0.1, 0.745), (0.5, 0.95), (0.9, 0.745))[1:] +
+             line_pts((0.9, 0.745), (0.9, 0.25), 6)[1:]),
+            dot(0.35, 0.08),
+            dot(0.58, 0.08),
+        ],
+    }
+
+
+def german_lower_strokes():
+    """Ports GermanStrokeDefinitions.swift's 4 new lowercase glyphs."""
+    def dot(x, y):
+        return line_pts((x, y), (x + 0.07, y), 3)
+
+    return {
+        'ae': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.22), (0.72, 0.85)),
+            dot(0.30, 0.06),
+            dot(0.55, 0.06),
+        ],
+        'oe': [
+            circle_arc(0.5, 0.50, 0.38, -pi/2, 3*pi/2),
+            dot(0.34, 0.06),
+            dot(0.59, 0.06),
+        ],
+        'ue': [
+            (line_pts((0.12, 0.15), (0.12, 0.65), 4) +
+             curve_through((0.12, 0.65), (0.5, 0.92), (0.88, 0.65))[1:] +
+             line_pts((0.88, 0.65), (0.88, 0.15), 4)[1:]),
+            dot(0.30, 0.06),
+            dot(0.58, 0.06),
+        ],
+        'ss': [
+            line_pts((0.35, 0.05), (0.35, 0.85)),
+            elliptic_arc(0.35, 0.27, 0.32, 0.20, -pi/2, pi/2*0.6),
+            elliptic_arc(0.35, 0.65, 0.42, 0.20, -pi/2*0.6, pi/2*0.75),
+        ],
+    }
+
+
+# Asset-name fragments for German's 4 non-ASCII characters, shared between
+# upper (3: ae/oe/ue) and lower (4: ae/oe/ue/ss) — must stay in sync with
+# GermanAlphabet.swift's `specialAssetNames`.
+GERMAN_UPPER_ASCII_NAMES = ['ae', 'oe', 'ue']
+GERMAN_LOWER_ASCII_NAMES = ['ae', 'oe', 'ue', 'ss']
+
+
+def _acute(x, y):
+    return line_pts((x, y + 0.10), (x + 0.12, y), 3)
+
+
+def spanish_upper_strokes():
+    """Ports SpanishStrokeDefinitions.swift's 6 new uppercase glyphs.
+    Ü isn't included here — it reuses German's 'ue' image, same as the
+    Swift side reuses GermanStrokeDefinitions for that glyph."""
+    return {
+        'aacute': [
+            line_pts((0.5, 0.25), (0.95, 0.95)),
+            line_pts((0.5, 0.25), (0.05, 0.95)),
+            line_pts((0.2, 0.68), (0.8, 0.68)),
+            _acute(0.42, 0.06),
+        ],
+        'eacute': [
+            line_pts((0.15, 0.25), (0.15, 0.95)),
+            line_pts((0.15, 0.25), (0.85, 0.25)),
+            line_pts((0.15, 0.60), (0.7, 0.60)),
+            line_pts((0.15, 0.95), (0.85, 0.95)),
+            _acute(0.42, 0.06),
+        ],
+        'iacute': [
+            line_pts((0.5, 0.25), (0.5, 0.95)),
+            _acute(0.42, 0.06),
+        ],
+        'oacute': [
+            circle_arc(0.5, 0.6, 0.35, -pi/2, 3*pi/2),
+            _acute(0.42, 0.06),
+        ],
+        'uacute': [
+            (line_pts((0.1, 0.25), (0.1, 0.745), 6) +
+             curve_through((0.1, 0.745), (0.5, 0.95), (0.9, 0.745))[1:] +
+             line_pts((0.9, 0.745), (0.9, 0.25), 6)[1:]),
+            _acute(0.42, 0.06),
+        ],
+        'enye': [
+            line_pts((0.15, 0.25), (0.15, 0.95)),
+            line_pts((0.15, 0.25), (0.85, 0.95)),
+            line_pts((0.85, 0.25), (0.85, 0.95)),
+            (curve_through((0.15, 0.13), (0.32, 0.03), (0.5, 0.09)) +
+             curve_through((0.5, 0.09), (0.68, 0.15), (0.85, 0.05))[1:]),
+        ],
+    }
+
+
+def spanish_lower_strokes():
+    """Ports SpanishStrokeDefinitions.swift's 6 new lowercase glyphs."""
+    return {
+        'aacute': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.22), (0.72, 0.85)),
+            _acute(0.36, -0.02),
+        ],
+        'eacute': [
+            line_pts((0.12, 0.50), (0.88, 0.50)),
+            circle_arc(0.5, 0.50, 0.38, 0, -5*pi/3),
+            _acute(0.44, -0.08),
+        ],
+        'iacute': [
+            line_pts((0.5, 0.22), (0.5, 0.85)),
+            _acute(0.44, -0.02),
+        ],
+        'oacute': [
+            circle_arc(0.5, 0.50, 0.38, -pi/2, 3*pi/2),
+            _acute(0.44, -0.08),
+        ],
+        'uacute': [
+            (line_pts((0.12, 0.15), (0.12, 0.65), 4) +
+             curve_through((0.12, 0.65), (0.5, 0.92), (0.88, 0.65))[1:] +
+             line_pts((0.88, 0.65), (0.88, 0.15), 4)[1:]),
+            _acute(0.44, -0.02),
+        ],
+        'enye': [
+            line_pts((0.18, 0.22), (0.18, 0.85)),
+            (curve_through((0.18, 0.47), (0.50, 0.22), (0.80, 0.47)) +
+             line_pts((0.80, 0.47), (0.80, 0.85), 5)[1:]),
+            (curve_through((0.10, 0.09), (0.27, -0.01), (0.45, 0.05)) +
+             curve_through((0.45, 0.05), (0.62, 0.11), (0.80, 0.01))[1:]),
+        ],
+    }
+
+
+# Asset-name fragments for Spanish's 6 own special characters — must stay
+# in sync with SpanishAlphabet.swift's `specialAssetNames`. Ü/ü is handled
+# separately (reuses the German images generated above).
+SPANISH_ASCII_NAMES = ['enye', 'aacute', 'eacute', 'iacute', 'oacute', 'uacute']
+
+
+def swedish_upper_strokes():
+    """Ports SwedishStrokeDefinitions.swift's new uppercase glyph (Å)."""
+    return {
+        'aring': [
+            line_pts((0.5, 0.25), (0.95, 0.95)),
+            line_pts((0.5, 0.25), (0.05, 0.95)),
+            line_pts((0.2, 0.68), (0.8, 0.68)),
+            circle_arc(0.5, 0.05, 0.07, -pi/2, 3*pi/2),
+        ],
+    }
+
+
+def swedish_lower_strokes():
+    """Ports SwedishStrokeDefinitions.swift's new lowercase glyph (å)."""
+    return {
+        'aring': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.22), (0.72, 0.85)),
+            circle_arc(0.5, 0.02, 0.065, -pi/2, 3*pi/2),
+        ],
+    }
+
+
+# Asset-name fragment for Swedish's own special character Å/å — must stay
+# in sync with SwedishAlphabet.swift's `specialAssetNames`. Ä/Ö/ä/ö reuse
+# the German images generated above.
+SWEDISH_ASCII_NAMES = ['aring']
+
+
+
+def _caron(cx, top, half_width=0.12):
+    """A caron (háček): one V stroke spanning y top…top+0.12."""
+    return (line_pts((cx - half_width, top), (cx, top + 0.12), 4) +
+            line_pts((cx, top + 0.12), (cx + half_width, top), 4)[1:])
+
+
+def _compressed_z(left, right):
+    return [
+        line_pts((left, 0.25), (right, 0.25)),
+        line_pts((right, 0.25), (left, 0.95)),
+        line_pts((left, 0.95), (right, 0.95)),
+    ]
+
+
+def _lowered_z(left, right):
+    return [
+        line_pts((left, 0.24), (right, 0.24)),
+        line_pts((right, 0.24), (left, 0.86)),
+        line_pts((left, 0.86), (right, 0.86)),
+    ]
+
+
+def _lower_j(x):
+    return [
+        (line_pts((x, 0.22), (x, 0.90), 5) +
+         curve_through((x, 0.90), (x - 0.12, 0.97), (x - 0.24, 0.90))[1:]),
+        line_pts((x - 0.06, 0.10), (x + 0.06, 0.14), 3),
+    ]
+
+
+def croatian_upper_strokes():
+    """Ports CroatianStrokeDefinitions.swift's 8 new uppercase glyphs."""
+    compressed_c = circle_arc(0.5, 0.6, 0.35, -pi/3, -5*pi/3)
+    compressed_s = (bezier_pts((0.85, 0.32), (0.05, 0.25), (0.5, 0.60)) +
+                    bezier_pts((0.5, 0.60), (0.95, 0.95), (0.15, 0.88))[1:])
+    return {
+        'ccaron': [compressed_c, _caron(0.5, -0.02)],
+        'cacute': [compressed_c, _acute(0.44, -0.02)],
+        'dstroke': [
+            line_pts((0.15, 0.05), (0.15, 0.95)),
+            elliptic_arc(0.15, 0.5, 0.75, 0.45, -pi/2, pi/2),
+            line_pts((0.02, 0.5), (0.38, 0.5)),
+        ],
+        'scaron': [compressed_s, _caron(0.5, -0.02)],
+        'zcaron': _compressed_z(0.1, 0.9) + [_caron(0.5, -0.02)],
+        'dzcaron': [
+            line_pts((0.05, 0.25), (0.05, 0.95)),
+            elliptic_arc(0.05, 0.6, 0.38, 0.35, -pi/2, pi/2),
+        ] + _compressed_z(0.55, 0.95) + [_caron(0.75, -0.02, 0.09)],
+        'lj': [
+            line_pts((0.08, 0.05), (0.08, 0.95)),
+            line_pts((0.08, 0.95), (0.44, 0.95)),
+            line_pts((0.86, 0.05), (0.86, 0.7)),
+            curve_through((0.86, 0.7), (0.72, 0.97), (0.58, 0.85)),
+        ],
+        'nj': [
+            line_pts((0.05, 0.05), (0.05, 0.95)),
+            line_pts((0.05, 0.05), (0.45, 0.95)),
+            line_pts((0.45, 0.05), (0.45, 0.95)),
+            line_pts((0.88, 0.05), (0.88, 0.7)),
+            curve_through((0.88, 0.7), (0.75, 0.97), (0.62, 0.85)),
+        ],
+    }
+
+
+def croatian_lower_strokes():
+    """Ports CroatianStrokeDefinitions.swift's 8 new lowercase glyphs."""
+    lowered_c = circle_arc(0.5, 0.54, 0.32, -pi/3, -5*pi/3)
+    lowered_s = (curve_through((0.80, 0.24), (0.15, 0.41), (0.50, 0.56)) +
+                 curve_through((0.50, 0.56), (0.85, 0.71), (0.20, 0.86))[1:])
+    return {
+        'ccaron': [lowered_c, _caron(0.5, -0.04)],
+        'cacute': [lowered_c, _acute(0.44, -0.04)],
+        'dstroke': [
+            circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.72, 0.05), (0.72, 0.85)),
+            line_pts((0.56, 0.15), (0.90, 0.15)),
+        ],
+        'scaron': [lowered_s, _caron(0.5, -0.04)],
+        'zcaron': _lowered_z(0.10, 0.90) + [_caron(0.5, -0.04)],
+        'dzcaron': [
+            circle_arc(0.24, 0.54, 0.20, -pi/2, 3*pi/2),
+            line_pts((0.44, 0.05), (0.44, 0.85)),
+        ] + _lowered_z(0.56, 0.96) + [_caron(0.76, -0.04, 0.09)],
+        'lj': [line_pts((0.25, 0.05), (0.25, 0.85))] + _lower_j(0.70),
+        'nj': [
+            line_pts((0.06, 0.22), (0.06, 0.85)),
+            (curve_through((0.06, 0.47), (0.27, 0.22), (0.46, 0.47)) +
+             line_pts((0.46, 0.47), (0.46, 0.85), 5)[1:]),
+        ] + _lower_j(0.82),
+    }
+
+
+# Asset-name fragments for Croatian's 8 own letters — must stay in sync with
+# CroatianAlphabet.swift's `specialAssetNames`. The other 22 letters reuse
+# the Latin images generated above.
+CROATIAN_ASCII_NAMES = ['ccaron', 'cacute', 'dstroke', 'scaron', 'zcaron', 'dzcaron', 'lj', 'nj']
+
+
+def _grave(x, top):
+    """A grave accent: one "\\" tick spanning y top…top+0.10."""
+    return line_pts((x, top), (x + 0.12, top + 0.10), 3)
+
+
+def _circumflex(cx, top, half_width=0.12):
+    """A circumflex: one Λ stroke spanning y top…top+0.10."""
+    return (line_pts((cx - half_width, top + 0.10), (cx, top), 4) +
+            line_pts((cx, top), (cx + half_width, top + 0.10), 4)[1:])
+
+
+def _dot(x, y):
+    return line_pts((x, y), (x + 0.07, y), 3)
+
+
+def _cedilla(cx, top):
+    """A cedilla: a short drop, then a hook curling right and back under."""
+    return (line_pts((cx, top), (cx, top + 0.05), 3) +
+            curve_through((cx, top + 0.05), (cx + 0.13, top + 0.11), (cx - 0.08, top + 0.17))[1:])
+
+
+def french_upper_strokes():
+    """Ports FrenchStrokeDefinitions.swift's 14 new uppercase glyphs. É and Ü
+    aren't included — they reuse Spanish's and German's images."""
+    a = [
+        line_pts((0.5, 0.25), (0.95, 0.95)),
+        line_pts((0.5, 0.25), (0.05, 0.95)),
+        line_pts((0.2, 0.68), (0.8, 0.68)),
+    ]
+    e = [
+        line_pts((0.15, 0.25), (0.15, 0.95)),
+        line_pts((0.15, 0.25), (0.85, 0.25)),
+        line_pts((0.15, 0.60), (0.7, 0.60)),
+        line_pts((0.15, 0.95), (0.85, 0.95)),
+    ]
+    i = line_pts((0.5, 0.25), (0.5, 0.95))
+    o = circle_arc(0.5, 0.6, 0.35, -pi/2, 3*pi/2)
+    u = (line_pts((0.1, 0.25), (0.1, 0.745), 6) +
+         curve_through((0.1, 0.745), (0.5, 0.95), (0.9, 0.745))[1:] +
+         line_pts((0.9, 0.745), (0.9, 0.25), 6)[1:])
+    y = [
+        line_pts((0.1, 0.25), (0.5, 0.6)),
+        line_pts((0.5, 0.6), (0.9, 0.25)),
+        line_pts((0.5, 0.6), (0.5, 0.95)),
+    ]
+    diaeresis = [_dot(0.35, 0.08), _dot(0.58, 0.08)]
+    return {
+        'agrave': a + [_grave(0.44, 0.02)],
+        'acirc': a + [_circumflex(0.5, 0.02)],
+        'aelig': [
+            line_pts((0.5, 0.05), (0.05, 0.95)),
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            line_pts((0.5, 0.05), (0.95, 0.05)),
+            line_pts((0.5, 0.5), (0.85, 0.5)),
+            line_pts((0.5, 0.95), (0.95, 0.95)),
+            line_pts((0.22, 0.62), (0.5, 0.62)),
+        ],
+        'ccedil': [circle_arc(0.5, 0.40, 0.35, -pi/3, -5*pi/3), _cedilla(0.5, 0.80)],
+        'egrave': e + [_grave(0.44, 0.02)],
+        'ecirc': e + [_circumflex(0.5, 0.02)],
+        'euml': e + diaeresis,
+        'icirc': [i, _circumflex(0.5, 0.02)],
+        'iuml': [i] + diaeresis,
+        'ocirc': [o, _circumflex(0.5, 0.02)],
+        'oelig': [
+            elliptic_arc(0.5, 0.5, 0.42, 0.45, -pi/2, -3*pi/2),
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            line_pts((0.5, 0.05), (0.95, 0.05)),
+            line_pts((0.5, 0.5), (0.85, 0.5)),
+            line_pts((0.5, 0.95), (0.95, 0.95)),
+        ],
+        'ugrave': [u, _grave(0.44, 0.02)],
+        'ucirc': [u, _circumflex(0.5, 0.02)],
+        'yuml': y + diaeresis,
+    }
+
+
+def french_lower_strokes():
+    """Ports FrenchStrokeDefinitions.swift's 14 new lowercase glyphs."""
+    a = [
+        circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+        line_pts((0.72, 0.22), (0.72, 0.85)),
+    ]
+    e = [
+        line_pts((0.12, 0.50), (0.88, 0.50)),
+        circle_arc(0.5, 0.50, 0.38, 0, -5*pi/3),
+    ]
+    i = line_pts((0.5, 0.22), (0.5, 0.85))
+    o = circle_arc(0.5, 0.50, 0.38, -pi/2, 3*pi/2)
+    u = (line_pts((0.12, 0.15), (0.12, 0.65), 4) +
+         curve_through((0.12, 0.65), (0.5, 0.92), (0.88, 0.65))[1:] +
+         line_pts((0.88, 0.65), (0.88, 0.15), 4)[1:])
+    y = [
+        line_pts((0.12, 0.20), (0.52, 0.62)),
+        (line_pts((0.88, 0.20), (0.52, 0.62), 4) +
+         line_pts((0.52, 0.62), (0.52, 0.88), 3)[1:] +
+         curve_through((0.52, 0.88), (0.36, 0.97), (0.20, 0.90))[1:]),
+    ]
+    return {
+        'agrave': a + [_grave(0.36, -0.02)],
+        'acirc': a + [_circumflex(0.42, -0.02)],
+        'aelig': [
+            elliptic_arc(0.27, 0.52, 0.20, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.47, 0.22), (0.47, 0.85)),
+            line_pts((0.47, 0.52), (0.94, 0.52)),
+            elliptic_arc(0.71, 0.52, 0.23, 0.30, 0, -5*pi/3),
+        ],
+        'ccedil': [circle_arc(0.5, 0.42, 0.32, -pi/3, -5*pi/3), _cedilla(0.5, 0.79)],
+        'egrave': e + [_grave(0.44, -0.08)],
+        'ecirc': e + [_circumflex(0.5, -0.08)],
+        'euml': e + [_dot(0.34, 0.02), _dot(0.59, 0.02)],
+        'icirc': [i, _circumflex(0.5, -0.02)],
+        'iuml': [i, _dot(0.34, 0.08), _dot(0.59, 0.08)],
+        'ocirc': [o, _circumflex(0.5, -0.08)],
+        'oelig': [
+            elliptic_arc(0.28, 0.50, 0.22, 0.38, -pi/2, 3*pi/2),
+            line_pts((0.50, 0.50), (0.94, 0.50)),
+            elliptic_arc(0.72, 0.50, 0.22, 0.38, 0, -5*pi/3),
+        ],
+        'ugrave': [u, _grave(0.44, -0.05)],
+        'ucirc': [u, _circumflex(0.5, -0.05)],
+        'yuml': y + [_dot(0.30, 0.06), _dot(0.58, 0.06)],
+    }
+
+
+# Asset-name fragments for French's 14 own letters — must stay in sync with
+# FrenchAlphabet.swift's `specialAssetNames`. É/é and Ü/ü reuse the Spanish
+# and German images generated above; the other 26 reuse the Latin images.
+FRENCH_ASCII_NAMES = ['agrave', 'acirc', 'aelig', 'ccedil', 'egrave', 'ecirc', 'euml',
+                      'icirc', 'iuml', 'ocirc', 'oelig', 'ugrave', 'ucirc', 'yuml']
+
 # ── Rasteriser ────────────────────────────────────────────────────────────────
 
 def dist_sq_to_segment(px, py, ax, ay, bx, by):
@@ -746,6 +1162,96 @@ def main():
         pixels = render_letter(cyrillic_lower_strokes[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
         png = encode_png(pixels, SIZE)
         name = f'template_cyr_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # German's 4 non-ASCII characters (the other 26 reuse the uppercase/
+    # lowercase Latin templates above as-is): template_de_ae/oe/ue and
+    # template_de_lc_ae/oe/ue/ss.
+    german_upper = german_upper_strokes()
+    german_lower = german_lower_strokes()
+
+    for name_fragment in GERMAN_UPPER_ASCII_NAMES:
+        pixels = render_letter(german_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_de_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in GERMAN_LOWER_ASCII_NAMES:
+        pixels = render_letter(german_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_de_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # Spanish's 6 own special characters (the other 26 reuse the Latin
+    # templates above, and Ü/ü reuses German's template_de_ue images):
+    # template_es_enye/aacute/eacute/iacute/oacute/uacute and
+    # template_es_lc_enye/aacute/eacute/iacute/oacute/uacute.
+    spanish_upper = spanish_upper_strokes()
+    spanish_lower = spanish_lower_strokes()
+
+    for name_fragment in SPANISH_ASCII_NAMES:
+        pixels = render_letter(spanish_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_es_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in SPANISH_ASCII_NAMES:
+        pixels = render_letter(spanish_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_es_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # Swedish's own special character (the other 26 reuse the Latin
+    # templates above, and Ä/Ö/ä/ö reuse German's template_de_* images):
+    # template_sv_aring and template_sv_lc_aring.
+    swedish_upper = swedish_upper_strokes()
+    swedish_lower = swedish_lower_strokes()
+
+    for name_fragment in SWEDISH_ASCII_NAMES:
+        pixels = render_letter(swedish_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_sv_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in SWEDISH_ASCII_NAMES:
+        pixels = render_letter(swedish_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_sv_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # Croatian / Serbian / Slovenian's 8 own letters (the other 22 reuse the
+    # Latin templates above): template_hr_<name> and template_hr_lc_<name>.
+    croatian_upper = croatian_upper_strokes()
+    croatian_lower = croatian_lower_strokes()
+
+    for name_fragment in CROATIAN_ASCII_NAMES:
+        pixels = render_letter(croatian_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_hr_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in CROATIAN_ASCII_NAMES:
+        pixels = render_letter(croatian_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_hr_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # French's 14 own letters (É/é and Ü/ü reuse Spanish's and German's
+    # images, the other 26 the Latin templates above): template_fr_<name>
+    # and template_fr_lc_<name>.
+    french_upper = french_upper_strokes()
+    french_lower = french_lower_strokes()
+
+    for name_fragment in FRENCH_ASCII_NAMES:
+        pixels = render_letter(french_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_fr_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in FRENCH_ASCII_NAMES:
+        pixels = render_letter(french_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_fr_lc_{name_fragment}'
         _write_imageset(xcassets, name, png)
 
     print(f'\nAsset catalog written to:\n  {xcassets}')

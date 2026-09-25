@@ -94,9 +94,9 @@ func testWritingZone(canvasSize: CGSize, character: Character) -> CGRect {
     let top: CGFloat
     let bottom: CGFloat
     switch character {
-    case "b", "d", "f", "h", "k", "l", "t", "б":
+    case "b", "d", "f", "h", "k", "l", "t", "б", "đ", "ǆ":
         top = ascenderY;  bottom = baselineY
-    case "g", "j", "p", "q", "y", "ђ", "ј", "р", "у", "ф", "ц", "ћ", "џ":
+    case "g", "j", "p", "q", "y", "ђ", "ј", "р", "у", "ф", "ц", "ћ", "џ", "ǉ", "ǌ", "ÿ":
         top = ascenderY;  bottom = descenderY
     default:
         if character.isUppercase || character.isNumber {

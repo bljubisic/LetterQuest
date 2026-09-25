@@ -58,9 +58,9 @@ final class AlphabetStoreViewModel: AlphabetStoreViewModelProtocol {
     }
 
     func purchase(_ row: AlphabetStoreRow) {
-        guard !row.isOwned, let productId = row.alphabet.productId else { return }
+        guard !row.isOwned, let productId = row.alphabets.first?.productId else { return }
 
-        purchasingAlphabetId = row.alphabet.id
+        purchasingAlphabetId = row.id
         purchaseService.purchase(productId: productId)
             .flatMap { [entitlementProvider] outcome -> Single<PurchaseOutcome> in
                 guard case .purchased = outcome else { return .just(outcome) }
@@ -118,24 +118,71 @@ final class AlphabetStoreViewModel: AlphabetStoreViewModelProtocol {
             .disposed(by: disposeBag)
     }
 
+    /// Marketing names for bundled packs — more than one `Alphabet` sharing
+    /// a single StoreKit product id, purchased/restored as one unit (see
+    /// issue #52). Any bundle not listed here falls back to joining its
+    /// members' own display names, so a future pack still renders sensibly
+    /// even before someone gives it a proper name here.
+    private static let packDisplayNames: [String: String] = [
+        Alphabet.extendedLatinProductId: "Extended Latin Pack"
+    ]
+
     /// Combines the catalogue, ownership state, and localized pricing for
-    /// every purchasable alphabet into display-ready rows.
+    /// every purchasable alphabet into display-ready rows. Alphabets that
+    /// share a non-nil `productId` collapse into a single bundled row.
     private func fetchRows() -> Single<[AlphabetStoreRow]> {
         Single.zip(alphabetRepository.fetchAvailable(), alphabetRepository.fetchInstalled())
             .flatMap { [purchaseService] available, installed -> Single<[AlphabetStoreRow]> in
                 let installedIds = Set(installed.map(\.id))
+                let groups = Self.grouped(available)
                 let paidProductIds = available.compactMap { $0.isFree ? nil : $0.productId }
                 return purchaseService.fetchProducts(ids: paidProductIds)
                     .map { products in
                         let priceById = Dictionary(uniqueKeysWithValues: products.map { ($0.id, $0.priceText) })
-                        return available.map { alphabet in
-                            AlphabetStoreRow(
-                                alphabet: alphabet,
-                                priceText: alphabet.isFree ? nil : alphabet.productId.flatMap { priceById[$0] },
-                                isOwned: installedIds.contains(alphabet.id)
-                            )
+                        return groups.map { members in
+                            Self.makeRow(for: members, priceById: priceById, installedIds: installedIds)
                         }
                     }
             }
+    }
+
+    /// Groups `alphabets` by `productId` (falling back to the alphabet's
+    /// own `id` when `productId` is `nil`, so free/unbundled alphabets each
+    /// stay their own group), preserving the catalogue's original order.
+    private static func grouped(_ alphabets: [Alphabet]) -> [[Alphabet]] {
+        var order: [String] = []
+        var membersByKey: [String: [Alphabet]] = [:]
+        for alphabet in alphabets {
+            let key = alphabet.productId ?? alphabet.id
+            if membersByKey[key] == nil { order.append(key) }
+            membersByKey[key, default: []].append(alphabet)
+        }
+        return order.map { membersByKey[$0] ?? [] }
+    }
+
+    private static func makeRow(
+        for alphabets: [Alphabet],
+        priceById: [String: String],
+        installedIds: Set<String>
+    ) -> AlphabetStoreRow {
+        let productId = alphabets.first?.productId
+        // A product id explicitly registered in `packDisplayNames` always
+        // shows its pack name, even if only some of its member alphabets
+        // have shipped so far (e.g. a partial content rollout) — grouping
+        // is keyed by "is this a named pack", not by how many alphabets
+        // currently happen to share the id.
+        let packName = productId.flatMap { packDisplayNames[$0] }
+        let displayName = packName
+            ?? (alphabets.count == 1 ? alphabets[0].displayName : alphabets.map(\.displayName).joined(separator: ", "))
+        let nativeName = (packName != nil || alphabets.count > 1)
+            ? alphabets.map(\.displayName).joined(separator: " · ")
+            : alphabets[0].nativeName
+        return AlphabetStoreRow(
+            alphabets:  alphabets,
+            displayName: displayName,
+            nativeName:  nativeName,
+            priceText:   alphabets[0].isFree ? nil : productId.flatMap { priceById[$0] },
+            isOwned:     alphabets.allSatisfy { installedIds.contains($0.id) }
+        )
     }
 }

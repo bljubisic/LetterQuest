@@ -67,11 +67,21 @@ extension StrokeTemplate {
         let direction: StrokeDirection
     }
 
-    /// Tries the Latin definitions, then Cyrillic, then falls back to a
-    /// generic vertical stroke so the scoring pipeline always has something
-    /// to compare against.
+    /// Tries the Latin definitions, then German (this order matters:
+    /// Spanish's Ü/ü is visually identical to German's and intentionally
+    /// has no entry of its own in `SpanishStrokeDefinitions`, so it must
+    /// resolve here first — as must Swedish's Ä/Ö/ä/ö and French's Ü/ü), then
+    /// Spanish (which likewise supplies French's É/é), then Swedish, then
+    /// Croatian, then French, then Cyrillic, then falls back to
+    /// a generic vertical stroke so the scoring pipeline always has
+    /// something to compare against.
     private static func definitions(for character: Character) -> [StrokeDef] {
         if let latin = latinDefinitions(for: character) { return latin }
+        if let german = GermanStrokeDefinitions.definitions(for: character) { return german }
+        if let spanish = SpanishStrokeDefinitions.definitions(for: character) { return spanish }
+        if let swedish = SwedishStrokeDefinitions.definitions(for: character) { return swedish }
+        if let croatian = CroatianStrokeDefinitions.definitions(for: character) { return croatian }
+        if let french = FrenchStrokeDefinitions.definitions(for: character) { return french }
         if let cyrillic = CyrillicStrokeDefinitions.definitions(for: character) { return cyrillic }
         return [StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)), direction: .topToBottom)]
     }
@@ -334,12 +344,12 @@ extension StrokeTemplate {
                   direction: .curved)
     ]
 
-    /// T — top bar then vertical down from the bar's centre.
+    /// T — vertical down the centre, then the crossbar last.
     private static let tDefinition: [StrokeDef] = [
-        StrokeDef(points: line(from: p(0.1, 0.05), to: p(0.9, 0.05)),
-                  direction: .leftToRight),
         StrokeDef(points: line(from: p(0.5, 0.05), to: p(0.5, 0.95)),
-                  direction: .topToBottom)
+                  direction: .topToBottom),
+        StrokeDef(points: line(from: p(0.1, 0.05), to: p(0.9, 0.05)),
+                  direction: .leftToRight)
     ]
 
     /// U — single U-shaped stroke: down the left side, around the bottom, back up.
