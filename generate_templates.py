@@ -907,6 +907,138 @@ def croatian_lower_strokes():
 # the Latin images generated above.
 CROATIAN_ASCII_NAMES = ['ccaron', 'cacute', 'dstroke', 'scaron', 'zcaron', 'dzcaron', 'lj', 'nj']
 
+
+def _grave(x, top):
+    """A grave accent: one "\\" tick spanning y top…top+0.10."""
+    return line_pts((x, top), (x + 0.12, top + 0.10), 3)
+
+
+def _circumflex(cx, top, half_width=0.12):
+    """A circumflex: one Λ stroke spanning y top…top+0.10."""
+    return (line_pts((cx - half_width, top + 0.10), (cx, top), 4) +
+            line_pts((cx, top), (cx + half_width, top + 0.10), 4)[1:])
+
+
+def _dot(x, y):
+    return line_pts((x, y), (x + 0.07, y), 3)
+
+
+def _cedilla(cx, top):
+    """A cedilla: a short drop, then a hook curling right and back under."""
+    return (line_pts((cx, top), (cx, top + 0.05), 3) +
+            curve_through((cx, top + 0.05), (cx + 0.13, top + 0.11), (cx - 0.08, top + 0.17))[1:])
+
+
+def french_upper_strokes():
+    """Ports FrenchStrokeDefinitions.swift's 14 new uppercase glyphs. É and Ü
+    aren't included — they reuse Spanish's and German's images."""
+    a = [
+        line_pts((0.5, 0.25), (0.95, 0.95)),
+        line_pts((0.5, 0.25), (0.05, 0.95)),
+        line_pts((0.2, 0.68), (0.8, 0.68)),
+    ]
+    e = [
+        line_pts((0.15, 0.25), (0.15, 0.95)),
+        line_pts((0.15, 0.25), (0.85, 0.25)),
+        line_pts((0.15, 0.60), (0.7, 0.60)),
+        line_pts((0.15, 0.95), (0.85, 0.95)),
+    ]
+    i = line_pts((0.5, 0.25), (0.5, 0.95))
+    o = circle_arc(0.5, 0.6, 0.35, -pi/2, 3*pi/2)
+    u = (line_pts((0.1, 0.25), (0.1, 0.745), 6) +
+         curve_through((0.1, 0.745), (0.5, 0.95), (0.9, 0.745))[1:] +
+         line_pts((0.9, 0.745), (0.9, 0.25), 6)[1:])
+    y = [
+        line_pts((0.1, 0.25), (0.5, 0.6)),
+        line_pts((0.5, 0.6), (0.9, 0.25)),
+        line_pts((0.5, 0.6), (0.5, 0.95)),
+    ]
+    diaeresis = [_dot(0.35, 0.08), _dot(0.58, 0.08)]
+    return {
+        'agrave': a + [_grave(0.44, 0.02)],
+        'acirc': a + [_circumflex(0.5, 0.02)],
+        'aelig': [
+            line_pts((0.5, 0.05), (0.05, 0.95)),
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            line_pts((0.5, 0.05), (0.95, 0.05)),
+            line_pts((0.5, 0.5), (0.85, 0.5)),
+            line_pts((0.5, 0.95), (0.95, 0.95)),
+            line_pts((0.22, 0.62), (0.5, 0.62)),
+        ],
+        'ccedil': [circle_arc(0.5, 0.40, 0.35, -pi/3, -5*pi/3), _cedilla(0.5, 0.80)],
+        'egrave': e + [_grave(0.44, 0.02)],
+        'ecirc': e + [_circumflex(0.5, 0.02)],
+        'euml': e + diaeresis,
+        'icirc': [i, _circumflex(0.5, 0.02)],
+        'iuml': [i] + diaeresis,
+        'ocirc': [o, _circumflex(0.5, 0.02)],
+        'oelig': [
+            elliptic_arc(0.5, 0.5, 0.42, 0.45, -pi/2, -3*pi/2),
+            line_pts((0.5, 0.05), (0.5, 0.95)),
+            line_pts((0.5, 0.05), (0.95, 0.05)),
+            line_pts((0.5, 0.5), (0.85, 0.5)),
+            line_pts((0.5, 0.95), (0.95, 0.95)),
+        ],
+        'ugrave': [u, _grave(0.44, 0.02)],
+        'ucirc': [u, _circumflex(0.5, 0.02)],
+        'yuml': y + diaeresis,
+    }
+
+
+def french_lower_strokes():
+    """Ports FrenchStrokeDefinitions.swift's 14 new lowercase glyphs."""
+    a = [
+        circle_arc(0.42, 0.52, 0.30, -pi/2, 3*pi/2),
+        line_pts((0.72, 0.22), (0.72, 0.85)),
+    ]
+    e = [
+        line_pts((0.12, 0.50), (0.88, 0.50)),
+        circle_arc(0.5, 0.50, 0.38, 0, -5*pi/3),
+    ]
+    i = line_pts((0.5, 0.22), (0.5, 0.85))
+    o = circle_arc(0.5, 0.50, 0.38, -pi/2, 3*pi/2)
+    u = (line_pts((0.12, 0.15), (0.12, 0.65), 4) +
+         curve_through((0.12, 0.65), (0.5, 0.92), (0.88, 0.65))[1:] +
+         line_pts((0.88, 0.65), (0.88, 0.15), 4)[1:])
+    y = [
+        line_pts((0.12, 0.20), (0.52, 0.62)),
+        (line_pts((0.88, 0.20), (0.52, 0.62), 4) +
+         line_pts((0.52, 0.62), (0.52, 0.88), 3)[1:] +
+         curve_through((0.52, 0.88), (0.36, 0.97), (0.20, 0.90))[1:]),
+    ]
+    return {
+        'agrave': a + [_grave(0.36, -0.02)],
+        'acirc': a + [_circumflex(0.42, -0.02)],
+        'aelig': [
+            elliptic_arc(0.27, 0.52, 0.20, 0.30, -pi/2, 3*pi/2),
+            line_pts((0.47, 0.22), (0.47, 0.85)),
+            line_pts((0.47, 0.52), (0.94, 0.52)),
+            elliptic_arc(0.71, 0.52, 0.23, 0.30, 0, -5*pi/3),
+        ],
+        'ccedil': [circle_arc(0.5, 0.42, 0.32, -pi/3, -5*pi/3), _cedilla(0.5, 0.79)],
+        'egrave': e + [_grave(0.44, -0.08)],
+        'ecirc': e + [_circumflex(0.5, -0.08)],
+        'euml': e + [_dot(0.34, 0.02), _dot(0.59, 0.02)],
+        'icirc': [i, _circumflex(0.5, -0.02)],
+        'iuml': [i, _dot(0.34, 0.08), _dot(0.59, 0.08)],
+        'ocirc': [o, _circumflex(0.5, -0.08)],
+        'oelig': [
+            elliptic_arc(0.28, 0.50, 0.22, 0.38, -pi/2, 3*pi/2),
+            line_pts((0.50, 0.50), (0.94, 0.50)),
+            elliptic_arc(0.72, 0.50, 0.22, 0.38, 0, -5*pi/3),
+        ],
+        'ugrave': [u, _grave(0.44, -0.05)],
+        'ucirc': [u, _circumflex(0.5, -0.05)],
+        'yuml': y + [_dot(0.30, 0.06), _dot(0.58, 0.06)],
+    }
+
+
+# Asset-name fragments for French's 14 own letters — must stay in sync with
+# FrenchAlphabet.swift's `specialAssetNames`. É/é and Ü/ü reuse the Spanish
+# and German images generated above; the other 26 reuse the Latin images.
+FRENCH_ASCII_NAMES = ['agrave', 'acirc', 'aelig', 'ccedil', 'egrave', 'ecirc', 'euml',
+                      'icirc', 'iuml', 'ocirc', 'oelig', 'ugrave', 'ucirc', 'yuml']
+
 # ── Rasteriser ────────────────────────────────────────────────────────────────
 
 def dist_sq_to_segment(px, py, ax, ay, bx, by):
@@ -1102,6 +1234,24 @@ def main():
         pixels = render_letter(croatian_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
         png = encode_png(pixels, SIZE)
         name = f'template_hr_lc_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    # French's 14 own letters (É/é and Ü/ü reuse Spanish's and German's
+    # images, the other 26 the Latin templates above): template_fr_<name>
+    # and template_fr_lc_<name>.
+    french_upper = french_upper_strokes()
+    french_lower = french_lower_strokes()
+
+    for name_fragment in FRENCH_ASCII_NAMES:
+        pixels = render_letter(french_upper[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_fr_{name_fragment}'
+        _write_imageset(xcassets, name, png)
+
+    for name_fragment in FRENCH_ASCII_NAMES:
+        pixels = render_letter(french_lower[name_fragment], SIZE, MARGIN, STROKE_RADIUS)
+        png = encode_png(pixels, SIZE)
+        name = f'template_fr_lc_{name_fragment}'
         _write_imageset(xcassets, name, png)
 
     print(f'\nAsset catalog written to:\n  {xcassets}')

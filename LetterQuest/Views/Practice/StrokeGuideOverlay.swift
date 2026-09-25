@@ -52,7 +52,7 @@ struct StrokeGuideOverlay: View {
         switch character {
         case "b", "d", "f", "h", "k", "l", "t", "б", "đ", "ǆ":
             top = ascenderY;  bottom = baselineY
-        case "g", "j", "p", "q", "y", "ђ", "ј", "р", "у", "ф", "ц", "ћ", "џ", "ǉ", "ǌ":
+        case "g", "j", "p", "q", "y", "ђ", "ј", "р", "у", "ф", "ц", "ћ", "џ", "ǉ", "ǌ", "ÿ":
             top = ascenderY;  bottom = descenderY
         default:
             if character.isUppercase {
