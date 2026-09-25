@@ -97,10 +97,25 @@ extension Word {
         Word(id: DeterministicID.uuid(name: "word.\(Alphabet.croatianId).\($0)"), text: $0, alphabetId: Alphabet.croatianId)
     }
 
+    /// A curated list of simple, concrete French nouns (3–4 letters, no articles),
+    /// seeded with stable ids at compile time. Nouns are lowercase, so every letter is
+    /// traced with `Alphabet.french`'s lowercase letters. Accented letters appear only
+    /// where the word naturally has them — à/ç/ù/ë/ÿ/æ don't occur in short concrete
+    /// nouns, so they're left out. Œ is a single letter in the alphabet, so "œuf" and
+    /// "cœur" trace it as one step. Ids are namespaced by alphabet (`word.french.<text>`),
+    /// as with German.
+    static let curatedFrench: [Word] = [
+        "lit", "nez", "roi", "riz", "sac", "lac", "jus",
+        "chat", "loup", "lune", "lion", "ours", "pain", "main",
+        "clé", "bébé", "café", "père", "tête", "âne", "île", "maïs", "rôti", "mûre", "œuf", "cœur"
+    ].map {
+        Word(id: DeterministicID.uuid(name: "word.\(Alphabet.frenchId).\($0)"), text: $0, alphabetId: Alphabet.frenchId)
+    }
+
     /// Every curated word across every alphabet. `WordRepository` serves this
     /// combined list; per-alphabet filtering happens in the ViewModel layer,
     /// mirroring how `LetterRepository.fetchAll()` combines every installed
     /// alphabet's letters.
     static let curated: [Word] = curatedLatin + curatedCyrillicSr + curatedGerman + curatedSpanish + curatedSwedish
-        + curatedCroatian
+        + curatedCroatian + curatedFrench
 }
