@@ -224,7 +224,6 @@
 		332411A270E26DE8065F5F41 /* WordPracticeViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeViewModelProtocol.swift; sourceTree = "<group>"; };
 		361739AB30540BC15E7C4DAB /* PracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeView.swift; sourceTree = "<group>"; };
 		37550DB2F2BB3148C5AC8205 /* sound_success.caf */ = {isa = PBXFileReference; path = sound_success.caf; sourceTree = "<group>"; };
-		3E5E16B6F0F9E6C013E79E23 /* GermanStrokeDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GermanStrokeDefinitions.swift; sourceTree = "<group>"; };
 		404746555ACB7A87AACC3086 /* LetterCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterCase.swift; sourceTree = "<group>"; };
 		431C1629B5AE066AC25E0A59 /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		43BB3FCB9A449A7D44A8263F /* ChildProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildProgress.swift; sourceTree = "<group>"; };
