@@ -1172,7 +1172,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2026;
+				MARKETING_VERSION = 2026.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.persukibo.letterquest;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -1282,7 +1282,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2026;
+				MARKETING_VERSION = 2026.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.persukibo.letterquest;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
