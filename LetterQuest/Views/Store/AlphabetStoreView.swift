@@ -16,7 +16,7 @@ struct AlphabetStoreView<VM: AlphabetStoreViewModelProtocol>: View {
                 ForEach(viewModel.rows) { row in
                     AlphabetStoreRowView(
                         row: row,
-                        isPurchasing: viewModel.purchasingAlphabetId == row.alphabet.id,
+                        isPurchasing: viewModel.purchasingAlphabetId == row.id,
                         onBuy: { viewModel.purchase(row) }
                     )
                 }
